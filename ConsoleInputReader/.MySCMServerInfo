@@ -1,0 +1,6 @@
+SCMBranch=InternalTools
+SCMRepository=InternalTools/SDKUpdate/ConsoleInputReader
+SCMMainlineUUID={8b08f56a-e081-4a47-9604-183013ff3e5c}
+SCMBranchRepositoryID=524
+ConsoleInputReader.cs;3552299696;1;1287673243;
+ConsoleInputReader.csproj;1265912661;2;1386695786;

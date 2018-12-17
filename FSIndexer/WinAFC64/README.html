@@ -1,0 +1,842 @@
+<html>
+<head><title>WinAFC</title></head>
+<body bgcolor="white" align=justify>
+<h1 align=center>
+WinAFC
+</h1>
+<h4 align=center> 2009/01/04</h4>
+<h4 align=center>Version 0.9.2</h4>
+<p>
+
+<strong>WinAFC</strong>
+is a configurable program for controlling CPU 
+affinities and priority settings of Windows applications.
+<p>
+Its main features are:
+<ui>
+<p>
+<li><strong>Affinity and priority settings according to custom profiles defined by the user.</strong>
+</li>
+<li><strong>Custom profiles specify application name, CPU mask, and optional attributes.</strong>
+</li>
+<li><strong>Detection of asymmetrical CPU configurations such as the Intel Quad Core
+processors - it detects which pairs of cores share an L2 cache.</strong>
+</li>
+<li><strong>CPU masks may specify logical CPU IDs to take advantage of
+asymmetrical CPU features depending on the architecture.</strong>
+</li>
+<li><strong>Handles affinity settings for both processes and threads.</strong>
+</li>
+<li><strong>For parallel applications CPUs can be assigned in a round robin fashion
+(random) or using a balancing strategy.</strong>
+</li>
+<li><strong>Balancing can be done based on either memory or CPU usage.</strong>
+</li>
+</ul>
+<p>
+
+<p>
+What WinAFC is Not:
+<ul>
+<li><em><strong>WinAFC</strong> does not replace your operating system scheduler.</em> 
+It does not have access to all low level information about processes and threads that an OS
+usually has. Its best use is to supplement the OS scheduler by specifying CPU cores that 
+should be reserved for particular applications, and for <em>sticking</em> high performance 
+processes and threads to a particular core for improved cache locality and improved performance.
+</li>
+<li><em><strong>WinAFC</strong> does not optimize affinity settings on a
+particular machine automatically.</em> 
+Since the program has not been written with a specific target application in 
+mind, the user must specify what processes to be tracked, how many 
+CPUs to assign to each application, or an eventual balancing scheme to be 
+used. Custom policies can be described in a concise manner and the
+program will monitor running processes and manage affinity and priority settings 
+based on a user defined configuration file.
+</li>
+</ul>
+
+<h3>Table of Contents</h3>
+<ul>
+<li><a href="#description">Description</a>
+<li><a href="#install">Installation</a>
+<li><a href="#commandline">Command Line Parameters</a></li>
+<li><a href="#contextmenu">Context Menu Options</a></li>
+<li><a href="#settings">Changing Settings at Run-time</a></li>
+<ul>
+<li><a href="#generalsettings">General Setting</a></li>
+<li><a href="#startupoptions">Startup Options</a></li>
+</ul>
+<li><a href="#cpudetection">Detection of Asymmetric CPU Configurations</a></li>
+<li><a href="#configuration">Configuration File Format</a></li>
+<ul>
+<li><a href="#flags">Flag Setting Lines</a></li>
+<li><a href="#testmode">The Test Mode</a></li>
+<li><a href="#appprofiles">Application Profiles</a></li>
+<ul>
+<li><a href="#appname">application name</a></li>
+<li><a href="#cpumask">CPU mask</a></li>
+<li><a href="#attributes">optional attributes</a></li>
+</ul>
+</ul>
+<li><a href="#samples">Sample Configuration Files</a></li>
+</ul>
+<p>
+<h2><a name="description">1. Description</a></h2>
+<div align=justify>
+Processor affinity is a mask associated with a running process that 
+indicates the preferred CPUs on which that process should run. 
+The affinity mask is used by the OS scheduler to determine the CPU(s)
+to be allocated to a process that is ready to execute.
+<p>
+On a system with multiple processors it helps to execute a process on the 
+same CPU it executed before, because its data might still be in the 
+local cache of that CPU. 
+On preemptive operating systems, including most modern desktop OSes, 
+processes execute for a few milliseconds at a time, needing to be rescheduled 
+after each such time slice. Thus, a process may switch between the executing
+and the ready to execute states tens or hundreds of times a second.
+The Linux scheduler remembers the last CPU allocated to a process and will 
+attempt to reschedule a process onto the same CPU. 
+The Windows scheduler does not take such information into account. CPUs are 
+assigned to ready to execute processes in a round robin fashion. 
+<p>
+One motivation for manually assigning affinities to processes is to "stick" 
+processes or threads to individual CPUs, improving their cache locality 
+and as a result their performance. 
+In general forcing individual processes to CPUs has noticeable benefits only 
+for high performance codes that are not spending most of their time waiting 
+for user input or transferring data from/to disk.
+<p>
+A second motivation for custom affinity settings is to reserve parts of the 
+system for individual applications to limit interferences from or towards 
+other applications. 
+Interferences are caused by contention on shared resources such as 
+processing units, caches, buses, or memory. Thus, the best partitioning is
+the one that eliminates contention to the maximum number of shared resources.
+</div>
+<p>
+<h2><a name="install">2. Installation</a></h2>
+<div align=justify>
+<strong>WinAFC</strong> is a systray application for Win32 and Win64. The program installs 
+an icon in the systray and users can interact with the program through a context menu opened
+by right-clicking the icon. The program opens a console that can be shown/hidden on
+demand. The console is used to display status information to the user.
+
+There is also a no frills console version of the program, called <strong>AffinityChangerConsole</strong>, 
+for those who prefer an even smaller memory footprint.
+The program is available under the <a href="LICENSE.txt">GNU General Public License</a> 
+and can be downloaded from 
+<a href="http://sourceforge.net/project/platformdownload.php?group_id=238550">
+SourceForge.net</a>.
+<p>
+The program requires no explicit setup. Unpack the content of the downloaded zip 
+archive into a directory, create a configuration file or modify one of the sample 
+files provided, and then just execute the program.
+Make sure you read the rest of this document to understand what each setting in the 
+configuration file means.
+<p>
+The user writes application profiles in a configuration file. By default,
+the program looks for a file called 'affinityinput.txt' in the same
+directory where the WinAFC.exe binary is located. Optionally,
+the user can specify a different configuration file on the command line.
+<p>
+To address any security concerns that you might have, <strong>WinAFC</strong> does not access
+any network interface (you will never see a pop-up from this program asking to be unblocked in 
+your firewall), it does not read or modify any Windows registry entries, and it does not touch 
+any files except for an input configuration file and an output log file. The only system 
+resource it accesses in order to do its job is the list of running processes.
+</div><p>
+
+<h2><a name="commandline">3. Command Line Parameters</a></h2>
+<div align=justify>
+<strong>WinAFC</strong> can be started without any command line parameters. Most
+settings can be defined in the configuration file. The program accepts, however, 
+a few optional command line parameters as described below.
+<p>
+
+<pre>
+Usage:
+  WinAFC.exe [options] [inputFileName]
+     -nodetect       do not execute CPU detection heuristic
+     -once           apply affinity settings once and then exit
+     -startdelay=n   delay program execution by n seconds
+     -minimized      hide console at program start
+     -hideicon       do not show icon in systray at start and do not create the console (stealth mode)
+
+     inputFileName   name of input (configuration) file. Default name is 'affinityinput.txt'
+</pre>
+
+The optional <em>-nodetect</em> command line parameter causes the program not
+to execute the CPU detection heuristic. This heuristic is normally executed on 
+program start, before the configuration file is parsed. That is why it had to be
+specified on command line and there is no equivalent flag setting in the 
+configuration file. It may make sense not to execute the CPU detection heuristic
+on systems where there are no detectable asymmetries, making the logical CPU
+identifiers equivalent to the physical identifiers (<em>e.g.</em>all systems 
+with one, two or three CPUs, as well as systems with single quad core AMD 
+processors). No logical CPU identifiers can be used in the configuration
+file when the CPU detection heuristic is disabled.
+<p>
+The command line parameter <em>-once</em> instructs <strong>WinAFC</strong> 
+to only adjust affinities and priorities for the matching processes currently 
+running. The program will not continue to run and monitor your system for new 
+processes, terminating immediately instead.
+<p>
+Parameter <em>-startdelay</em> accepts a positive integer value representing 
+a delay in seconds before the program starts executing. This option may be 
+useful if you want to automatically start <strong>WinAFC</strong> 
+on Windows start up. Specifying a starting delay of 20 or 30 seconds for 
+the program, will allow Windows to complete initialization a bit faster.
+<p>
+Parameter <em>-minimized</em> causes the console to be hidden at start.
+Because the console is hidden after its window is created, the console 
+may be visible for a fraction of a second before it is minimized. If you
+prefer to see no trace of the program at start, use the <em>-hideicon</em>
+parameter.
+<p>
+Parameter <em>-hideicon</em> starts the program in stealth mode. The icon is
+not added to the systray area and the console is not created. While the icon
+is hidden there is no interaction with the program, but the program will execute
+as normal in the background. To add the icon to the systray at a later time, just
+attempt to start another instance of the program. A second instance will not be 
+created, but it will cause the first instance to show its icon.
+</div><p>
+<h2><a name="contextmenu">4. Context Menu Options</a></h2>
+<div align=justify>
+When the program is started without the optional <em>-hideicon</em> parameter, 
+it installs an icon in the systray area. Right-clicking this icon opens a
+pop-up menu that enables interaction with the application.
+<p>
+<img src="images/WinAFC_main_menu.jpg" alt="Main WinAFC menu" title="Main WinAFC menu" 
+align="right" hspace="10">
+</img>
+This section discusses the options available through the pop-up menu. The menu is 
+depicted in the figure on the right. Some of the options change at run-time depending 
+on the state of <strong>WinAFC</strong>.
+<ui>
+<li><em>Open Console</em> shows the console (if hidden) and brings it to the foreground.
+To hide the console, press Ctrl-C while the console is in focus.
+</li><p>
+<li><em>Hide WinAFC</em> hides the console (if open) and removes the icon from the
+systray area. To restore the icon in the systray area, attempt to start a new instance
+of the program. 
+</li><p>
+<li><em>Detect CPUs/Cancel Detection/Print CPUs</em> this menu option changes at run-time 
+depending on the state of the program. While the CPU detection has not executed, or if it 
+ended unsuccessfully, selecting this option starts the CPU detection heuristic. 
+While the CPU detection heuristic is executing, the text of this option changes to
+"Cancel Detection" and selecting it interrupts the CPU detection.
+Once the CPU detection completed successfully, the option changes to "Print CPUs" and 
+selecting it causes the current CPU configuration to be printed on console and in the 
+log file.
+</li><p>
+<li><em>Print Processes</em> lists the running processes and threads that match active
+application profiles.
+</li><p>
+<li><em>Load Profile</em> loads a different configuration file. Application profiles are
+not preserved across different configuration files. The profiles in the new configuration
+file replace the existing application profiles. The global setting flags (see
+<a href="#flags">global flags</a>), except for the <em>TestMode</em>
+flag, are preserved across configuration files. The <em>TestMode</em> flag is reset before
+loading a new configuration file and it must be set explicitly in each configuration file. 
+Loading a configuration file that contains no valid application profiles will cause the 
+program to auto-pause because there is nothing to do.
+</li><p>
+<li><em>Pause WinAFC/Start WinAFC</em> pauses or resumes the execution of the program, 
+depending on its current state. While <em>paused</em> the program does not monitor for 
+running processes that match active application profiles. The program can be resumed only
+by selecting the option "Start WinAFC" from the context menu. On the other hand, the program
+can auto switch from the running state to the paused state if a newly loaded 
+configuration file contains no valid application profiles. When the program is in the 
+paused state, the systray icon changes to a grayscale image.
+</li><p>
+<li><em>Exit</em> removes the icon from the systray and terminates WinAFC.
+</li><p>
+<li><em>Settings</em> opens a dialog box that enables the user to change
+several startup options and run-time settings. The available options are
+described briefly in the next section.
+</li>
+</ui>
+</div><p>
+<h2><a name="settings">5. Changing Settings at Run-Time</a></h2>
+<div align="justify">
+<img src="images/WinAFC_general_settings.jpg" alt="The general settings panel" 
+title="The general settings panel" align="right" hspace="10">
+</img>
+<h3><a name="generalsettings">5.1 General Settings</a></h3>
+The <em>General Settings</em> tab contains controls for changing the time interval 
+between process checks, the verbosity of logging and warning messages, and flags that 
+control the restoring of affinities. The time interval and the verbosity settings can
+be modified also from within a configuration file. This dialog box enables changing 
+them independently at run-time.
+This dialog contains also a checkbox to explicitly allow setting processes
+to REALTIME priority.
+<p>
+The restore affinity settings specify if the affinities and 
+priorities of currently running processes that match any active application profiles, 
+should be restored to the state at the time the current profile was loaded.
+As their names indicate, the three toggleable flags specify if affinities should be 
+restored when WinAFC is manually paused, when a new configuration file is loaded,
+and when the program terminates, respectively. 
+<p>
+If checked, the check boxes on the right side of each control specify that the control's
+current value should be made the default. These settings are saved only when the OK
+button is pressed. 
+The default settings are saved in an INI file when WinAFC shuts down, and they are 
+restored to their previous values when WinAFC is restarted.
+</div>
+<br clear="all">
+<div align="justify">
+<img src="images/WinAFC_startup_options.jpg" alt="The startup options panel" 
+title="The startup options panel" align="right" hspace="10">
+</img>
+<h3><a name="startupoptions">5.2 Startup Options</a></h3>
+The <em>Startup Options</em> tab contains settings that take effect only on the next 
+start of WinAFC. Most of these settings can be also specified on the command line.
+Any options specified on the command line supercede the default options specified 
+using this dialog box. However, the dialog box provides a convenient way of settings 
+some default options without modifying the program shortcut.
+The default configuration file and the default log file can be also modified from within
+this dialog box. 
+<p>
+The ability to load new configuration files dynamically and the settings for restoring 
+affinities are useful mainly when testing different application profiles to find the 
+optimal configuration on a particular system. Once a stable configuration is achieved, 
+the program can be started in stealth mode and executed without any user intervention.
+</div>
+<br clear="all">
+<p>
+<a name="section_3"></a>
+<h2><a name="cpudetection">6. Detection of Asymmetric CPU Configurations</a></h2>
+<div align=justify>
+Many multicore or multi-socket machines are not fully symmetrical. For 
+example, the current Intel Quad Core CPUs are built out of two dual core 
+dice, glued in a single package. The two cores of each die share an L2 cache 
+and therefore communicate with each other much faster than with a core that
+is located on the other die. 
+<p>
+On the other hand, all four cores of an AMD Quad CPU share an L3 cache, and 
+thus no two cores should have a preferred affinity for each other. However, 
+dual socket AMD Quad Core systems may experience an asymmetry. 
+The four cores on a chip should communicate faster among themselves than 
+with cores residing on the other socket.
+<p>
+When <strong>WinAFC</strong> starts, it tries to detect the cores 
+that have an affinity for each other based on an heuristic. For an Intel Quad, 
+the program will correctly recognize the pairs of cores that are located on 
+the same die with very high confidence. This is the only architecture tested 
+by the author of the program.
+<p>
+Other multicore configurations were not tested because of lack of access to
+the necessary hardware. However, it is my expectation that the program can 
+deal with other multicore architectures. For dual socket Intel Quad Core systems, 
+I expect the program to find four PAIRs of cores that have an affinity for 
+each other, and not two QUADs.
+<p>
+Depending on your particular architecture, the program will recognize either 
+PAIRs, QUADs, or TRIOs of cores (Phenom x3 anyone?). This detection is done
+purely based on an heuristic, oblivious to the type of hardware you have in 
+your machine.
+<p>
+Individual CPUs can be referenced either directly through their physical identifiers,
+or through logical identifiers that expose any asymmetries detected in the system 
+independent of how Windows numbers physical CPUs after a system restart.
+Physical identifiers are formed by keyword <tt>CPU</tt> followed by a number, 
+<em>i.e.</em> CPU<sub>0</sub>, CPU<sub>1</sub>, ..., CPU<sub>N-1</sub>, 
+where <em>N</em> is the number of processors in the system.
+Logical identifiers are formed by one of the keywords <tt>PAIR</tt>, 
+<tt>TRIO</tt> or <tt>QUAD</tt> representing the size of the clusters of CPUs 
+that have a mutual affinity for each other, and a number representing the 
+index of the CPU cluster.
+<p>
+The type and number of logical identifiers available are system dependent. 
+The examples below are not exhaustive.
+<ul>
+<li>A single CPU machine has no logical identifiers. </li>
+<li>A machine with two processors will always form a trivial PAIR cluster, named 
+<tt>PAIR0</tt>. 
+Referring to CPUs through their logical identifiers offers no additional insight over 
+their physical counterparts.
+</li>
+<li>For a three core machine the only valid clustering of CPUs is a single cluster
+of size three, creating identifier <tt>TRIO0</tt>. Logical identifiers offer no
+additional insight over physical identifiers in this case.
+However, it is possible for the heuristic to fail finding a clustering.
+</li>
+<li>Things become more interesting as we get to systems with four CPUs. 
+For Intel Quad core machines the heuristic should find two PAIR clusters corresponding 
+to the two dual core dice with shared L2 caches. For an AMD Quad core machine,
+the heuristic should find a single QUAD cluster. For a four socket, single CPU/socket 
+system the heuristic should find a single QUAD cluster assuming the links/buses 
+between sockets are approximately symmetric.
+</li>
+<li>For an eight core machine the heuristic should find either four PAIR clusters in the
+case of a dual socket Intel Quad core system, or two QUAD clusters for a dual socket 
+AMD Quad core system.
+</li>
+</ul>
+We present additional information about the use of physical and logical identifiers 
+when we talk about <a href="#cpumask">CPU masks</a> for <a href="#appprofiles">
+application profiles</a>.
+</div>
+<a name="section_4"></a>
+<h2><a name="configuration">7. Configuration File Format</a></h2>
+<div align=justify>
+The configuration file dictates the actions taken by <strong>WinAFC</strong>. 
+<p>
+Empty lines and lines that start with a '#' are ignored.
+Configuration lines include <a href="#flags">flag setting lines</a>, and
+<a href="#appprofiles">application profile lines</a>. A particularly important flag that can
+be set is <tt>TestMode</tt> which causes the program to run in 
+<a href="#testmode">test mode</a>. <br>
+These types of lines can be interleaved in any order. However, the order 
+in which application profiles are described matters if a process can be matched by 
+multiple application profiles, as explained later.
+
+<h3><a name="flags">7.1 Flag Setting Lines</a></h3>
+
+A number of flags that control the behavior of the application can be specified
+in the configuration file. These flags control mostly how verbose the program 
+output is. In general, a higher value means a more verbose output.
+<p>
+The <tt>WarningLevel</tt> flag determines the severity of warning messages displayed.
+The default value for this flag is 2 which is recommended. 
+<p>
+The <tt>LogLevel</tt> flag controls the verbosity of log messages that describe the
+actions performed by the application. Logging is done to both console and a
+log file called 'affinitylog.txt' that is created in the same directory where
+the executable is located. The default log level is set to 3. Verbosity can
+be controlled separately for the console and the log file using flags
+<tt>ConsoleLogLevel</tt> and <tt>FileLogLevel</tt> respectively.
+<p>
+New users may want to set the log level to 4, which causes the program to 
+print a message for every application profile that had no matching process
+on program start.
+<p>
+Users can control how frequently <strong>WinAFC</strong> checks for
+new processes by setting configuration flag <tt>TimeInterval</tt>. This 
+flag accepts a strictly positive integer value representing the delay in 
+seconds between consecutive check for new processes. The minimum accepted 
+delay is one second. By default the program checks for matching processes 
+every 30 seconds.
+
+<h3><a name="testmode">7.2 The Test Mode</a></h3>
+
+A particularly important flag that can be specified in the configuration file is
+<tt>TestMode</tt>. If set, this flag instructs <strong>WinAFC</strong> 
+to run in test mode. The test mode is useful for testing a configuration file without
+ actually changing the affinity of any process or thread in the process. 
+<p>
+In test mode the program performs all actions that it would normally 
+execute, including matching processes to Application Profiles, computing the amount of resources used,
+determining the CPUs that must be assigned to each process or thread, testing for permissions to 
+modify affinity for the targeted processes, but the program will stop short of changing any affinity.
+Log messages, if enabled, will look as if the program performed the affinity change, giving users the 
+chance to validate a configuration file.
+<p>
+The test mode is enabled by setting the <tt>TestMode</tt> flag to a value greater than zero. 
+A value of zero disables the test mode. Negative values are not accepted by the parser. 
+If you specify a negative value for any of the flags, it will cause the parser to ignore that line 
+(with a warning message). For the <tt>TestMode</tt> flag, this means the test mode will 
+not be enabled.
+<p>
+Test mode can be used in combination with the <tt>-once</tt> command line parameter to
+test a configuration file and then exit, or without, causing the program to run and 
+monitor the system for any new matching processes until interrupted by user.
+
+<h3><a name="appprofiles">7.3 Defining Application Profiles</a></h3>
+
+To have <strong>WinAFC</strong> automatically change the affinity of an application,
+we need to create an application profile for that application.
+<p>
+An application profile is specified on a single line. Each application 
+profile includes the following information: an application name, 
+a CPU mask, and optional attributes in the following format:
+<pre>
+   ApplicationName := CPU_Mask [attr1=val1,attr2=val2]
+</pre>
+
+<h4><a name="appname"></a></h4>
+An <em>application name</em> must specify the full path to the executable of a program 
+for which we want to manage affinity. Wildcards '<tt>*</tt>' and 
+'<tt>?</tt>', 
+with their traditional meaning, may be used inside application names. 
+A '<tt>?</tt>' matches any single character. A '<tt>*</tt>' matches zero or more characters.
+<p>
+For example, <tt>*\notepad.exe</tt> matches any notepad.exe process wherever it 
+is installed.<br>
+<tt>C:\Program Files\*</tt> matches the processes of all programs installed in "C:\Program Files".
+<p>
+The names of running processes are matched against the application profile names, 
+in the order in which they are written in the configuration file.
+The first matching application profile name determines the profile used for a process. 
+It is therefore important to have the more general profiles specified after the more
+restrictive ones.
+<p>
+<h4><a name="cpumask"></a></h4>
+A <em>CPU mask</em> must specify one or more CPUs separated by the 
+'<tt>+</tt>' operator.
+CPUs are specified using keywords <tt>CPU</tt>, <tt>PAIR</tt>, <tt>TRIO</tt>, or <tt>QUAD</tt>, 
+followed by a number (with no space in-between). CPUs can be specified by their 
+physical Windows identifiers, or by logical identifiers that are architecture 
+dependent (see Section on <a href="#cpudetection">CPU detection</a>).
+<p>
+Physical identifiers are formed by keyword <tt>CPU</tt> followed by a number. 
+Counting starts from 0. Thus, the first CPU is always <tt>CPU0</tt>, second 
+CPU is <tt>CPU1</tt>, and so on.
+<p>
+By using logical CPU identifiers in the CPU mask of an application profile, we can
+create profiles aware of CPU asymmetries, that work the same way independent
+of how Windows numbers the physical cores after a system boot. 
+<p>
+For example, assuming we have an Intel Quad core machine and we want our
+favorite application to execute on the second pair of cores that share an
+L2 cache, we write a profile like:
+<pre>
+    MyApplicationPathAndName := PAIR1
+</pre>
+
+The program provides also a mechanism to refer to individual CPUs part of such
+logical CPU clusters. A PAIR includes two physical CPUs. Without knowing the 
+physical IDs, we can refer to the individual CPUs of a PAIR using the 
+resolution operator '<strong><tt>::</tt></strong>'. 
+Thus, <tt>PAIR0::CPU0</tt> and <tt>PAIR0::CPU1</tt> identify precisely 
+the two individual CPUs of the first PAIR. 
+Similarly, for an architecture with QUAD logical sets, <tt>QUAD0::CPU0</tt>,
+<tt>QUAD0::CPU1</tt>, <tt>QUAD0::CPU2</tt> and <tt>QUAD0::CPU3</tt> uniquely 
+define the four CPUs of the first QUAD.
+<p>
+Any logical identifier used in a CPU mask is automatically expanded to the
+enumeration of all physical CPUs to which it maps.
+A CPU mask defined as <tt>PAIR0</tt> is equivalent to a CPU mask defined as
+<tt>PAIR0::CPU0 + PAIR0::CPU1</tt>. <br>
+<em>Note: It is not a good idea to mix physical and logical identifiers in the
+same configuration file, because logical identifiers can evaluate to different 
+physical identifiers after a system reboot.</em>
+<p>
+The order in which CPUs are declared in the CPU mask is important. The CPU mask 
+is stored internally as a list. When multiple processes match an application 
+profile and the optional attribute <tt>assign</tt> is specified with a value
+lower than the total number of CPUs in the CPU mask, CPUs are assigned to
+matching processes in the order in which they are listed and based on the 
+specified policy.
+<p>
+Keywords <tt>SKIP</tt> and <tt>ALL</tt> can be used instead of a CPU mask.
+<tt>SKIP</tt> indicates that the program should not change affinities for
+the matching processes. 
+<tt>ALL</tt> is a shortcut for specifying all available CPUs in the system. 
+<tt>ALL</tt> expands to a list of all physical CPUs ordered by their Windows 
+identifiers.
+<p>
+<h4><a name="attributes"></a></h4>
+By default, all processes that match an application profile will have their
+affinities set to the specified CPU mask. We can control this process further
+by using <em>optional attributes</em> for each profile.
+The six attributes currently recognized by the program are listed in the table below.
+<p>
+<table border="1" col="2" cellpadding="5%">
+<tr>
+<th>Attribute name and values</th>
+<th>Usage examples</th>
+</tr>
+<tr>
+<td><tt>assign=<em></tt>&lt;int&gt;</em></td>
+<td>see examples <a href="#sample2">2</a>, <a href="#sample3">3</a>, <a href="#sample4">4</a>, 
+<a href="#sample7">7</a></td>
+</tr>
+<tr>
+<td><tt>policy=</tt>(<tt>ROUNDROBIN</tt> | <tt>BALANCED</tt> | <tt>PSEUDOBALANCED</tt>)</td>
+<td>see examples <a href="#sample3">3</a>, <a href="#sample4">4</a></td>
+</tr>
+<tr>
+<td><tt>resource=</tt>(<tt>MEMUSE</tt> | <tt>CPUUSE</tt>)</td>
+<td>see examples <a href="#sample3">3</a>, <a href="#sample4">4</a></td>
+</tr>
+<tr>
+<td><tt>threads=</tt>(<tt>yes</tt> | <tt>no</tt>)</td>
+<td>see example <a href="#sample6">6</a></td>
+</tr>
+<tr>
+<td><tt>priority=</tt>(<tt>Unchanged</tt> | <tt>Idle</tt> | <tt>BelowNormal</tt>
+ | <tt>Normal</tt> | <tt>AboveNormal</tt> | <tt>High</tt> |
+<tt>Realtime</tt><sup>*</sup>)</td>
+<td>see example <a href="#sample7">7</a></td>
+</tr>
+<tr>
+<td><tt>force=</tt>(<tt>yes</tt> | <tt>no</tt>)</td>
+<td>see example <a href="#sample1">1</a></td>
+</tr>
+<caption>List of optional attributes recognized by <strong>WinAFC</strong></caption>
+</table>
+* <em><tt>Realtime</tt> priorities are accepted only if the user explicitly
+enables them in the <a href="#generalsettings">General Settings</a> dialog box.</em>
+<br>
+<em>Note: All attributes and their literal values are case-insensitive and 
+attributes can be specified in any order.</em>
+<p>
+The <tt>assign</tt> attribute accepts an integer value strictly greater than zero
+but less or equal than the total number of CPUs specified in the CPU mask. 
+A value outside this range will make the application profile invalid, causing 
+<strong>WinAFC</strong> to ignore the profile.
+<p>
+The <tt>assign</tt> value indicates how many CPUs to be assigned to each running
+process matching this application profile. If the attribute is not
+specified, all CPUs in the CPU mask are assigned to all matching processes.
+<p>
+If the <tt>assign</tt> value is strictly less than the number of CPUs in the CPU
+mask, then CPUs are assigned to processes according to the specified policy. 
+<p>
+If no <tt>policy</tt> attribute is specified, the default policy is <tt>ROUNDROBIN</tt>
+which assigns the requested number of CPUs in a circular fashion, and in the
+order in which processes are encountered. This policy insures that an
+approximately equal number of processes are assigned to each CPU. However,
+it ignores completely the resources used by each process and it is possible
+for multiple heavy processes to be assigned to the same CPU, while another CPU
+receives lighter processes. This policy is recommended when the matching
+processes are expected to be fairly homogeneous.
+<p>
+The <tt>BALANCED</tt> and <tt>PSEUDOBALANCED</tt> policies assign CPUs with an eye 
+towards balancing the consumption of resources on each CPU.
+For this, all matching processes are sorted in descending order by the
+amount of resources used. 
+<p>
+In the case of a <tt>BALANCED</tt> policy, the process with the maximum resource consumption is
+selected and assigned to the CPU(s) with the lowest load. This approach is
+repeated until all processes have been assigned to CPUs.
+<p>
+The <tt>PSEUDOBALANCED</tt> policy attempts to balance both the resource consumption
+and the number of processes assigned to each CPU, withoyout excelling at
+either task. It combines features of the previous two policies. Processes
+sorted by resource consumption are assigned linearly to the CPUs specified
+in the CPU mask. When we exhaust all CPUs, we continue the process by
+traversing the list of CPUs in reverse order. 
+<p>
+It is important to realize that any balancing scheme is applied to each
+application profile in isolation. If multiple application profiles use the
+same set of CPUs, the program does not track the load assigned to a CPU 
+across different application profiles.
+<p>
+The <tt>resource</tt> attribute specifies which resource is used as a balancing
+metric. The two available options are <tt>MEMUSE</tt> representing the amount of 
+memory consumed by the process, and <tt>CPUUSE</tt> which represents how many 
+CPU cycles have been used by the process in the last 30 seconds. 
+<tt>CPUUSE</tt> is the default resource used when none is explicitly specified.
+<p>
+The <tt>threads</tt> attribute indicates if the program should manage the
+affinity settings for individual threads in the matching processes. The two
+valid values are <tt>yes</tt> and <tt>no</tt>, with <tt>no</tt> being the 
+default value. 
+<p>
+If <tt>threads=yes</tt> is specified, then the affinity settings of the matching
+profile are applied to the individual threads of all processes matching this profile.
+<p>
+If one of the two balancing policies is specified in combination with <tt>threads=yes</tt>, 
+then only <tt>CPUUSE</tt> is accepted as a valid resource value. Memory is a shared
+resource among all threads of a process, and therefore we cannot measure 
+how much memory is used by each individual thread.
+<p>
+The <tt>priority</tt> attribute specifies an optional priority value to be
+set for the matching processes. The possible values for this attribute are
+<tt>Unchanged</tt> which is the default value, <tt>Idle</tt>, <tt>BelowNormal</tt>,
+<tt>Normal</tt>, <tt>AboveNormal</tt> and <tt>High</tt> corresponding to the 
+equivalent priority settings in the Windows Task Manager.
+To specify custom priorities for processes without adjusting their affinities, 
+use keyword <tt>SKIP</tt> for the CPU mask field of their profiles.
+<p>
+The <tt>force</tt> attribute, if set to <tt>yes</tt>, causes 
+<strong>WinAFC</strong> to re-set the affinities and priorities of 
+all matching processes every time it checks for new processes. If the 
+attribute is set to <tt>no</tt> or if the attribute is not explicitly 
+specified, <strong>WinAFC</strong> will set a process' affinity 
+and priority only first time the process is encountered. If the user or
+another program modifies the affinity or the priority of a monitored process, 
+<strong>WinAFC</strong> will assume the user wants the affinity 
+modified and it will not revert it back to its managed setting. 
+All versions before version 0.82 implement only the unforced behavior.
+</div>
+
+<h2><a name="samples">8. Sample Configuration Files</a></h2>
+<div align=justify>
+While <strong>WinAFC</strong> does not target any particular application, 
+its initial development was motivated by the Folding@Home project. Therefore,
+I will provide several examples of configuration files inspired by the FAH
+project.
+<p>
+All examples assume a machine with an Intel Quad Core CPU for which 
+<strong>WinAFC</strong> detected the two PAIRs of cores that 
+share the L2 cache. All profiles use logical CPU IDs in the CPU mask.
+<p>
+
+<a name="sample1"><strong>Example 1</strong></a> [<a href="Examples/sampleinput1.txt">txt</a>]
+<p>
+Let's assume the user wants to run a VMWare virtual machine on two of the
+cores that share an L2 cache, and a GPU client on one of the remaining two
+cores. In addition, the user wants <strong>WinAFC</strong> to force
+the affinity settings even if another program attempts to change
+them.
+There should be only one <tt>vmware-vmx.exe</tt> process running. The
+application profile for the virtual machine can be written as:
+<pre>
+ *\vmware-vmx.exe := PAIR1 [force=yes]
+</pre>
+
+In this scenario we assigned the second PAIR of cores to the virtual machine.
+The <tt>force</tt> attribute specifies that affinity should be always reverted to
+PAIR1 if an external program changes it.
+We will assign the second CPU of PAIR0 to the GPU client:
+<pre>
+ D:\Folding@Home\Folding@home-Win32-GPU_XP-620\FahCore_*.exe := PAIR0::CPU1 [force=yes]
+</pre>
+
+We assumed the GPU client is installed in "D:\Folding@Home\Folding@home-Win32-GPU_XP-620".
+We used a wildcard to specify the process name to match any GPU FahCore version that might 
+be created by the Stanford team.
+
+We did not assign any heavy process to CPU <tt>PAIR0::CPU0</tt>. For a non-dedicated 
+folding machine we could use this CPU for Firefox, Thunderbird, iTunes, or some other 
+application of your choosing, by writing profiles like the ones below:
+<pre>
+ *\firefox.exe := PAIR0::CPU0
+ *\thunderbird.exe := PAIR0::CPU0
+ *\itunes.exe := PAIR0::CPU0
+</pre>
+
+<p>
+<a name="sample2"><strong>Example 2</strong></a> [<a href="Examples/sampleinput2.txt">txt</a>]
+<p>
+Let's assume our user wants to run two VMWare virtual machines. 
+Each virtual machine should use two cores located on the same die for 
+maximum performance. There should be two <tt>vmware-vmx.exe</tt> processes running.
+We can specify the optimum affinity setting for this scenario with a simple 
+profile:
+<pre>
+ *\vmware-vmx.exe := PAIR0+PAIR1 [assign=2]
+</pre>
+When only one virtual machine is started, the profile will still assign two of the 
+cores that share an L2 cache to the virtual machine that is running, while the
+other two cores remain unused. However, there are no guarantees about which PAIR of 
+cores is going to be used for the running VM.
+
+<p>
+<a name="sample3"><strong>Example 3</strong></a> [<a href="Examples/sampleinput3.txt">txt</a>]
+<p>
+In this scenario the user runs one Windows SMP client, one process per core.
+In this case, the optimum process assignment would be to use a balancing policy 
+that offers the best utilization of the shared L2 caches.
+<p>
+We want to assign the process with the largest working set and the process with the
+smallest working set to cores on the same die. The middle two processes should be assigned
+to the second die.
+We can write this policy as follows:
+<pre>
+ D:\Folding@Home\FAH6.22-win32-SMP\FahCore_*.exe := PAIR0::CPU1+PAIR1+PAIR0::CPU0 [assign=1,resource=MEMUSE,policy=PSEUDOBALANCED]
+</pre>
+
+Make sure that the profile definition is not split onto multiple lines or the parser
+will generate an error. Notice how we used a wildcard again to match any
+core that the Stanford people might throw at us.
+<p>
+Notice also how we specified the CPU mask. By using a balancing policy 
+and <tt>resource=MEMUSE</tt>, processes are sorted by the amount of memory they use.
+They are assigned to CPUs, one CPU per process, in the order in which CPUs are listed. 
+As a result, the largest process will be assigned to <tt>PAIR0::CPU1</tt>, next two 
+processes are assigned to <tt>PAIR1::CPU0</tt> and <tt>PAIR1::CPU1</tt>, 
+and the smallest process is assigned to <tt>PAIR0::CPU0</tt>.
+<p>
+This is the optimal theoretical assignment for this scenario. However, I have 
+no idea if it will make a significant difference in practice compared to a random
+assignment of one process per CPU. In any case, there should be no other assignment 
+that would do better with a single SMP client on an Intel Quad.
+
+<p>
+<a name="sample4"><strong>Example 4</strong></a> [<a href="Examples/sampleinput4.txt">txt</a>]
+<p>
+User runs two Windows SMP clients. We assign each client to two cores that share 
+an L2 cache. The two SMP clients are installed in different directories. 
+We use this information to distinguish between their processes:
+<pre>
+ D:\Folding@Home\FAH6.22-win32-SMP1\FahCore_*.exe := PAIR0 [assign=1,resource=CPUUSE,policy=PSEUDOBALANCED]
+ D:\Folding@Home\FAH6.22-win32-SMP2\FahCore_*.exe := PAIR1 [assign=1,resource=CPUUSE,policy=PSEUDOBALANCED]
+</pre>
+
+<p>
+<a name="sample5"><strong>Example 5</strong></a> [<a href="Examples/sampleinput5.txt">txt</a>]
+<p>
+This scenario is not inspired by FAH. In fact it is fully fictional. I do not see why anybody 
+would manage affinity for all programs in "C:\Program Files\". The example is provided to
+introduce two more keywords that were not mentioned before.
+<p>
+If you have a very general template that matches many programs, but you do not want to
+apply this or any other profile to a few select programs, you can specify a template 
+for programs to be skipped and later write the more general template to be applied to 
+the remaining programs.
+<p>
+For example, let's say we want to set affinity for all processes located
+in <tt>C:\Program Files\</tt>, except for MS Office processes, to run on all
+available CPUs. 
+<p>
+First, we write the more restrictive template. We use keyword <strong>SKIP</strong> instead of a
+CPU mask, which causes these processes to not have their affinity modified from their current 
+settings.
+<pre>
+ C:\Program File\Microsoft Office\* := SKIP
+</pre>
+
+Next, we write the template for all processes in <tt>C:\Program Files</tt>. 
+We use keyword <strong>ALL</strong> to specify all available CPUs.
+<pre>
+ C:\Program File\* := ALL
+</pre>
+
+<p>
+<a name="sample6"><strong>Example 6</strong></a> [<a href="Examples/sampleinput6.txt">txt</a>]
+<p>
+Finally, let's assume you want to reset the affinity of all processes and
+threads to use all available CPUs. You can do this with a very simple
+profile:
+<pre>
+ * := ALL [threads=yes]
+</pre>
+
+By using the <tt>threads=yes</tt> optional attribute, we indicate that all threads of all 
+matching processes should have their affinity set to all available CPUs.
+<p>
+The single '<tt>*</tt>' will match all running processes. Starting with version 0.82
+this includes most of System processes as well as processes running under
+different user accounts. So use it carefully.
+<p>
+
+<a name="sample7"><strong>Example 7</strong></a> [<a href="Examples/sampleinput7.txt">txt</a>]
+<p>
+An user wants to run two VMWare virtual machines and a GPU folding client. 
+Each virtual machine should use two cores located on the same die for 
+maximum performance, and the GPU client is assigned to one of the cores.
+In order not to have the GPU client bottlenecked by the CPU, we want to
+assign it a higher priority than to the virtual machines.
+There should be two <tt>vmware-vmx.exe</tt> processes running.
+We can specify the optimum affinity setting for this scenario with the
+following two profiles:
+<pre>
+ *\vmware-vmx.exe := PAIR0+PAIR1 [assign=2,priority=idle]
+ *\FahCore_11.exe := PAIR1::CPU0 [priority=BelowNormal]
+</pre>
+<p>
+
+<strong>Final note: You should try any scenario under the <tt>TestMode</tt> first 
+to verify that it does what you expect.</strong>
+</div><p>
+Project hosted on 
+<a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=238550&amp;type=3" width="125" height="37" border="0" alt="SourceForge.net" /></a>
+<p>
+<dl compact>
+<dt>Copyright</dt>
+<dd> &copy; 2008-2009, Gabriel Marin &lt;baobab13@users.sourceforge.net&gt;. 
+</dd>
+<dt>License</dt>
+
+<dd> See <tt>License.txt</tt>.
+</dd>
+</dl>
+<p>
+</body>
+</html>

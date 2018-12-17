@@ -1,0 +1,18 @@
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\ConsoleInputReader\bin\Debug\ConsoleInputReader.dll
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\ConsoleInputReader\bin\Debug\ConsoleInputReader.pdb
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\ConsoleInputReader\obj\Debug\ConsoleInputReader.dll
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\ConsoleInputReader\obj\Debug\ConsoleInputReader.pdb
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\ConsoleInputReader\obj\Debug\ConsoleInputReader.csprojResolveAssemblyReference.cache
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\ConsoleInputReader\obj\Debug\ConsoleInputReader.csproj.CoreCompileInputs.cache
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\ConsoleInputReader\bin\Debug\ConsoleInputReader.dll
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\ConsoleInputReader\bin\Debug\ConsoleInputReader.pdb
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\ConsoleInputReader\obj\Debug\ConsoleInputReader.csproj.CoreCompileInputs.cache
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\ConsoleInputReader\obj\Debug\ConsoleInputReader.dll
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\ConsoleInputReader\obj\Debug\ConsoleInputReader.pdb
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\ConsoleInputReader\obj\Debug\ConsoleInputReader.csprojAssemblyReference.cache
+C:\Users\Paul\Desktop\FSIndexer\ConsoleInputReader\bin\Debug\ConsoleInputReader.dll
+C:\Users\Paul\Desktop\FSIndexer\ConsoleInputReader\bin\Debug\ConsoleInputReader.pdb
+C:\Users\Paul\Desktop\FSIndexer\ConsoleInputReader\obj\Debug\ConsoleInputReader.csprojAssemblyReference.cache
+C:\Users\Paul\Desktop\FSIndexer\ConsoleInputReader\obj\Debug\ConsoleInputReader.csproj.CoreCompileInputs.cache
+C:\Users\Paul\Desktop\FSIndexer\ConsoleInputReader\obj\Debug\ConsoleInputReader.dll
+C:\Users\Paul\Desktop\FSIndexer\ConsoleInputReader\obj\Debug\ConsoleInputReader.pdb

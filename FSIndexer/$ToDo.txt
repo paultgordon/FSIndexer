@@ -1,0 +1,2 @@
+﻿-Change autofile to work per item and be unique
+-Add notes to indexed terms

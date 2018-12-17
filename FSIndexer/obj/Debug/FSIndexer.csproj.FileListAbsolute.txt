@@ -1,0 +1,62 @@
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\bin\Debug\Shortcut.exe
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.pdb
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.Main.resources
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.Options.resources
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.Properties.Resources.resources
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.RenameItem.resources
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.exe
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.pdb
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.SourceDirectorySettings.resources
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.Info.resources
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe.config
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.csproj.GenerateResource.Cache
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\obj\Debug\Interop.Shell32.dll
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.csproj.ResolveComReference.cache
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.csprojResolveAssemblyReference.cache
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\bin\Debug\ConsoleInputReader.dll
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\bin\Debug\ConsoleInputReader.pdb
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.CustomFolderBrowserDialog.resources
+C:\Users\Paul\Documents\Visual Studio 2010\Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.csproj.CoreCompileInputs.cache
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\Shortcut.exe
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe.config
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.pdb
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\ConsoleInputReader.dll
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\ConsoleInputReader.pdb
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\obj\Debug\Interop.Shell32.dll
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.csproj.ResolveComReference.cache
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.CustomFolderBrowserDialog.resources
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.Info.resources
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.Main.resources
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.Options.resources
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.Properties.Resources.resources
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.RenameItem.resources
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.SourceDirectorySettings.resources
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.csproj.GenerateResource.Cache
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.csproj.CoreCompileInputs.cache
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.exe
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.pdb
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.csprojAssemblyReference.cache
+C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\obj\Debug\FSIndexer.csproj.CopyComplete
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\bin\Debug\Shortcut.exe
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe.config
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\bin\Debug\FSIndexer.pdb
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\bin\Debug\ConsoleInputReader.dll
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\bin\Debug\ConsoleInputReader.pdb
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\obj\Debug\FSIndexer.csprojAssemblyReference.cache
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\obj\Debug\Interop.Shell32.dll
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\obj\Debug\FSIndexer.csproj.ResolveComReference.cache
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\obj\Debug\FSIndexer.CustomFolderBrowserDialog.resources
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\obj\Debug\FSIndexer.Info.resources
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\obj\Debug\FSIndexer.Main.resources
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\obj\Debug\FSIndexer.Options.resources
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\obj\Debug\FSIndexer.Properties.Resources.resources
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\obj\Debug\FSIndexer.RenameItem.resources
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\obj\Debug\FSIndexer.SourceDirectorySettings.resources
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\obj\Debug\FSIndexer.csproj.GenerateResource.cache
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\obj\Debug\FSIndexer.csproj.CoreCompileInputs.cache
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\obj\Debug\FSIndexer.csproj.CopyComplete
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\obj\Debug\FSIndexer.exe
+C:\Users\Paul\Desktop\FSIndexer\FSIndexer\obj\Debug\FSIndexer.pdb
