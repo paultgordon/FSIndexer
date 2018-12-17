@@ -138,17 +138,6 @@ namespace FSIndexer
 
         private void Main_Load(object sender, EventArgs e)
         {
-            //ReloadList(refreshFileSystem: true);
-            //IsLoading = false;
-
-            //NormalViewingHeight = this.Height;
-
-            //this.ActiveControl = TvTerms;
-
-            //ProcessArgs(Reader);
-
-            //this.ActiveControl = mtvTerms;
-
             //PrintInfo("ReadMediaInfo Start");
             //var dtStart = DateTime.Now;
             //var mi = ReadMediaInfo(SourceDirectoriesToIndex.First());
