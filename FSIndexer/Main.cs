@@ -1424,21 +1424,21 @@ namespace FSIndexer
             {
                 var fi = IndexedList.IndexedTerms.Find(SelectedNode.Parent.Name, SelectedNode.Text);
 
-                if (fi.FileExists())
+                if (fi != null)
                 {
                     fi.IsReadOnly = false;
                     rtbExecuteWindow.Text += "DEL \"" + fi.FullName + "\"" + Environment.NewLine;
                     rtbExecuteWindow.Text += "RD /Q \"" + fi.Directory.FullName + "\" >NUL 2>&1" + Environment.NewLine;
+                }
 
-                    var nodeParent = SelectedNode.Parent;
-                    RemoveItem(SelectedNode);
+                var nodeParent = SelectedNode.Parent;
+                RemoveItem(SelectedNode);
 
-                    var updatedItem = IndexedList.IndexedTerms.Find(nodeParent.Name);
+                var updatedItem = IndexedList.IndexedTerms.Find(nodeParent.Name);
 
-                    if (updatedItem != null)
-                    {
-                        nodeParent.Text = updatedItem.ToString();
-                    }
+                if (updatedItem != null)
+                {
+                    nodeParent.Text = updatedItem.ToString();
                 }
             }
 
@@ -2321,7 +2321,8 @@ namespace FSIndexer
         {
             if (!File.Exists(fi.FullName))
             {
-                throw new FileNotFoundException("", fi.FullName);
+                // throw new FileNotFoundException("", fi.FullName);
+                return Guid.Empty.ToString();
             }
 
             if (writeTiming)

@@ -21,7 +21,16 @@ namespace FSIndexer
             {
                 if (item.ID == termID)
                 {
-                    return item.IndexedFiles.Find(n => n.Name.Equals(filename, StringComparison.CurrentCultureIgnoreCase)).File;
+                    var fiMatch = item.IndexedFiles.Find(n => n.Name.Equals(filename, StringComparison.CurrentCultureIgnoreCase)).File;
+
+                    if (fiMatch.FileExists())
+                    {
+                        return fiMatch;
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
             }
 
