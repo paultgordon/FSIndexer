@@ -28,6 +28,7 @@ namespace FSIndexer
                 list.Add(".ts");
                 list.Add(".divx");
                 list.Add(".m4v");
+                list.Add(".webm");
 
                 return list;
             }

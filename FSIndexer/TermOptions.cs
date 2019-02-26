@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace FSIndexer
 {
@@ -98,26 +99,25 @@ namespace FSIndexer
         public static List<string> AutoRemoveStartingTags =
             new List<string>()
             {
-                "ktr.",
-                "sexo.",
-                "iak.",
-                "fps.",
-                "i.",
-                "ohrly.",
-                "c69.",
-                "divas.",
-                "oro.",
-                "inya.",
-                "vbt.",
-                "mistress.",
-                "ieva.",
-                "ggw."
+                //"ktr.",
+                //"sexo.",
+                //"iak.",
+                //"fps.",
+                //"i.",
+                //"ohrly.",
+                //"c69.",
+                //"divas.",
+                //"oro.",
+                //"inya.",
+                //"vbt.",
+                //"mistress.",
+                //"ieva.",
+                //"ggw."
             };
 
         public static List<string> AutoRemoveContainingTags =
             new List<string>()
             {
-                "sex4free",
                 "wmv",
                 "mp4",
                 "dvdrip",
@@ -126,18 +126,18 @@ namespace FSIndexer
                 "720p", "720",
                 "1080p", "1080",
                 "1280x", "1920x", "x264",
-                "hd",
-                "dl",
-                "web",
-                "avc",
-                "aac",
+                ".hd.",
+                ".dl.",
+                ".web.",
+                ".avc.",
+                ".aac.",
                 "[","]",
                 "{","}",
                 "(",")",
                 ",", "&", "!", "#", "$", "%", "^", ";", "'", "?"
             };
 
-        public static List<KeyValuePair<string, string>> AutoReplaceTags 
+        public static List<KeyValuePair<string, string>> AutoReplaceTags
         {
             get
             {
@@ -166,6 +166,117 @@ namespace FSIndexer
                 new KeyValuePair<string, string>("disc", "disc"),
                 new KeyValuePair<string, string>(" ", ".")
             };
+
+        private class MonthData
+        {
+            public int Index { get; set; }
+            public string Name { get; set; }
+            public string Abbreviation { get; set; }
+
+            public string IndexTwoDigit { get { return Index.ToString().PadLeft(2, '0'); } }
+
+            public List<string> REMReplaceMonthName1
+            {
+                get
+                {
+                    List<string> list = new List<string>();
+
+                    list.Add(@"\.((?:\d{4}|\d{2}))\.(" + Name + @")\.((?:\d{4}|\d{2}))");
+                    list.Add(@"\.((?:\d{4}|\d{2}))\.(" + Abbreviation + @")\.((?:\d{4}|\d{2}))");
+
+                    return list;
+                }
+            }
+
+            public string RPMonthName1 { get { return @".$1." + IndexTwoDigit + ".$3"; } }
+
+            public List<string> REMReplaceMonthName2
+            {
+                get
+                {
+                    List<string> list = new List<string>();
+
+                    list.Add(Name + @"\.(\d{2})\.(\d{2})\.(\d{4})");
+                    list.Add(Abbreviation + @"\.(\d{2})\.(\d{2})\.(\d{4})");
+
+                    return list;
+                }
+            }
+
+            public string RPMonthName2 { get { return @".$3." + IndexTwoDigit + ".$2"; } }
+
+            public static List<string> REMPutYearFirst
+            {
+                get
+                {
+                    List<string> list = new List<string>();
+
+                    list.Add(@"\.([0-1][^3-9])\.(\d{2})\.([1][3-9]|[2][0])");
+
+                    return list;
+                }
+            }
+
+            public static string RPYearFirst { get { return @".$3.$2.$1"; } }
+
+            public MonthData() { }
+        }
+
+        private static readonly List<MonthData> MonthDataList = new List<MonthData>()
+            {
+                new MonthData() { Index = 1, Name = "january", Abbreviation = "jan" },
+                new MonthData() { Index = 2, Name = "febuary", Abbreviation = "feb" },
+                new MonthData() { Index = 3, Name = "march", Abbreviation = "mar" },
+                new MonthData() { Index = 4, Name = "april", Abbreviation = "apr" },
+                new MonthData() { Index = 5, Name = "may", Abbreviation = "may" },
+                new MonthData() { Index = 6, Name = "june", Abbreviation = "jun" },
+                new MonthData() { Index = 7, Name = "july", Abbreviation = "jul" },
+                new MonthData() { Index = 8, Name = "august", Abbreviation = "aug" },
+                new MonthData() { Index = 9, Name = "september", Abbreviation = "sept" },
+                new MonthData() { Index = 10, Name = "october", Abbreviation = "oct" },
+                new MonthData() { Index = 11, Name = "november", Abbreviation = "nov" },
+                new MonthData() { Index = 12, Name = "december", Abbreviation = "dec" },
+            };
+
+        public static string ReplaceMonthData(string str)
+        {
+            string os = str;
+
+            foreach (MonthData md in MonthDataList)
+            {
+                foreach (string pat in md.REMReplaceMonthName1)
+                {
+                    Regex regex = new Regex(pat, RegexOptions.IgnoreCase);
+
+                    if (regex.IsMatch(str))
+                    {
+                        str = regex.Replace(str, md.RPMonthName1);
+                    }
+                }
+
+                foreach (string pat in md.REMReplaceMonthName2)
+                {
+                    Regex regex = new Regex(pat, RegexOptions.IgnoreCase);
+
+                    if (regex.IsMatch(str))
+                    {
+                        str = regex.Replace(str, md.RPMonthName2);
+                    }
+                }
+            }
+
+            //foreach (string pat in MonthData.REMPutYearFirst)
+            //{
+            //    Regex regex = new Regex(pat, RegexOptions.IgnoreCase);
+
+            //    if (regex.IsMatch(str))
+            //    {
+            //        str = regex.Replace(str, MonthData.RPYearFirst);
+            //    }
+            //}
+
+            return str;
+        }
 
         public static bool IsPurelyNumeric(string str)
         {

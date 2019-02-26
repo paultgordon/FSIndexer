@@ -37,6 +37,7 @@ namespace FSIndexer
         private const string VLCPath = @"C:\Program Files\VideoLAN\VLC\vlc.exe";
         private const string NzbPath = @"E:\Downloads\NG\_Decoded";
         private const string TorrentPath = @"E:\Downloads\NG\_Decoded\Torrents";
+        private string TheEndPath { get { return Path.Combine(SaveDirectory, "TheEnd_NS.mp4"); } }
 
         private string SaveDirectory { get { return Directory.GetParent(Path.GetDirectoryName(Path.GetFullPath(Assembly.GetExecutingAssembly().Location))).FullName; } }
         private string MoveTrackingFile { get { return Path.Combine(SaveDirectory, "MoveTrackerList.xml"); } }
@@ -156,7 +157,10 @@ namespace FSIndexer
 
             ProcessArgs(Reader);
 
-            this.ActiveControl = mtvTerms;
+            if (this.Visible)
+            {
+                this.ActiveControl = mtvTerms;
+            }
         }
 
         private int GetFileCount(List<DirectoryInfoExtended> dieList)
@@ -200,6 +204,7 @@ namespace FSIndexer
 
                 if (reader.ContainsKey(TAGS.TagAutoConvert))
                 {
+                    this.Visible = false;
                     toolStripMenuItemConvert_Click(null, null);
                     this.Close();
                 }
@@ -221,7 +226,7 @@ namespace FSIndexer
             public static readonly string ConvertToFileExtension = ".mp4";
             public static readonly List<string> ConvertFileExtensions = new List<string>()
             {
-                ".wmv", ".avi", ".flv", ".ts", ".mpg", ".mpeg", ".m4v"
+                ".wmv", ".avi", ".flv", ".ts", ".mpg", ".mpeg", ".m4v", ".webm"
             };
         }
 
@@ -1318,8 +1323,6 @@ namespace FSIndexer
                     // If shift is held then only play the top 5
                     if (ke.Shift)
                     {
-                        list = new List<TreeNode>();
-
                         for (int i = 0; i < Math.Min(5, SelectedNode.Nodes.Count); i++)
                         {
                             list.Add(SelectedNode.Nodes[i]);
@@ -1327,18 +1330,28 @@ namespace FSIndexer
                     }
                     else
                     {
-                        foreach (TreeNode item in SelectedNode.Nodes)
+                        for (int i = 0; i < Math.Min(50, SelectedNode.Nodes.Count); i++)
                         {
-                            list.Add(item);
+                            list.Add(SelectedNode.Nodes[i]);
                         }
+
+                        //foreach (TreeNode item in SelectedNode.Nodes)
+                        //{
+                        //    list.Add(item);
+                        //}
                     }
                 }
                 else
                 {
-                    foreach (TreeNode node in SelectedNode.Nodes)
+                    for (int i = 0; i < Math.Min(50, SelectedNode.Nodes.Count); i++)
                     {
-                        list.Add(node);
+                        list.Add(SelectedNode.Nodes[i]);
                     }
+
+                    //foreach (TreeNode node in SelectedNode.Nodes)
+                    //{
+                    //    list.Add(node);
+                    //}
                 }
             }
             else if (IsChild)
@@ -1361,18 +1374,9 @@ namespace FSIndexer
                 return;
             }
 
-            foreach (TreeNode node in list)
-            {
-                var it = IndexedList.IndexedTerms.Find(node);
-
-                if (it != null && it.FileExists())
-                {
-                    args += "\"" + it.FullName + "\" ";
-                }
-            }
-
             SelectedNode.Expand();
 
+            args = GetVideoArgs(list);
 
             if (!string.IsNullOrEmpty(args))
             {
@@ -1382,10 +1386,10 @@ namespace FSIndexer
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
+            List<FileInfo> indexedFiles = new List<FileInfo>();
+
             if (IsParent)
             {
-                List<FileInfo> indexedFiles = new List<FileInfo>();
-
                 foreach (TreeNode node in SelectedNode.Nodes)
                 {
                     var it = IndexedList.IndexedTerms.Find(SelectedNode.Name, node.Text);
@@ -1420,25 +1424,46 @@ namespace FSIndexer
                     RemoveItem(SelectedNode);
                 }
             }
-            else if (IsChild)
+            else if (IsChild || IsMultipleChild)
             {
-                var fi = IndexedList.IndexedTerms.Find(SelectedNode.Parent.Name, SelectedNode.Text);
+                if (IsMultipleChild)
+                {
+                    foreach (TreeNode selected in SelectedNodes.ToList())
+                    {
+                        var fi = IndexedList.IndexedTerms.Find(selected.Parent.Name, selected.Text);
 
-                if (fi != null)
+                        if (fi != null)
+                        {
+                            indexedFiles.Add(fi);
+                        }
+
+                        RemoveItem(selected);
+                    }
+                }
+                else
+                {
+                    var fi = IndexedList.IndexedTerms.Find(SelectedNode.Parent.Name, SelectedNode.Text);
+
+                    if (fi != null)
+                    {
+                        indexedFiles.Add(fi);
+                    }
+
+                    RemoveItem(SelectedNode);
+                }
+
+                foreach (var fi in indexedFiles)
                 {
                     fi.IsReadOnly = false;
                     rtbExecuteWindow.Text += "DEL \"" + fi.FullName + "\"" + Environment.NewLine;
                     rtbExecuteWindow.Text += "RD /Q \"" + fi.Directory.FullName + "\" >NUL 2>&1" + Environment.NewLine;
                 }
 
-                var nodeParent = SelectedNode.Parent;
-                RemoveItem(SelectedNode);
-
-                var updatedItem = IndexedList.IndexedTerms.Find(nodeParent.Name);
+                var updatedItem = IndexedList.IndexedTerms.Find(SelectedNode.Parent.Name);
 
                 if (updatedItem != null)
                 {
-                    nodeParent.Text = updatedItem.ToString();
+                    SelectedNode.Parent.Text = updatedItem.ToString();
                 }
             }
 
@@ -1816,7 +1841,7 @@ namespace FSIndexer
 
         private bool IsParentNode(TreeNode node)
         {
-            return node != null && node.Parent != null && node.Parent.Parent == null; // && node.Nodes.Count > 0;
+            return node != null && node.Parent != null && node.Parent.Parent == null;
         }
 
         private bool IsMultipleParent
@@ -1841,6 +1866,28 @@ namespace FSIndexer
             get
             {
                 return SelectedNode != null && SelectedNodes.Count == 1 && !IsTopNode && !IsParent;
+            }
+        }
+
+        private bool IsChildNode(TreeNode node)
+        {
+            return node != null && node.Parent != null && node.Parent.Parent != null;
+        }
+
+        private bool IsMultipleChild
+        {
+            get
+            {
+                if (SelectedNodes == null || SelectedNodes.Count < 2)
+                    return false;
+
+                foreach (TreeNode selected in SelectedNodes)
+                {
+                    if (!IsChildNode(selected))
+                        return false;
+                }
+
+                return true;
             }
         }
 
@@ -2035,6 +2082,8 @@ namespace FSIndexer
                                 name = name.Replace(ar.Key, ar.Value, StringComparison.CurrentCultureIgnoreCase);
                             }
                         }
+
+                        name = TermOptions.ReplaceMonthData(name);
 
                         foreach (string sep in Indexer.IndexSeperators.OrderByDescending(n => n.Length))
                         {
@@ -2470,7 +2519,7 @@ namespace FSIndexer
 
                 if (fi.LastWriteTimeUtc == File.GetLastWriteTimeUtc(fi.FullName) && fi.Length == new FileInfo(fi.FullName).Length) // Hasn't changed since loop query
                 {
-                    if (fi.LastWriteTimeUtc < DateTime.UtcNow.Subtract(TimeSpan.FromHours(1)))
+                    if (fi.LastWriteTimeUtc < DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(5)))
                     {
                         rtbExecuteWindow.Text += "REM Remove Files Below Acceptable Size Limit" + Environment.NewLine;
                         rtbExecuteWindow.Text += UnhideFile(fi.FullName);
@@ -2646,6 +2695,30 @@ namespace FSIndexer
             string chromeDir = @"C:\Program Files (x86)\Google\Chrome\Application";
             string args = string.Format("--incognito --homepage \"{0}\"", searchUrl);
             return "CD " + chromeDir + " & " + "chrome.exe " + args;
+        }
+
+        private string GetVideoArgs(List<TreeNode> treeNodes)
+        {
+            if (treeNodes.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            string args = "";
+
+            foreach (TreeNode node in treeNodes)
+            {
+                var it = IndexedList.IndexedTerms.Find(node);
+
+                if (it != null && it.FileExists())
+                {
+                    args += "\"" + it.FullName + "\" ";
+                }
+            }
+
+            args += "\"" + TheEndPath + "\" ";
+
+            return args;
         }
 
         private string ConvertVideo(string source, string dest, string format = null, int quality = 20, bool vfr = true)
