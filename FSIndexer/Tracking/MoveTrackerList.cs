@@ -43,20 +43,42 @@ namespace FSIndexer
 
         public MoveTrackerItem GetRecommendedMoveLocation(string tag, string sourcedir)
         {
-            return (from item in List
-                         where sourcedir.Equals(item.SourceDir, StringComparison.CurrentCultureIgnoreCase)
-                           && item.Tag.Equals(tag, StringComparison.CurrentCultureIgnoreCase)
-                         orderby item.Strength descending
-                         select item).FirstOrDefault();
+            if (sourcedir.Contains(Main.TorrentPath))
+            {
+                return (from item in List
+                        where item.Tag.Equals(tag, StringComparison.CurrentCultureIgnoreCase)
+                          && !item.SourceDir.Contains(Main.KeepDirectory)
+                        orderby item.Strength descending
+                        select item).FirstOrDefault();
+            }
+            else
+            {
+                return (from item in List
+                        where sourcedir.Equals(item.SourceDir, StringComparison.CurrentCultureIgnoreCase)
+                          && item.Tag.Equals(tag, StringComparison.CurrentCultureIgnoreCase)
+                        orderby item.Strength descending
+                        select item).FirstOrDefault();
+            }
         }
 
         public MoveTrackerItem GetRecommendedMoveLocation(string tag, List<string> sourcedir)
         {
-            return (from item in List
-                    where sourcedir.Contains(item.SourceDir, StringComparison.CurrentCultureIgnoreCase)
-                      && item.Tag.Equals(tag, StringComparison.CurrentCultureIgnoreCase)
-                    orderby item.Strength descending
-                    select item).FirstOrDefault();
+            if (sourcedir.Any(n => n.Contains(Main.TorrentPath)))
+            {
+                return (from item in List
+                        where item.Tag.Equals(tag, StringComparison.CurrentCultureIgnoreCase)
+                          && !item.SourceDir.Contains(Main.KeepDirectory)
+                        orderby item.Strength descending
+                        select item).FirstOrDefault();
+            }
+            else
+            {
+                return (from item in List
+                        where sourcedir.Contains(item.SourceDir, StringComparison.CurrentCultureIgnoreCase)
+                          && item.Tag.Equals(tag, StringComparison.CurrentCultureIgnoreCase)
+                        orderby item.Strength descending
+                        select item).FirstOrDefault();
+            }
         }
 
         public void ResetRecommendedMoveLocation(string tag)

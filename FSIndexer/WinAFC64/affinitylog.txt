@@ -2997,3 +2997,430 @@ Auto detecting CPU configuration. Please wait.
 2/26/2019 1:00:52 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 8504, set affinity to CPU2+CPU3+CPU4+CPU5
 2/26/2019 3:00:02 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 8428, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
 2/26/2019 10:13:12 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 20660, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+2/27/2019 3:00:02 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 20240, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+2/28/2019 3:00:02 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 17108, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/1/2019 3:00:03 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 17228, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/2/2019 3:00:03 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 4524, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/3/2019 3:00:03 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 16504, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/4/2019 3:00:03 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 11096, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 3:00:03 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 22288, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:05:53 PM: C:\Program Files\Newsbin\newsbinpro64.exe with PID 11976, set affinity to CPU2+CPU3+CPU4+CPU5+CPU6+CPU7
+3/5/2019 16:18:03 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 17144, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:25:23 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 19196, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:25:33 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 7108, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:26:43 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 15636, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:27:33 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 6936, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:28:53 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 8900, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:28:53 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 12000, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:29:03 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 10592, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:29:13 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 16032, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:29:23 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 22308, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:29:43 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 22220, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:30:03 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 18480, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:31:13 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 14616, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:33:13 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 17124, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:34:53 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 14496, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:35:33 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 19464, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:40:53 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 144, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:41:43 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 15840, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:42:23 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 7144, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:43:33 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 7024, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/5/2019 16:43:43 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 14816, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+
+Auto detecting CPU configuration. Please wait.
+3/8/2019 8:24:34 AM: Found 8 CPUs:
+	 CPU0 has mask 0000000000000001
+	 CPU1 has mask 0000000000000002
+	 CPU2 has mask 0000000000000004
+	 CPU3 has mask 0000000000000008
+	 CPU4 has mask 0000000000000010
+	 CPU5 has mask 0000000000000020
+	 CPU6 has mask 0000000000000040
+	 CPU7 has mask 0000000000000080
+3/8/2019 8:24:34 AM: Found 4 PAIRs:
+	 PAIR0<CPU0,CPU1> has mask 0000000000000003
+	 PAIR1<CPU2,CPU3> has mask 000000000000000C
+	 PAIR2<CPU4,CPU5> has mask 0000000000000030
+	 PAIR3<CPU6,CPU7> has mask 00000000000000C0
+3/8/2019 8:25:04 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 12488, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/8/2019 12:24:04 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 10948, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/8/2019 12:25:14 PM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 11212, set affinity to CPU2+CPU3+CPU4+CPU5
+3/8/2019 12:52:04 PM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 8152, set affinity to CPU2+CPU3+CPU4+CPU5
+3/8/2019 14:52:24 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 4020, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+
+Auto detecting CPU configuration. Please wait.
+3/8/2019 15:01:49 PM: Found 8 CPUs:
+	 CPU0 has mask 0000000000000001
+	 CPU1 has mask 0000000000000002
+	 CPU2 has mask 0000000000000004
+	 CPU3 has mask 0000000000000008
+	 CPU4 has mask 0000000000000010
+	 CPU5 has mask 0000000000000020
+	 CPU6 has mask 0000000000000040
+	 CPU7 has mask 0000000000000080
+3/8/2019 15:01:49 PM: Found 4 PAIRs:
+	 PAIR0<CPU0,CPU1> has mask 0000000000000003
+	 PAIR1<CPU2,CPU3> has mask 000000000000000C
+	 PAIR2<CPU4,CPU5> has mask 0000000000000030
+	 PAIR3<CPU6,CPU7> has mask 00000000000000C0
+3/8/2019 19:14:08 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 7536, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/8/2019 19:14:18 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 10816, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/8/2019 19:23:58 PM: C:\Program Files\Newsbin\newsbinpro64.exe with PID 1636, set affinity to CPU2+CPU3+CPU4+CPU5+CPU6+CPU7
+3/8/2019 19:31:58 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 17228, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/8/2019 19:34:48 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 12168, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/8/2019 21:17:28 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 4164, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/8/2019 21:18:58 PM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 17344, set affinity to CPU2+CPU3+CPU4+CPU5
+3/9/2019 1:02:49 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 20180, set affinity to CPU2+CPU3+CPU4+CPU5
+3/9/2019 1:34:59 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 3764, set affinity to CPU2+CPU3+CPU4+CPU5
+3/9/2019 3:00:09 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 16196, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/10/2019 3:00:09 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 8168, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/13/2019 3:00:00 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 15616, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/13/2019 17:05:20 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 2808, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/13/2019 17:14:10 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 8684, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+
+Auto detecting CPU configuration. Please wait.
+3/14/2019 1:33:49 AM: Found 8 CPUs:
+	 CPU0 has mask 0000000000000001
+	 CPU1 has mask 0000000000000002
+	 CPU2 has mask 0000000000000004
+	 CPU3 has mask 0000000000000008
+	 CPU4 has mask 0000000000000010
+	 CPU5 has mask 0000000000000020
+	 CPU6 has mask 0000000000000040
+	 CPU7 has mask 0000000000000080
+3/14/2019 1:33:49 AM: Found 4 PAIRs:
+	 PAIR0<CPU0,CPU1> has mask 0000000000000003
+	 PAIR1<CPU2,CPU3> has mask 000000000000000C
+	 PAIR2<CPU4,CPU5> has mask 0000000000000030
+	 PAIR3<CPU6,CPU7> has mask 00000000000000C0
+3/16/2019 3:00:10 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 10904, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/17/2019 3:00:00 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 20044, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/18/2019 3:00:00 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 20216, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/19/2019 3:00:00 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 20408, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/19/2019 8:16:20 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 10280, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+
+Auto detecting CPU configuration. Please wait.
+3/19/2019 10:16:52 AM: Found 8 CPUs:
+	 CPU0 has mask 0000000000000001
+	 CPU1 has mask 0000000000000002
+	 CPU2 has mask 0000000000000004
+	 CPU3 has mask 0000000000000008
+	 CPU4 has mask 0000000000000010
+	 CPU5 has mask 0000000000000020
+	 CPU6 has mask 0000000000000040
+	 CPU7 has mask 0000000000000080
+3/19/2019 10:16:52 AM: Found 4 PAIRs:
+	 PAIR0<CPU0,CPU1> has mask 0000000000000003
+	 PAIR1<CPU2,CPU3> has mask 000000000000000C
+	 PAIR2<CPU4,CPU5> has mask 0000000000000030
+	 PAIR3<CPU6,CPU7> has mask 00000000000000C0
+3/19/2019 10:17:22 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 16192, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+
+Auto detecting CPU configuration. Please wait.
+3/19/2019 12:28:26 PM: Found 8 CPUs:
+	 CPU0 has mask 0000000000000001
+	 CPU1 has mask 0000000000000002
+	 CPU2 has mask 0000000000000004
+	 CPU3 has mask 0000000000000008
+	 CPU4 has mask 0000000000000010
+	 CPU5 has mask 0000000000000020
+	 CPU6 has mask 0000000000000040
+	 CPU7 has mask 0000000000000080
+3/19/2019 12:28:26 PM: Found 4 PAIRs:
+	 PAIR0<CPU0,CPU1> has mask 0000000000000003
+	 PAIR1<CPU2,CPU3> has mask 000000000000000C
+	 PAIR2<CPU4,CPU5> has mask 0000000000000030
+	 PAIR3<CPU6,CPU7> has mask 00000000000000C0
+3/20/2019 3:00:05 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 3932, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/21/2019 3:00:06 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 3132, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/22/2019 3:00:06 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 12996, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/23/2019 3:00:06 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 7504, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/24/2019 3:00:06 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 15752, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/26/2019 3:00:07 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 8292, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/26/2019 11:59:57 AM: C:\Program Files\Newsbin\newsbinpro64.exe with PID 3264, set affinity to CPU2+CPU3+CPU4+CPU5+CPU6+CPU7
+3/26/2019 12:10:27 PM: C:\Program Files\HandBrake\HandBrake.exe with PID 4828, set affinity to CPU2+CPU3+CPU4+CPU5+CPU6+CPU7
+3/26/2019 12:11:17 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 14864, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/26/2019 22:12:57 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 12524, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/26/2019 23:01:57 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 19636, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/26/2019 23:13:27 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 10388, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/26/2019 23:23:07 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 14984, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/26/2019 23:25:47 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 19940, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/26/2019 23:30:17 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 20756, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/26/2019 23:43:57 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 14060, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/26/2019 23:55:27 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 12300, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/27/2019 1:08:07 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 7712, set affinity to CPU2+CPU3+CPU4+CPU5
+3/27/2019 1:41:37 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 19548, set affinity to CPU2+CPU3+CPU4+CPU5
+3/27/2019 3:00:07 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 7332, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/27/2019 8:24:07 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 21032, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/27/2019 22:58:17 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 14972, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+3/31/2019 15:59:48 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 12604, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+
+Auto detecting CPU configuration. Please wait.
+4/1/2019 14:46:26 PM: Found 8 CPUs:
+	 CPU0 has mask 0000000000000001
+	 CPU1 has mask 0000000000000002
+	 CPU2 has mask 0000000000000004
+	 CPU3 has mask 0000000000000008
+	 CPU4 has mask 0000000000000010
+	 CPU5 has mask 0000000000000020
+	 CPU6 has mask 0000000000000040
+	 CPU7 has mask 0000000000000080
+4/1/2019 14:46:26 PM: Found 4 PAIRs:
+	 PAIR0<CPU0,CPU1> has mask 0000000000000003
+	 PAIR1<CPU2,CPU3> has mask 000000000000000C
+	 PAIR2<CPU4,CPU5> has mask 0000000000000030
+	 PAIR3<CPU6,CPU7> has mask 00000000000000C0
+4/1/2019 15:04:26 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 10356, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 15:20:46 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 11804, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 15:25:26 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 11000, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 15:26:16 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 1968, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 15:39:56 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 7060, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 15:42:16 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 7360, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 15:42:56 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 2820, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 15:43:36 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 6384, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 15:44:36 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 3060, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 15:47:26 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 11592, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 15:56:06 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 12784, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 16:01:16 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 16508, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 16:07:26 PM: C:\Program Files\Newsbin\newsbinpro64.exe with PID 17184, set affinity to CPU2+CPU3+CPU4+CPU5+CPU6+CPU7
+4/1/2019 16:11:26 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 3192, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 16:26:26 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 4944, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 16:31:56 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 16924, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 16:43:06 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 2548, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 16:51:26 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 8580, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 21:34:56 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 6892, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 21:40:46 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 7868, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/1/2019 21:46:56 PM: C:\Program Files\Newsbin\newsbinpro64.exe with PID 17100, set affinity to CPU2+CPU3+CPU4+CPU5+CPU6+CPU7
+4/1/2019 21:49:16 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 5376, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/2/2019 1:02:36 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 10856, set affinity to CPU2+CPU3+CPU4+CPU5
+4/2/2019 3:00:06 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 16388, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/3/2019 3:00:06 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 3236, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/4/2019 3:00:07 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 9532, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/4/2019 16:12:07 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 2632, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/6/2019 3:00:07 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 2336, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/7/2019 3:00:08 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 10912, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+
+Auto detecting CPU configuration. Please wait.
+4/7/2019 15:10:23 PM: Found 8 CPUs:
+	 CPU0 has mask 0000000000000001
+	 CPU1 has mask 0000000000000002
+	 CPU2 has mask 0000000000000004
+	 CPU3 has mask 0000000000000008
+	 CPU4 has mask 0000000000000010
+	 CPU5 has mask 0000000000000020
+	 CPU6 has mask 0000000000000040
+	 CPU7 has mask 0000000000000080
+4/7/2019 15:10:23 PM: Found 4 PAIRs:
+	 PAIR0<CPU0,CPU1> has mask 0000000000000003
+	 PAIR1<CPU2,CPU3> has mask 000000000000000C
+	 PAIR2<CPU4,CPU5> has mask 0000000000000030
+	 PAIR3<CPU6,CPU7> has mask 00000000000000C0
+4/8/2019 3:00:03 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 11924, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/9/2019 3:00:04 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 8852, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+
+Auto detecting CPU configuration. Please wait.
+4/9/2019 10:09:47 AM: Found 8 CPUs:
+	 CPU0 has mask 0000000000000001
+	 CPU1 has mask 0000000000000002
+	 CPU2 has mask 0000000000000004
+	 CPU3 has mask 0000000000000008
+	 CPU4 has mask 0000000000000010
+	 CPU5 has mask 0000000000000020
+	 CPU6 has mask 0000000000000040
+	 CPU7 has mask 0000000000000080
+4/9/2019 10:09:47 AM: Found 4 PAIRs:
+	 PAIR0<CPU0,CPU1> has mask 0000000000000003
+	 PAIR1<CPU2,CPU3> has mask 000000000000000C
+	 PAIR2<CPU4,CPU5> has mask 0000000000000030
+	 PAIR3<CPU6,CPU7> has mask 00000000000000C0
+4/9/2019 15:43:28 PM: C:\Program Files\Newsbin\newsbinpro64.exe with PID 10248, set affinity to CPU2+CPU3+CPU4+CPU5+CPU6+CPU7
+4/9/2019 15:53:58 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 3872, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/9/2019 16:05:08 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 7984, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/9/2019 16:19:08 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 9096, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/9/2019 16:26:28 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 8252, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/9/2019 16:55:18 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 5616, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/9/2019 21:42:38 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 2716, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/10/2019 1:01:48 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 3572, set affinity to CPU2+CPU3+CPU4+CPU5
+4/10/2019 1:18:08 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 3344, set affinity to CPU2+CPU3+CPU4+CPU5
+4/10/2019 1:38:08 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 14524, set affinity to CPU2+CPU3+CPU4+CPU5
+
+Auto detecting CPU configuration. Please wait.
+4/11/2019 16:01:07 PM: Found 8 CPUs:
+	 CPU0 has mask 0000000000000001
+	 CPU1 has mask 0000000000000002
+	 CPU2 has mask 0000000000000004
+	 CPU3 has mask 0000000000000008
+	 CPU4 has mask 0000000000000010
+	 CPU5 has mask 0000000000000020
+	 CPU6 has mask 0000000000000040
+	 CPU7 has mask 0000000000000080
+4/11/2019 16:01:07 PM: Found 4 PAIRs:
+	 PAIR0<CPU0,CPU1> has mask 0000000000000003
+	 PAIR1<CPU2,CPU3> has mask 000000000000000C
+	 PAIR2<CPU4,CPU5> has mask 0000000000000030
+	 PAIR3<CPU6,CPU7> has mask 00000000000000C0
+4/12/2019 3:00:08 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 5648, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/13/2019 13:04:58 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 1148, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/13/2019 13:27:28 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 376, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/13/2019 13:43:38 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 7696, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/13/2019 13:49:08 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 4268, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/13/2019 14:00:48 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 15196, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/14/2019 1:02:49 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 8092, set affinity to CPU2+CPU3+CPU4+CPU5
+4/14/2019 1:23:29 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 3000, set affinity to CPU2+CPU3+CPU4+CPU5
+4/14/2019 1:59:39 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 15832, set affinity to CPU2+CPU3+CPU4+CPU5
+4/14/2019 2:21:29 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 10080, set affinity to CPU2+CPU3+CPU4+CPU5
+4/15/2019 16:27:09 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 15944, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/16/2019 1:02:29 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 472, set affinity to CPU2+CPU3+CPU4+CPU5
+4/19/2019 3:00:01 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 13984, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/20/2019 3:00:01 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 11000, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/21/2019 3:00:01 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 4040, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/22/2019 3:00:02 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 13132, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/23/2019 3:00:02 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 10376, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/24/2019 3:00:02 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 2624, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/25/2019 3:00:03 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 11972, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/25/2019 16:49:13 PM: C:\Program Files\Newsbin\newsbinpro64.exe with PID 19952, set affinity to CPU2+CPU3+CPU4+CPU5+CPU6+CPU7
+4/25/2019 17:11:03 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 16668, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/26/2019 3:00:03 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 17752, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/27/2019 3:00:04 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 15644, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/27/2019 10:17:24 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 4748, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/28/2019 3:00:04 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 8048, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/29/2019 11:17:05 AM: C:\Program Files\Newsbin\newsbinpro64.exe with PID 15108, set affinity to CPU2+CPU3+CPU4+CPU5+CPU6+CPU7
+4/29/2019 11:30:05 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 16624, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/29/2019 13:25:05 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 19084, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/29/2019 13:45:55 PM: C:\Program Files\Newsbin\newsbinpro64.exe with PID 11576, set affinity to CPU2+CPU3+CPU4+CPU5+CPU6+CPU7
+4/29/2019 16:10:45 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 12768, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/30/2019 1:02:45 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 9292, set affinity to CPU2+CPU3+CPU4+CPU5
+4/30/2019 3:00:05 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 16220, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/30/2019 15:55:55 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 10904, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+4/30/2019 16:16:35 PM: C:\Program Files\Newsbin\newsbinpro64.exe with PID 11740, set affinity to CPU2+CPU3+CPU4+CPU5+CPU6+CPU7
+5/1/2019 1:09:45 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 19164, set affinity to CPU2+CPU3+CPU4+CPU5
+5/1/2019 1:29:15 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 14900, set affinity to CPU2+CPU3+CPU4+CPU5
+5/1/2019 1:35:35 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 13236, set affinity to CPU2+CPU3+CPU4+CPU5
+5/1/2019 3:00:06 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 19936, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/1/2019 3:02:16 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 8716, set affinity to CPU2+CPU3+CPU4+CPU5
+5/1/2019 3:10:36 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 18660, set affinity to CPU2+CPU3+CPU4+CPU5
+5/1/2019 14:17:06 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 2224, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/2/2019 3:00:06 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 19412, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/2/2019 3:01:16 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 18036, set affinity to CPU2+CPU3+CPU4+CPU5
+5/2/2019 3:13:06 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 10376, set affinity to CPU2+CPU3+CPU4+CPU5
+5/2/2019 16:37:06 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 7124, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/2/2019 22:18:56 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 14920, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/3/2019 3:00:06 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 9412, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+
+Auto detecting CPU configuration. Please wait.
+5/3/2019 16:42:59 PM: Found 8 CPUs:
+	 CPU0 has mask 0000000000000001
+	 CPU1 has mask 0000000000000002
+	 CPU2 has mask 0000000000000004
+	 CPU3 has mask 0000000000000008
+	 CPU4 has mask 0000000000000010
+	 CPU5 has mask 0000000000000020
+	 CPU6 has mask 0000000000000040
+	 CPU7 has mask 0000000000000080
+5/3/2019 16:42:59 PM: Found 4 PAIRs:
+	 PAIR0<CPU0,CPU1> has mask 0000000000000003
+	 PAIR1<CPU2,CPU3> has mask 000000000000000C
+	 PAIR2<CPU4,CPU5> has mask 0000000000000030
+	 PAIR3<CPU6,CPU7> has mask 00000000000000C0
+5/3/2019 16:45:49 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 11536, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/3/2019 17:08:39 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 9316, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/4/2019 1:01:39 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 7344, set affinity to CPU2+CPU3+CPU4+CPU5
+5/4/2019 1:19:29 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 13212, set affinity to CPU2+CPU3+CPU4+CPU5
+5/4/2019 1:35:09 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 4108, set affinity to CPU2+CPU3+CPU4+CPU5
+5/5/2019 3:00:10 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 10312, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+
+Auto detecting CPU configuration. Please wait.
+5/6/2019 1:44:48 AM: Found 8 CPUs:
+	 CPU0 has mask 0000000000000001
+	 CPU1 has mask 0000000000000002
+	 CPU2 has mask 0000000000000004
+	 CPU3 has mask 0000000000000008
+	 CPU4 has mask 0000000000000010
+	 CPU5 has mask 0000000000000020
+	 CPU6 has mask 0000000000000040
+	 CPU7 has mask 0000000000000080
+5/6/2019 1:44:48 AM: Found 4 PAIRs:
+	 PAIR0<CPU0,CPU1> has mask 0000000000000003
+	 PAIR1<CPU2,CPU3> has mask 000000000000000C
+	 PAIR2<CPU4,CPU5> has mask 0000000000000030
+	 PAIR3<CPU6,CPU7> has mask 00000000000000C0
+5/6/2019 21:42:29 PM: C:\Program Files\Newsbin\NewsbinPro64.exe with PID 11308, set affinity to CPU2+CPU3+CPU4+CPU5+CPU6+CPU7
+5/7/2019 3:00:09 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 15144, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/7/2019 9:47:09 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 9028, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/7/2019 13:10:59 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 9584, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/9/2019 16:32:00 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 7384, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/9/2019 16:35:50 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 1840, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/9/2019 16:38:10 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 11544, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/10/2019 3:00:10 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 13484, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/11/2019 3:00:10 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 11096, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/12/2019 3:00:10 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 3692, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/14/2019 3:00:01 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 11908, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/15/2019 3:00:01 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 10616, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+
+Auto detecting CPU configuration. Please wait.
+5/16/2019 2:02:45 AM: Found 8 CPUs:
+	 CPU0 has mask 0000000000000001
+	 CPU1 has mask 0000000000000002
+	 CPU2 has mask 0000000000000004
+	 CPU3 has mask 0000000000000008
+	 CPU4 has mask 0000000000000010
+	 CPU5 has mask 0000000000000020
+	 CPU6 has mask 0000000000000040
+	 CPU7 has mask 0000000000000080
+5/16/2019 2:02:45 AM: Found 4 PAIRs:
+	 PAIR0<CPU0,CPU1> has mask 0000000000000003
+	 PAIR1<CPU2,CPU3> has mask 000000000000000C
+	 PAIR2<CPU4,CPU5> has mask 0000000000000030
+	 PAIR3<CPU6,CPU7> has mask 00000000000000C0
+5/16/2019 19:34:36 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 5332, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/16/2019 19:37:56 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 1208, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/16/2019 19:38:46 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 5840, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/17/2019 1:01:46 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 18156, set affinity to CPU2+CPU3+CPU4+CPU5
+5/17/2019 3:00:06 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 12304, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/18/2019 3:00:06 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 12140, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+
+Auto detecting CPU configuration. Please wait.
+5/19/2019 1:36:51 AM: Found 8 CPUs:
+	 CPU0 has mask 0000000000000001
+	 CPU1 has mask 0000000000000002
+	 CPU2 has mask 0000000000000004
+	 CPU3 has mask 0000000000000008
+	 CPU4 has mask 0000000000000010
+	 CPU5 has mask 0000000000000020
+	 CPU6 has mask 0000000000000040
+	 CPU7 has mask 0000000000000080
+5/19/2019 1:36:51 AM: Found 4 PAIRs:
+	 PAIR0<CPU0,CPU1> has mask 0000000000000003
+	 PAIR1<CPU2,CPU3> has mask 000000000000000C
+	 PAIR2<CPU4,CPU5> has mask 0000000000000030
+	 PAIR3<CPU6,CPU7> has mask 00000000000000C0
+5/19/2019 3:00:01 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 10932, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/20/2019 3:00:01 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 12800, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/21/2019 3:00:01 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 16008, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/21/2019 19:54:41 PM: C:\Program Files\Newsbin\newsbinpro64.exe with PID 1492, set affinity to CPU2+CPU3+CPU4+CPU5+CPU6+CPU7
+5/21/2019 20:29:01 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 14088, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/21/2019 20:50:21 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 10220, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/21/2019 20:56:31 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 14632, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/21/2019 21:44:51 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 14200, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/21/2019 22:14:21 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 14112, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/22/2019 1:06:01 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 15660, set affinity to CPU2+CPU3+CPU4+CPU5
+5/22/2019 3:00:01 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 15056, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/22/2019 8:36:31 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 8508, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/23/2019 3:00:01 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 11820, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/24/2019 3:00:01 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 11348, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/24/2019 20:09:31 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 12444, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/24/2019 20:17:51 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 232, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/24/2019 20:31:31 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 12688, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/25/2019 3:00:01 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 15800, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/25/2019 13:53:01 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 6396, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/26/2019 1:02:51 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 12272, set affinity to CPU2+CPU3+CPU4+CPU5
+5/26/2019 1:41:41 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 14008, set affinity to CPU2+CPU3+CPU4+CPU5
+5/26/2019 2:03:21 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 7528, set affinity to CPU2+CPU3+CPU4+CPU5
+5/26/2019 2:21:41 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 15828, set affinity to CPU2+CPU3+CPU4+CPU5
+5/26/2019 2:38:31 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 17812, set affinity to CPU2+CPU3+CPU4+CPU5
+5/26/2019 3:00:01 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 14016, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/26/2019 3:00:21 AM: C:\Program Files\Handbrake\HandBrakeCLI.exe with PID 4540, set affinity to CPU2+CPU3+CPU4+CPU5
+5/27/2019 3:00:01 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 8744, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/28/2019 3:00:01 AM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 11272, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5
+5/28/2019 19:23:21 PM: C:\Program Files\Newsbin\NewsbinPro64.exe with PID 7028, set affinity to CPU2+CPU3+CPU4+CPU5+CPU6+CPU7
+5/28/2019 19:24:21 PM: C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\Debug\FSIndexer.exe with PID 12176, set affinity to CPU0+CPU1+CPU2+CPU3+CPU4+CPU5

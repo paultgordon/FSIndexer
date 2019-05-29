@@ -31,13 +31,13 @@ namespace FSIndexer
         public const long HashSizeShort = 100 * KB;
         public const long HashSizeLong = 200 * MB;
 
-        private const string KeepDirectory = @"E:\_P";
-        private const string FavoritesDir = @"E:\_P\_Best";
-        private const string FavoritesStarDir = @"E:\_P\_Best\_AllTimeBest";
-        private const string VLCPath = @"C:\Program Files\VideoLAN\VLC\vlc.exe";
-        private const string NzbPath = @"E:\Downloads\NG\_Decoded";
-        private const string TorrentPath = @"E:\Downloads\NG\_Decoded\Torrents";
-        private string TheEndPath { get { return Path.Combine(SaveDirectory, "TheEnd_NS.mp4"); } }
+        public const string KeepDirectory = @"E:\_P";
+        public const string FavoritesDir = @"E:\_P\_Best";
+        public const string FavoritesStarDir = @"E:\_P\_Best\_AllTimeBest";
+        public const string VLCPath = @"C:\Program Files\VideoLAN\VLC\vlc.exe";
+        public const string NzbPath = @"E:\Downloads\NG\_Decoded";
+        public const string TorrentPath = @"E:\Downloads\NG\_Decoded\_Torrents";
+        public string TheEndPath { get { return Path.Combine(SaveDirectory, "TheEnd_NS.mp4"); } }
 
         private string SaveDirectory { get { return Directory.GetParent(Path.GetDirectoryName(Path.GetFullPath(Assembly.GetExecutingAssembly().Location))).FullName; } }
         private string MoveTrackingFile { get { return Path.Combine(SaveDirectory, "MoveTrackerList.xml"); } }
