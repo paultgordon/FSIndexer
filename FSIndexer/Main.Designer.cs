@@ -217,28 +217,28 @@
             // toolStripMenuItemConvert
             // 
             this.toolStripMenuItemConvert.Name = "toolStripMenuItemConvert";
-            this.toolStripMenuItemConvert.Size = new System.Drawing.Size(142, 22);
+            this.toolStripMenuItemConvert.Size = new System.Drawing.Size(141, 22);
             this.toolStripMenuItemConvert.Text = "Convert";
             this.toolStripMenuItemConvert.Click += new System.EventHandler(this.toolStripMenuItemConvert_Click);
             // 
             // toolStripMenuItemOpenFolder
             // 
             this.toolStripMenuItemOpenFolder.Name = "toolStripMenuItemOpenFolder";
-            this.toolStripMenuItemOpenFolder.Size = new System.Drawing.Size(142, 22);
+            this.toolStripMenuItemOpenFolder.Size = new System.Drawing.Size(141, 22);
             this.toolStripMenuItemOpenFolder.Text = "Open Folder";
             this.toolStripMenuItemOpenFolder.Click += new System.EventHandler(this.toolStripMenuItemOpenFolder_Click);
             // 
             // toolStripMenuItemAddTag
             // 
             this.toolStripMenuItemAddTag.Name = "toolStripMenuItemAddTag";
-            this.toolStripMenuItemAddTag.Size = new System.Drawing.Size(142, 22);
+            this.toolStripMenuItemAddTag.Size = new System.Drawing.Size(141, 22);
             this.toolStripMenuItemAddTag.Text = "Add Tag";
             this.toolStripMenuItemAddTag.Click += new System.EventHandler(this.toolStripMenuItemAddTag_Click);
             // 
             // toolStripMenuItemGoogle
             // 
             this.toolStripMenuItemGoogle.Name = "toolStripMenuItemGoogle";
-            this.toolStripMenuItemGoogle.Size = new System.Drawing.Size(142, 22);
+            this.toolStripMenuItemGoogle.Size = new System.Drawing.Size(141, 22);
             this.toolStripMenuItemGoogle.Text = "Google Term";
             this.toolStripMenuItemGoogle.Click += new System.EventHandler(this.toolStripMenuItemGoogle_Click);
             // 

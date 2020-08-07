@@ -109,7 +109,10 @@ namespace FSIndexer
                 HashTrackerList obj = (HashTrackerList)xs.Deserialize(streamRead);
                 streamRead.Close();
 
-                obj.List.RemoveAll(n => !File.Exists(n.Path));
+                //obj.List.RemoveAll(n => !File.Exists(n.Path));
+                //obj.List.Where(n => n.DateModified == DateTime.MinValue && File.Exists(n.Path)).ToList().ForEach(n => n.DateModified = new FileInfo(n.Path).LastWriteTimeUtc);
+                // obj.List.Where(n => !File.Exists(n.Path)).ToList().ForEach(n => n.)
+                // obj.List.RemoveAll(n => !File.Exists(n.Path));
                 obj.Sort();
 
                 return obj;

@@ -11,9 +11,10 @@ namespace FSIndexer
     [Serializable()]
     public class HashTrackerItem : IComparable<HashTrackerItem>
     {
-        [XmlIgnore]
         public string Path { get; set; } = string.Empty;
         public long Length { get; set; } = -1;
+        internal DateTime DateCreated { get; set; } = DateTime.MinValue;
+        public DateTime DateModified { get; set; } = DateTime.MinValue;
 
         private string _shortHash { get; set; } = string.Empty;
         private string _longHash { get; set; } = string.Empty;
@@ -66,13 +67,14 @@ namespace FSIndexer
 
         public HashTrackerItem()
         {
-
         }
 
         public HashTrackerItem(FileInfo fi)
         {
             Path = fi.FullName;
             Length = fi.Length;
+            DateCreated = fi.CreationTimeUtc;
+            DateModified = fi.LastWriteTimeUtc;
             var fsh = ShortHash;
         }
 

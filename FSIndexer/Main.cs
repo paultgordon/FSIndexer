@@ -546,9 +546,9 @@ namespace FSIndexer
                     }
                     PrintInfo("IndexedList.Index End");
  
-                    IndexedList.IndexedTerms.Where(n => n.Enabled && TermOptions.AutoSkipTags.Any(m => m.Equals(n.Term, StringComparison.CurrentCultureIgnoreCase))).ToList().ForEach(d => d.PermanentlyDisabled = true);
-                    IndexedList.IndexedTerms.Where(n => n.Enabled && IgnoreTrackerList.Contains(n.Term)).ToList().ForEach(d => d.PermanentlyDisabled = true);
-                    IndexedList.IndexedTerms.Where(n => n.Enabled && n.IndexedFiles.Count == 0).ToList().ForEach(d => d.PermanentlyDisabled = true);
+                    IndexedList.IndexedTerms.AsParallel().Where(n => n.Enabled && TermOptions.AutoSkipTags.Any(m => m.Equals(n.Term, StringComparison.CurrentCultureIgnoreCase))).ToList().AsParallel().ForAll(d => d.PermanentlyDisabled = true);
+                    IndexedList.IndexedTerms.AsParallel().Where(n => n.Enabled && IgnoreTrackerList.Contains(n.Term)).ToList().AsParallel().ForAll(d => d.PermanentlyDisabled = true);
+                    IndexedList.IndexedTerms.AsParallel().Where(n => n.Enabled && n.IndexedFiles.Count == 0).ToList().AsParallel().ForAll(d => d.PermanentlyDisabled = true);
 
                     PrintInfo("RefreshFileSystem End");
                 }
@@ -601,13 +601,13 @@ namespace FSIndexer
 
         private void ApplyFilter()
         {
-            IndexedList.IndexedTerms.ForEach(n => n.TemporarilyDisabled = false);
-            IndexedList.IndexedTerms.ForEach(n => n.IndexedFiles.ForEach(m => m.TemporarilyDisabled = false));
+            IndexedList.IndexedTerms.AsParallel().ForAll(n => n.TemporarilyDisabled = false);
+            IndexedList.IndexedTerms.AsParallel().ForAll(n => n.IndexedFiles.ForEach(m => m.TemporarilyDisabled = false));
 
             if (FilterOnName.Count > 0)
             {
-                IndexedList.IndexedTerms.ForEach(n => n.PermanentlyDisabled = false);
-                IndexedList.IndexedTerms.EnabledList.Where(n => !FilterOnName.Any(f => n.Term.Contains(f, StringComparison.CurrentCultureIgnoreCase))).ToList().ForEach(n => n.TemporarilyDisabled = true);
+                IndexedList.IndexedTerms.AsParallel().ForAll(n => n.PermanentlyDisabled = false);
+                IndexedList.IndexedTerms.EnabledList.AsParallel().Where(n => !FilterOnName.Any(f => n.Term.Contains(f, StringComparison.CurrentCultureIgnoreCase))).ToList().AsParallel().ForAll(n => n.TemporarilyDisabled = true);
                 // IndexedList.IndexedTerms.ForEach(i => i.IndexedFiles.Where(n => !FilterOnName.Any(f => n.Name.Contains(f, StringComparison.CurrentCultureIgnoreCase))).ToList().ForEach(n => n.TemporarilyDisabled = true));
             }
 
@@ -615,7 +615,7 @@ namespace FSIndexer
             {
                 foreach (var iterm in IndexedList.IndexedTerms.EnabledList)
                 {
-                    iterm.IndexedFiles.Where(n => n.Enabled).Where(n => n.File.CreationTime < DateTime.Now.AddDays(-1 * TermOptions.ExcludeRules.IgnoreTermsWithAgeGreaterThan)).ToList().ForEach(n => n.TemporarilyDisabled = true);
+                    iterm.IndexedFiles.AsParallel().Where(n => n.Enabled).Where(n => n.File.CreationTime < DateTime.Now.AddDays(-1 * TermOptions.ExcludeRules.IgnoreTermsWithAgeGreaterThan)).ToList().AsParallel().ForAll(n => n.TemporarilyDisabled = true);
                 }
             }
 
@@ -642,7 +642,7 @@ namespace FSIndexer
                 }
             }
 
-            IndexedList.IndexedTerms.EnabledList.Where(n => n.IndexedFiles.Count == 0 || !n.IndexedFiles.Any(f => f.Enabled) || n.IndexedFiles.Count < TermOptions.ExcludeRules.IgnoreTermsWithChildrenLessThan).ToList().ForEach(n => n.TemporarilyDisabled = true);
+            IndexedList.IndexedTerms.EnabledList.AsParallel().Where(n => n.IndexedFiles.Count == 0 || !n.IndexedFiles.Any(f => f.Enabled) || n.IndexedFiles.Count < TermOptions.ExcludeRules.IgnoreTermsWithChildrenLessThan).ToList().AsParallel().ForAll(n => n.TemporarilyDisabled = true);
 
             TopNode.Nodes.Clear();
 
@@ -821,7 +821,7 @@ namespace FSIndexer
                     {
                         FileInfo fi = IndexedList.IndexedTerms.Find(subnode.Parent.Name, subnode.Text, subnode.ToolTipText);
 
-                        if (fi != null)
+                        if (fi != null && File.Exists(fi.FullName))
                         {
                             fi.IsReadOnly = false;
 
@@ -1316,57 +1316,54 @@ namespace FSIndexer
 
             if (IsParent)
             {
-                if (e.GetType() == typeof(KeyEventArgs))
+                // If ctrl is held then reverse the order
+                if (e is KeyEventArgs && ((KeyEventArgs)e).Control)
                 {
-                    KeyEventArgs ke = (KeyEventArgs)e;
-
-                    // If shift is held then only play the top 5
-                    if (ke.Shift)
+                    for (int i = SelectedNode.Nodes.Count - 1; i >= 0 && list.Count < 20; i--)
                     {
-                        for (int i = 0; i < Math.Min(5, SelectedNode.Nodes.Count); i++)
-                        {
-                            list.Add(SelectedNode.Nodes[i]);
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < Math.Min(50, SelectedNode.Nodes.Count); i++)
-                        {
-                            list.Add(SelectedNode.Nodes[i]);
-                        }
-
-                        //foreach (TreeNode item in SelectedNode.Nodes)
-                        //{
-                        //    list.Add(item);
-                        //}
+                        list.Add(SelectedNode.Nodes[i]);
                     }
                 }
                 else
                 {
-                    for (int i = 0; i < Math.Min(50, SelectedNode.Nodes.Count); i++)
+                    for (int i = 0; i < SelectedNode.Nodes.Count && list.Count < 20; i++)
                     {
                         list.Add(SelectedNode.Nodes[i]);
                     }
+                }
 
-                    //foreach (TreeNode node in SelectedNode.Nodes)
-                    //{
-                    //    list.Add(node);
-                    //}
+                // If shift is held then take 5
+                if (e is KeyEventArgs && ((KeyEventArgs)e).Shift)
+                {
+                    list = list.Take(5).ToList();
                 }
             }
             else if (IsChild)
             {
-                // If shift is held then play the next 5
-                if (e is KeyEventArgs && ((KeyEventArgs)e).Shift)
+                // If ctrl is held then reverse the order
+                if (e is KeyEventArgs && ((KeyEventArgs)e).Control)
                 {
-                    for (int i = 0; i < Math.Min(5, SelectedNode.Parent.Nodes.Count - SelectedNode.Index); i++)
+                    for (int i = SelectedNode.Index; i >= 0 && list.Count < 20; i--)
                     {
-                        list.Add(SelectedNode.Parent.Nodes[SelectedNode.Index + i]);
+                        list.Add(SelectedNode.Parent.Nodes[i]);
                     }
                 }
                 else
                 {
-                    list.Add(SelectedNode);
+                    for (int i = SelectedNode.Index; i < SelectedNode.Parent.Nodes.Count && list.Count < 20; i++)
+                    {
+                        list.Add(SelectedNode.Parent.Nodes[i]);
+                    }
+                }
+
+                // If shift is held then take 5
+                if (e is KeyEventArgs && ((KeyEventArgs)e).Shift)
+                {
+                    list = list.Take(5).ToList();
+                }
+                else
+                {
+                    list = list.Take(1).ToList();
                 }
             }
             else
@@ -1459,11 +1456,14 @@ namespace FSIndexer
                     rtbExecuteWindow.Text += "RD /Q \"" + fi.Directory.FullName + "\" >NUL 2>&1" + Environment.NewLine;
                 }
 
-                var updatedItem = IndexedList.IndexedTerms.Find(SelectedNode.Parent.Name);
-
-                if (updatedItem != null)
+                if (SelectedNode.Parent != null)
                 {
-                    SelectedNode.Parent.Text = updatedItem.ToString();
+                    var updatedItem = IndexedList.IndexedTerms.Find(SelectedNode.Parent.Name);
+
+                    if (updatedItem != null)
+                    {
+                        SelectedNode.Parent.Text = updatedItem.ToString();
+                    }
                 }
             }
 
@@ -1959,19 +1959,22 @@ namespace FSIndexer
                 }
             }
 
+            string executeText = "";
+
             // Fix sub directory names
             foreach (var ilDir in SourceDirectories.Where(n => n.AutoFile && n.RenameFolders))
             {
-                foreach (var ilFile in ilDir.GetFiles(true))
+                Parallel.ForEach(ilDir.GetFiles(true), (ilFile) =>
+                // foreach (var ilFile in ilDir.GetFiles(true))
                 {
                     // Skip files located in the root directory
                     if (ilDir.DirectoryInfo.FullName == ilFile.Directory.FullName)
                     {
-                        continue;
+                        return;
                     }
                     else if (filesMoved.Any(n => n == ilFile.FullName))
                     {
-                        continue;
+                        return;
                     }
 
                     var newDir = ilFile.Directory.Name;
@@ -2004,24 +2007,33 @@ namespace FSIndexer
 
                         if (newDir != ilFile.Directory.Name)
                         {
-                            rtbExecuteWindow.Text += GetRenameCmd(ilFile.Directory.FullName, newDir) + Environment.NewLine;
-                            filesMoved.Add(ilFile.FullName);
+                            executeText += GetRenameCmd(ilFile.Directory.FullName, newDir) + Environment.NewLine;
+
+                            lock (filesMoved)
+                            {
+                                filesMoved.Add(ilFile.FullName);
+                            }
                         }
                     }
-                }
+                });
             }
 
             foreach (var ilDir in SourceDirectoriesToAutoFile)
             {
-                foreach (var ilFile in ilDir.GetFiles(true))
+                Parallel.ForEach(ilDir.GetFiles(true), (ilFile) =>
+                // foreach (var ilFile in ilDir.GetFiles(true))
                 {
                     if (!IndexExtensions.DefaultIndexExtentions.Any(n => n.Equals(ilFile.Extension, StringComparison.CurrentCultureIgnoreCase)))
                     {
-                        continue;
+                        return;
                     }
-                    else if (filesMoved.Any(n => n == ilFile.FullName))
+
+                    lock (filesMoved)
                     {
-                        continue;
+                        if (filesMoved.ToList().Any(n => n == ilFile.FullName))
+                        {
+                            return;
+                        }
                     }
 
                     bool badCharsFound = false;
@@ -2135,10 +2147,15 @@ namespace FSIndexer
                     if (name != Path.GetFileNameWithoutExtension(ilFile.Name))
                     {
                         string newPath = Path.Combine(ilFile.DirectoryName, name + Path.GetExtension(ilFile.Name).ToLower());
-                        rtbExecuteWindow.Text += GetMoveCmd(ilFile.FullName, new FileInfo(newPath)) + Environment.NewLine;
+                        executeText += GetMoveCmd(ilFile.FullName, new FileInfo(newPath)) + Environment.NewLine;
                         filesMoved.Add(ilFile.FullName);
                     }
-                }
+                });
+            }
+
+            if (!string.IsNullOrEmpty(executeText))
+            {
+                rtbExecuteWindow.Text += executeText;
             }
 
             foreach (var sd in SourceDirectoriesToAutoFile.Where(n => n.CleanupSmallFiles))
@@ -2215,12 +2232,48 @@ namespace FSIndexer
             {
                 this.Height = PrivateViewingHeight;
 
+                Debug.WriteLine(DateTime.Now.ToString("hh:mm:ss.ff") + " -> " + " Remove Dups Start");
+
+                // Search for files that have been deleted in the past
+                var seenBefore = HashTrackerList.List.AsParallel().
+                    Where(n => n.Length > TermOptions.ExcludeRules.MinimumSizeToIndexInB).
+                    GroupBy(n => new { FileName = Path.GetFileName(n.Path) }).
+                    Select(n => new
+                    {
+                        FileName = n.Key,
+                        List = HashTrackerList.List.Where(i => Path.GetFileName(i.Path) == n.Key.FileName && i.DateModified != DateTime.MinValue).ToList()
+                    }).
+                    Select(n => new
+                    {
+                        FileName = n.FileName,
+                        List = n.List,
+                        Master = n.List.OrderBy(d => d.DateModified).FirstOrDefault(),
+                    }).
+                    Select(n => new
+                    {
+                        FileName = n.FileName,
+                        List = n.List,
+                        Master = n.Master,
+                        FilesToDelete = n.List.Where(i => File.Exists(i.Path) && i.DateModified != n.Master.DateModified && (i.Length > n.Master.Length ? (i.Length / 2) < n.Master.Length : (n.Master.Length / 2) < i.Length)).ToList(),
+                    }).
+                    Where(n => n.FilesToDelete.Count > 0).
+                    // OrderBy(n => n.FileName).
+                    ToList();
+
+                foreach (var item in seenBefore)
+                {
+                    rtbExecuteWindow.Text += "REM Earliest File Seen Date: " + item.Master.DateModified.ToShortDateString() + " " + item.Master.DateModified.ToLongTimeString() + Environment.NewLine;
+                    foreach (var file in item.FilesToDelete)
+                    {
+                        rtbExecuteWindow.Text += "REM This File Seen Date:        " + file.DateModified.ToShortDateString() + " " + file.DateModified.ToLongTimeString() + Environment.NewLine;
+                        rtbExecuteWindow.Text += "DEL \"" + file.Path + "\"" + Environment.NewLine;
+                    }
+                }
+
                 Dictionary<string, List<FileInfo>> dictHash = new Dictionary<string, List<FileInfo>>();
                 Dictionary<string, List<FileInfo>> dictName = new Dictionary<string, List<FileInfo>>();
                 List<string> dupesHash = new List<string>();
                 List<string> dupesName = new List<string>();
-
-                Debug.WriteLine(DateTime.Now.ToString("hh:mm:ss.ff") + " -> " + " Remove Dups Start");
 
                 foreach (var sd in SourceDirectoriesToCheckForDuplicates)
                 {
@@ -2483,50 +2536,57 @@ namespace FSIndexer
 
         private void ProcessEmptyDirectories(DirectoryInfoExtended root)
         {
-            foreach (var subDir in root.GetDirectories(true))
+            string executeText = "";
+
+            Parallel.ForEach(root.GetDirectories(true), (subDir) =>
+            // foreach (var subDir in root.GetDirectories(true))
             {
                 if (subDir.GetDirectories().Count() == 0 && subDir.GetFiles().Count() == 0 && subDir.Name[0] != '_')
                 {
-                    rtbExecuteWindow.Text += "RD /Q \"" + subDir.FullName + "\" >NUL 2>&1" + Environment.NewLine;
+                    executeText += "RD /Q \"" + subDir.FullName + "\" >NUL 2>&1" + Environment.NewLine;
                 }
-            }
+            });
+
+            rtbExecuteWindow.Text += executeText;
         }
 
         private void ProcessSmallFiles(DirectoryInfoExtended root)
         {
-            foreach (var fi in root.GetFiles(true).Where(n => n.Length < TermOptions.ExcludeRules.MinimumSizeToKeepInB && n.Name[0] != '_' && !n.FullName.StartsWith(KeepDirectory)))
+            string executeText = "";
+
+            Parallel.ForEach(root.GetFiles(true).Where(n => n.Length < TermOptions.ExcludeRules.MinimumSizeToKeepInB && n.Name[0] != '_' && !n.FullName.StartsWith(KeepDirectory)), (fi) =>
+            // foreach (var fi in root.GetFiles(true).Where(n => n.Length < TermOptions.ExcludeRules.MinimumSizeToKeepInB && n.Name[0] != '_' && !n.FullName.StartsWith(KeepDirectory)))
             {
                 // Skip files that have been modified recently
-                if (fi.LastWriteTimeUtc > DateTime.UtcNow.Subtract(TimeSpan.FromSeconds(10)))
+                if (fi.LastWriteTimeUtc > DateTime.UtcNow.Subtract(TimeSpan.FromSeconds(30)))
                 {
-                    continue;
+                    return;
                 }
 
                 // Skip system files like thumbs.db
                 if (fi.Attributes.HasFlag(FileAttributes.System))
                 {
-                    continue;
+                    return;
                 }
 
-                string cmd = HideFile(fi.FullName);
+                //string cmd = HideFile(fi.FullName);
 
-                if (!string.IsNullOrEmpty(cmd))
-                {
-                    rtbExecuteWindow.Text += "REM Hides Files Below Acceptable Size Limit" + Environment.NewLine;
-                    rtbExecuteWindow.Text += cmd;
-                    continue;
-                }
+                //if (!string.IsNullOrEmpty(cmd))
+                //{
+                //    executeText += "REM Hides Files Below Acceptable Size Limit" + Environment.NewLine;
+                //    executeText += cmd;
+                //    return;
+                //}
 
                 if (fi.LastWriteTimeUtc == File.GetLastWriteTimeUtc(fi.FullName) && fi.Length == new FileInfo(fi.FullName).Length) // Hasn't changed since loop query
                 {
-                    if (fi.LastWriteTimeUtc < DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(5)))
-                    {
-                        rtbExecuteWindow.Text += "REM Remove Files Below Acceptable Size Limit" + Environment.NewLine;
-                        rtbExecuteWindow.Text += UnhideFile(fi.FullName);
-                        rtbExecuteWindow.Text += "DEL \"" + fi.FullName + "\"" + Environment.NewLine;
-                    }
+                    executeText += "REM Remove Files Below Acceptable Size Limit" + Environment.NewLine;
+                    executeText += UnhideFile(fi.FullName);
+                    executeText += "DEL \"" + fi.FullName + "\"" + Environment.NewLine;
                 }
-            }
+            });
+
+            rtbExecuteWindow.Text += executeText;
         }
 
         private string UnhideFile(string fullFilePath)
@@ -2780,7 +2840,10 @@ namespace FSIndexer
 
             var fi = IndexedList.IndexedTerms.Find(childNode.Parent.Name, childNode.Text);
 
-            if (!File.Exists(fi.FullName) || !ConvertOptions.ConvertFileExtensions.Any(n => n.Equals(fi.Extension, StringComparison.CurrentCultureIgnoreCase)))
+            if (fi == null || !ConvertOptions.ConvertFileExtensions.Any(n => n.Equals(fi.Extension, StringComparison.CurrentCultureIgnoreCase)))
+                return null;
+
+            if (!File.Exists(fi.FullName))
                 return null;
 
             if (fi != null && fi.Extension.ToLower() != ConvertOptions.ConvertToFileExtension)
