@@ -517,7 +517,7 @@ namespace FSIndexer
 
             try
             {
-                if (this.PrivateViewing && this.Height != this.PrivateViewingHeight)
+                if (this.PrivateViewing && this.Height != this.PrivateViewingHeight && !AutomationRunning)
                 {
                     this.Height = this.PrivateViewingHeight;
                 }
@@ -1244,12 +1244,13 @@ namespace FSIndexer
             if (string.IsNullOrEmpty(rtbExecuteWindow.Text))
                 return;
 
-            int heightBefore = this.Height;
+            if (!AutomationRunning)
+            {
+                StartPrivateViewing();
+            }
 
             try
             {
-                this.Height = PrivateViewingHeight;
-
                 //this.Enabled = false;
 
                 string batchContents = "CD \\" + Environment.NewLine + /* "CLS" + */ Environment.NewLine + rtbExecuteWindow.Text;
@@ -1269,6 +1270,12 @@ namespace FSIndexer
                         Process p = new Process();
                         p.StartInfo.FileName = fi.FullName;
                         p.StartInfo.Verb = "runas";
+                        
+                        if (AutomationRunning)
+                        {
+                            p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                        }
+
                         p.Start();
 
                         if (WaitForCmd)
@@ -1291,7 +1298,11 @@ namespace FSIndexer
             finally
             {
                 ReloadList(true, true);
-                this.Height = heightBefore;
+
+                if (!AutomationRunning)
+                {
+                    StartNormalViewing();
+                }
             }
         }
 
@@ -1310,6 +1321,8 @@ namespace FSIndexer
 
         private void btnOpen_Click(object sender, EventArgs e)
         {
+            int maxOpen = 30;
+
             string args = "";
 
             List<TreeNode> list = new List<TreeNode>();
@@ -1319,14 +1332,14 @@ namespace FSIndexer
                 // If ctrl is held then reverse the order
                 if (e is KeyEventArgs && ((KeyEventArgs)e).Control)
                 {
-                    for (int i = SelectedNode.Nodes.Count - 1; i >= 0 && list.Count < 20; i--)
+                    for (int i = SelectedNode.Nodes.Count - 1; i >= 0 && list.Count < maxOpen; i--)
                     {
                         list.Add(SelectedNode.Nodes[i]);
                     }
                 }
                 else
                 {
-                    for (int i = 0; i < SelectedNode.Nodes.Count && list.Count < 20; i++)
+                    for (int i = 0; i < SelectedNode.Nodes.Count && list.Count < maxOpen; i++)
                     {
                         list.Add(SelectedNode.Nodes[i]);
                     }
@@ -1343,14 +1356,14 @@ namespace FSIndexer
                 // If ctrl is held then reverse the order
                 if (e is KeyEventArgs && ((KeyEventArgs)e).Control)
                 {
-                    for (int i = SelectedNode.Index; i >= 0 && list.Count < 20; i--)
+                    for (int i = SelectedNode.Index; i >= 0 && list.Count < maxOpen; i--)
                     {
                         list.Add(SelectedNode.Parent.Nodes[i]);
                     }
                 }
                 else
                 {
-                    for (int i = SelectedNode.Index; i < SelectedNode.Parent.Nodes.Count && list.Count < 20; i++)
+                    for (int i = SelectedNode.Index; i < SelectedNode.Parent.Nodes.Count && list.Count < maxOpen; i++)
                     {
                         list.Add(SelectedNode.Parent.Nodes[i]);
                     }
@@ -2230,7 +2243,10 @@ namespace FSIndexer
 
             try
             {
-                this.Height = PrivateViewingHeight;
+                if (!AutomationRunning)
+                {
+                    this.Height = PrivateViewingHeight;
+                }
 
                 Debug.WriteLine(DateTime.Now.ToString("hh:mm:ss.ff") + " -> " + " Remove Dups Start");
 
@@ -2257,7 +2273,6 @@ namespace FSIndexer
                         FilesToDelete = n.List.Where(i => File.Exists(i.Path) && i.DateModified != n.Master.DateModified && (i.Length > n.Master.Length ? (i.Length / 2) < n.Master.Length : (n.Master.Length / 2) < i.Length)).ToList(),
                     }).
                     Where(n => n.FilesToDelete.Count > 0).
-                    // OrderBy(n => n.FileName).
                     ToList();
 
                 foreach (var item in seenBefore)
@@ -2423,7 +2438,6 @@ namespace FSIndexer
         {
             if (!File.Exists(fi.FullName))
             {
-                // throw new FileNotFoundException("", fi.FullName);
                 return Guid.Empty.ToString();
             }
 
@@ -2568,15 +2582,6 @@ namespace FSIndexer
                 {
                     return;
                 }
-
-                //string cmd = HideFile(fi.FullName);
-
-                //if (!string.IsNullOrEmpty(cmd))
-                //{
-                //    executeText += "REM Hides Files Below Acceptable Size Limit" + Environment.NewLine;
-                //    executeText += cmd;
-                //    return;
-                //}
 
                 if (fi.LastWriteTimeUtc == File.GetLastWriteTimeUtc(fi.FullName) && fi.Length == new FileInfo(fi.FullName).Length) // Hasn't changed since loop query
                 {
@@ -3136,6 +3141,83 @@ namespace FSIndexer
             }
         }
 
+        private bool AutomationRunning = false;
+
+        private void btnAutomate_Click(object sender, EventArgs e)
+        {
+            // Stop automation
+            if (AutomationRunning)
+            {
+                StartNormalViewing();
+                AutomationRunning = false;
+                rtbExecuteWindow.Clear();
+                btnAutomate.Text = "Automate";
+                Application.DoEvents();
+                this.Controls.Cast<Control>().Where(c => c is Button && c != btnAutomate).ToList().ForEach(c => c.Enabled = true);
+                Application.DoEvents();
+            }
+            // Start automation
+            else
+            {
+                StartPrivateViewing();
+                AutomationRunning = true;
+                btnAutomate.Text = "Stop";
+                Application.DoEvents();
+                this.Controls.Cast<Control>().Where(c => c is Button && c != btnAutomate).ToList().ForEach(c => c.Enabled = false);
+                Application.DoEvents();
+
+                var AutomationTask = Task.Factory.StartNew(() =>
+                {
+                    int lastCount = 0;
+
+                    while (AutomationRunning)
+                    {
+                        int currentCount = 0;
+
+                        using (new TimeOperation("Sum of source directory files."))
+                        {
+                            currentCount = SourceDirectoriesToAutoFile.Sum(n => n.GetFiles(true).Count());
+                        }
+
+                        if (currentCount != lastCount)
+                        {
+                            lastCount = currentCount;
+
+                            for (int i = 0; i < 5; i++)
+                            {
+                                this.InvokeEx(a => a.btnClearTrash_Click(null, null));
+                                this.InvokeEx(a => a.btnAutoFile_Click(null, null));
+                                this.InvokeEx(a =>
+                                {
+                                    if (a.rtbExecuteWindow.Text.Length == 0)
+                                    {
+                                        i = int.MaxValue - 1;
+                                    }
+                                    else
+                                    {
+                                        a.btnExecute_Click(null, null);
+                                    }
+                                });
+                            }
+
+                            this.InvokeEx(a => a.btnRemoveDups_Click(null, null));
+                            this.InvokeEx(a => a.btnExecute_Click(null, null));
+                        }
+
+                        int sleepTime = 5 * 60;
+
+                        for (int i = 0; i < sleepTime; i++)
+                        {
+                            if (!AutomationRunning)
+                                break;
+                            else
+                                Thread.Sleep(1000);
+                        }
+                    }
+                });
+            }
+        }
+
         private void btnGlobalReplace_Click(object sender, EventArgs e)
         {
             RenameItem rnSearchFor = new RenameItem();
@@ -3266,6 +3348,26 @@ namespace FSIndexer
         private void numFilterOnAge_DoubleClick(object sender, EventArgs e)
         {
             MessageBox.Show("Filter On Age", "Tooltip");
+        }
+
+        private void StartNormalViewing()
+        {
+            if (this.Height != this.NormalViewingHeight)
+            {
+                this.Height = this.NormalViewingHeight;
+            }
+
+            this.PrivateViewing = false;
+        }
+
+        private void StartPrivateViewing()
+        {
+            if (this.Height != this.PrivateViewingHeight)
+            {
+                this.Height = this.PrivateViewingHeight;
+            }
+
+            this.PrivateViewing = true;
         }
     }
 }

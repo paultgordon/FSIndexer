@@ -70,6 +70,7 @@
             this.btnResetHashes = new System.Windows.Forms.Button();
             this.mtvTerms = new FSIndexer.MultiSelectTreeview();
             this.btnClearTrash = new System.Windows.Forms.Button();
+            this.btnAutomate = new System.Windows.Forms.Button();
             this.contextMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numFilterOnChildrenSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numFilterOnTermLength)).BeginInit();
@@ -269,10 +270,10 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.rtbExecuteWindow.DetectUrls = false;
             this.rtbExecuteWindow.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rtbExecuteWindow.Location = new System.Drawing.Point(12, 475);
+            this.rtbExecuteWindow.Location = new System.Drawing.Point(12, 487);
             this.rtbExecuteWindow.Name = "rtbExecuteWindow";
             this.rtbExecuteWindow.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Horizontal;
-            this.rtbExecuteWindow.Size = new System.Drawing.Size(1053, 125);
+            this.rtbExecuteWindow.Size = new System.Drawing.Size(1113, 125);
             this.rtbExecuteWindow.TabIndex = 5;
             this.rtbExecuteWindow.Text = "";
             this.rtbExecuteWindow.TextChanged += new System.EventHandler(this.rtbLogging_TextChanged);
@@ -282,7 +283,7 @@
             // 
             this.btnExecute.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnExecute.Enabled = false;
-            this.btnExecute.Location = new System.Drawing.Point(1007, 12);
+            this.btnExecute.Location = new System.Drawing.Point(1067, 12);
             this.btnExecute.Name = "btnExecute";
             this.btnExecute.Size = new System.Drawing.Size(58, 23);
             this.btnExecute.TabIndex = 9;
@@ -313,7 +314,7 @@
             // btnAutoFile
             // 
             this.btnAutoFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAutoFile.Location = new System.Drawing.Point(933, 12);
+            this.btnAutoFile.Location = new System.Drawing.Point(993, 12);
             this.btnAutoFile.Name = "btnAutoFile";
             this.btnAutoFile.Size = new System.Drawing.Size(68, 23);
             this.btnAutoFile.TabIndex = 15;
@@ -383,7 +384,7 @@
             // btnGlobalReplace
             // 
             this.btnGlobalReplace.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnGlobalReplace.Location = new System.Drawing.Point(520, 12);
+            this.btnGlobalReplace.Location = new System.Drawing.Point(601, 12);
             this.btnGlobalReplace.Name = "btnGlobalReplace";
             this.btnGlobalReplace.Size = new System.Drawing.Size(96, 23);
             this.btnGlobalReplace.TabIndex = 21;
@@ -439,7 +440,7 @@
             // btnRemoveDups
             // 
             this.btnRemoveDups.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnRemoveDups.Location = new System.Drawing.Point(717, 12);
+            this.btnRemoveDups.Location = new System.Drawing.Point(798, 12);
             this.btnRemoveDups.Name = "btnRemoveDups";
             this.btnRemoveDups.Size = new System.Drawing.Size(94, 23);
             this.btnRemoveDups.TabIndex = 26;
@@ -461,7 +462,7 @@
             // btnResetHashes
             // 
             this.btnResetHashes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnResetHashes.Location = new System.Drawing.Point(622, 12);
+            this.btnResetHashes.Location = new System.Drawing.Point(703, 12);
             this.btnResetHashes.Name = "btnResetHashes";
             this.btnResetHashes.Size = new System.Drawing.Size(89, 23);
             this.btnResetHashes.TabIndex = 28;
@@ -482,7 +483,7 @@
             this.mtvTerms.Name = "mtvTerms";
             this.mtvTerms.SelectedNodes = ((System.Collections.Generic.List<System.Windows.Forms.TreeNode>)(resources.GetObject("mtvTerms.SelectedNodes")));
             this.mtvTerms.ShowNodeToolTips = true;
-            this.mtvTerms.Size = new System.Drawing.Size(1053, 428);
+            this.mtvTerms.Size = new System.Drawing.Size(1113, 440);
             this.mtvTerms.TabIndex = 20;
             this.mtvTerms.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TV_NodeMouseClick);
             this.mtvTerms.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TV_NodeMouseDoubleClick);
@@ -491,7 +492,7 @@
             // btnClearTrash
             // 
             this.btnClearTrash.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnClearTrash.Location = new System.Drawing.Point(817, 12);
+            this.btnClearTrash.Location = new System.Drawing.Point(898, 12);
             this.btnClearTrash.Name = "btnClearTrash";
             this.btnClearTrash.Size = new System.Drawing.Size(80, 23);
             this.btnClearTrash.TabIndex = 29;
@@ -499,11 +500,23 @@
             this.btnClearTrash.UseVisualStyleBackColor = true;
             this.btnClearTrash.Click += new System.EventHandler(this.btnClearTrash_Click);
             // 
+            // btnAutomate
+            // 
+            this.btnAutomate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAutomate.Location = new System.Drawing.Point(524, 12);
+            this.btnAutomate.Name = "btnAutomate";
+            this.btnAutomate.Size = new System.Drawing.Size(71, 23);
+            this.btnAutomate.TabIndex = 30;
+            this.btnAutomate.Text = "Automate";
+            this.btnAutomate.UseVisualStyleBackColor = true;
+            this.btnAutomate.Click += new System.EventHandler(this.btnAutomate_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1077, 612);
+            this.ClientSize = new System.Drawing.Size(1137, 624);
+            this.Controls.Add(this.btnAutomate);
             this.Controls.Add(this.btnClearTrash);
             this.Controls.Add(this.btnResetHashes);
             this.Controls.Add(this.cbInvert);
@@ -582,6 +595,7 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemSetRating;
         private System.Windows.Forms.Button btnResetHashes;
         private System.Windows.Forms.Button btnClearTrash;
+        private System.Windows.Forms.Button btnAutomate;
     }
 }
 
