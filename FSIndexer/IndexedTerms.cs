@@ -34,6 +34,16 @@ namespace FSIndexer
                 }
             }
 
+            foreach (var item in this)
+            {
+                var it = item.IndexedFiles.FirstOrDefault(n => n.ID == termID || n.Name.Equals(filename, StringComparison.CurrentCultureIgnoreCase));
+
+                if (it != null)
+                {
+                    return it.File;
+                }
+            }
+
             return null;
         }
 
@@ -52,7 +62,7 @@ namespace FSIndexer
             }
 
             return null;
-       }
+        }
 
         public FileInfo Find(System.Windows.Forms.TreeNode childNode)
         {

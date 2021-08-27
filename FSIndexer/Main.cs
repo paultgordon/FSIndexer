@@ -24,7 +24,7 @@ namespace FSIndexer
         private const long MB = 1024 * KB;
         private const long GB = 1024 * MB;
         private const long TB = 1024 * GB;
-        private int PrivateViewingHeight = 220;
+        private int PrivateViewingHeight { get; set; }
         private int NormalViewingHeight { get; set; }
         private bool PrivateViewing = false;
 
@@ -47,7 +47,8 @@ namespace FSIndexer
         private string InfoTrackingFile { get { return Path.Combine(SaveDirectory, "InfoTrackerList.xml"); } }
         private string ShortcutCreator { get { return Path.Combine(SaveDirectory, "Shortcut.exe"); } }
 
-        public static bool IsLoading { get; set; }
+        private static bool IsLoading { get; set; } = false;
+        private static bool AutomationRunning { get; set; } = false;
         public const bool WaitForCmd = true;
 
         private readonly TimeSpan LoadTimeStale = TimeSpan.FromSeconds(300);
@@ -81,6 +82,7 @@ namespace FSIndexer
             InitializeComponent();
             CleanUpTempPath();
 
+            PrivateViewingHeight = rtbExecuteWindow.Height + 95;
             cbFilterOnTypes.Items.Clear();
 
             foreach (var fil in MenuFilterShowTypes)
@@ -121,9 +123,7 @@ namespace FSIndexer
 
             SourceDirectories.RemoveAll(n => !Directory.Exists(n.DirectoryInfo.FullName));
 
-            PrintInfo("GetFileCount Start");
             GetFileCount(SourceDirectoriesToAutoFile);
-            PrintInfo("GetFileCount End");
 
             MoveTrackerList = MoveTrackerList.LoadFromFile(MoveTrackingFile);
             RenameTrackerList = RenameTrackerList.LoadFromFile(RenameTrackingFile);
@@ -165,7 +165,9 @@ namespace FSIndexer
 
         private int GetFileCount(List<DirectoryInfoExtended> dieList)
         {
-            Func<int> a = () =>
+            using (new TimeOperation("GetFileCount Operation"))
+            {
+                Func<int> a = () =>
                 {
                     int count = 0;
 
@@ -177,12 +179,13 @@ namespace FSIndexer
                     return count;
                 };
 
-            var r = a.BeginInvoke(null, null);
+                var r = a.BeginInvoke(null, null);
 
-            if (r.AsyncWaitHandle.WaitOne(10000))
-                return a.EndInvoke(r);
-            else
-                return 0;
+                if (r.AsyncWaitHandle.WaitOne(10000))
+                    return a.EndInvoke(r);
+                else
+                    return 0;
+            }
         }
 
         private bool AreArgsEmpty(ConsoleInputReader.Reader reader)
@@ -218,7 +221,7 @@ namespace FSIndexer
 
         // GT = Grouped Together, SV = Previously Saved, MV = Needs To Be Moved, NONE = NOT SV
         [Flags]
-        public enum FilterShowTypes { ALL=0, GT=1, SV=2, MV=4, NONE=8 }
+        public enum FilterShowTypes { ALL = 0, GT = 1, SV = 2, MV = 4, NONE = 8, NA = 16 }
 
         private class ConvertOptions
         {
@@ -296,7 +299,7 @@ namespace FSIndexer
         }
 
         private List<string> FilterOnName { get; set; }
-        
+
         private TreeNode _topNode
         {
             get
@@ -338,7 +341,8 @@ namespace FSIndexer
         {
             get
             {
-                return new List<FilterShowTypes>() { FilterShowTypes.ALL, FilterShowTypes.SV, FilterShowTypes.MV, FilterShowTypes.NONE };
+                return Enum.GetValues(typeof(FilterShowTypes)).Cast<FilterShowTypes>().ToList();
+                // return new List<FilterShowTypes>() { FilterShowTypes.ALL, FilterShowTypes.SV, FilterShowTypes.MV, FilterShowTypes.NONE };
             }
         }
 
@@ -462,10 +466,10 @@ namespace FSIndexer
 
         internal static void PrintInfo(string msg = "")
         {
-            #if DEBUG
+#if DEBUG
             StackFrame sf = new StackFrame(1, true);
             Debug.WriteLine(DateTime.Now.ToString("hh:mm:ss.ff") + " -> " + sf.GetFileLineNumber() + " : " + sf.GetMethod().Name.ToString() + (string.IsNullOrEmpty(msg) ? "" : " : " + msg));
-            #endif
+#endif
         }
 
         private bool NeedsRefresh(List<DirectoryInfoExtended> dieList)
@@ -513,109 +517,124 @@ namespace FSIndexer
         {
             bool currentlyEnabled = this.Enabled;
 
-            PrintInfo();
-
-            try
+            using (new TimeOperation("ReloadList Operation"))
             {
-                if (this.PrivateViewing && this.Height != this.PrivateViewingHeight && !AutomationRunning)
+                try
                 {
-                    this.Height = this.PrivateViewingHeight;
-                }
-
-                this.Enabled = false;
-
-                TreeNode parentNode = SingleSelected ? (IsParent ? SelectedNode : (IsChild ? SelectedNode.Parent : null)) : null;
-                IndexedTerm it = parentNode != null ? IndexedList.IndexedTerms.Find(parentNode.Name) : null;
-                bool expandNode = parentNode != null ? parentNode.IsExpanded : true;
-
-                bool reallyRefresh = refreshFileSystem || NeedsRefresh(SourceDirectoriesToIndex);
-
-                if (reallyRefresh)
-                {
-                    LastLoadCount = GetFileCount(SourceDirectoriesToIndex);
-                    LastLoadTime = DateTime.UtcNow;
-
-                    PrintInfo("RefreshFileSystem Start");
-
-                    IndexedList.Reset();
-
-                    PrintInfo("IndexedList.Index Start");
-                    foreach (var die in SourceDirectoriesToIndex)
+                    if (this.PrivateViewing && this.Height != this.PrivateViewingHeight && !AutomationRunning)
                     {
-                        IndexedList.Index(die);
+                        this.Height = this.PrivateViewingHeight;
                     }
-                    PrintInfo("IndexedList.Index End");
- 
-                    IndexedList.IndexedTerms.AsParallel().Where(n => n.Enabled && TermOptions.AutoSkipTags.Any(m => m.Equals(n.Term, StringComparison.CurrentCultureIgnoreCase))).ToList().AsParallel().ForAll(d => d.PermanentlyDisabled = true);
-                    IndexedList.IndexedTerms.AsParallel().Where(n => n.Enabled && IgnoreTrackerList.Contains(n.Term)).ToList().AsParallel().ForAll(d => d.PermanentlyDisabled = true);
-                    IndexedList.IndexedTerms.AsParallel().Where(n => n.Enabled && n.IndexedFiles.Count == 0).ToList().AsParallel().ForAll(d => d.PermanentlyDisabled = true);
 
-                    PrintInfo("RefreshFileSystem End");
-                }
+                    this.Enabled = false;
 
-                IndexedList.Sort();
+                    TreeNode parentNode = SingleSelected ? (IsParent ? SelectedNode : (IsChild ? SelectedNode.Parent : null)) : null;
+                    IndexedTerm it = parentNode != null ? IndexedList.IndexedTerms.Find(parentNode.Name) : null;
+                    bool expandNode = parentNode != null ? parentNode.IsExpanded : true;
 
-                PrintInfo("ApplyFilter Start");
-                ApplyFilter();
-                PrintInfo("ApplyFilter End");
-                UpdateTopNodeCount();
+                    bool reallyRefresh = refreshFileSystem || NeedsRefresh(SourceDirectoriesToIndex);
 
-                if (findSelectedItem)
-                {
-                    if (it != null)
+                    if (reallyRefresh)
                     {
-                        foreach (TreeNode node in TopNode.Nodes)
+                        LastLoadCount = GetFileCount(SourceDirectoriesToIndex);
+                        LastLoadTime = DateTime.UtcNow;
+
+                        using (new TimeOperation("RefreshFileSystem Operation"))
                         {
-                            if (node.Text.StartsWith(it.Term + " - "))
+                            IndexedList.Reset();
+
+                            using (new TimeOperation("IndexedList Operation"))
                             {
-                                TvTerms.HideSelection = true;
-                                SelectedNode = node;
-
-                                if (expandNode)
+                                foreach (var die in SourceDirectoriesToIndex)
                                 {
-                                    SelectedNode.Expand();
+                                    IndexedList.Index(die);
                                 }
-
-                                break;
                             }
+
+                            IndexedList.IndexedTerms.AsParallel().Where(n => n.Enabled && TermOptions.AutoSkipTags.Any(m => m.Equals(n.Term, StringComparison.CurrentCultureIgnoreCase))).ToList().AsParallel().ForAll(d => d.PermanentlyDisabled = true);
+                            IndexedList.IndexedTerms.AsParallel().Where(n => n.Enabled && IgnoreTrackerList.Contains(n.Term)).ToList().AsParallel().ForAll(d => d.PermanentlyDisabled = true);
+                            IndexedList.IndexedTerms.AsParallel().Where(n => n.Enabled && n.IndexedFiles.Count == 0).ToList().AsParallel().ForAll(d => d.PermanentlyDisabled = true);
                         }
                     }
-                }
 
-                if (SelectedNode == null)
+                    IndexedList.Sort();
+
+                    if (!AutomationRunning)
+                    {
+                        using (new TimeOperation("ApplyFilter Operation"))
+                        {
+                            ApplyFilter();
+                        }
+
+                        UpdateTopNodeCount();
+
+                        if (findSelectedItem)
+                        {
+                            if (it != null)
+                            {
+                                foreach (TreeNode node in TopNode.Nodes)
+                                {
+                                    if (node.Text.StartsWith(it.Term + " - "))
+                                    {
+                                        TvTerms.HideSelection = true;
+                                        SelectedNode = node;
+
+                                        if (expandNode)
+                                        {
+                                            SelectedNode.Expand();
+                                        }
+
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (SelectedNode == null)
+                        {
+                            SelectedNode = TopNode;
+                        }
+
+                        SelectedNode.Expand();
+                        SelectedNode.EnsureVisible();
+                    }
+                }
+                finally
                 {
-                    SelectedNode = TopNode;
+                    this.Enabled = currentlyEnabled;
+                    this.ActiveControl = mtvTerms;
                 }
-
-                SelectedNode.Expand();
-                SelectedNode.EnsureVisible();
             }
-            finally
-            {
-                this.Enabled = currentlyEnabled;
-                this.ActiveControl = mtvTerms;
-            }
-
-            PrintInfo();
         }
 
         private void ApplyFilter()
         {
-            IndexedList.IndexedTerms.AsParallel().ForAll(n => n.TemporarilyDisabled = false);
-            IndexedList.IndexedTerms.AsParallel().ForAll(n => n.IndexedFiles.ForEach(m => m.TemporarilyDisabled = false));
+            if (AutomationRunning)
+                return;
 
-            if (FilterOnName.Count > 0)
+            using (new TimeOperation("ApplyFilter P1 Operation"))
             {
-                IndexedList.IndexedTerms.AsParallel().ForAll(n => n.PermanentlyDisabled = false);
-                IndexedList.IndexedTerms.EnabledList.AsParallel().Where(n => !FilterOnName.Any(f => n.Term.Contains(f, StringComparison.CurrentCultureIgnoreCase))).ToList().AsParallel().ForAll(n => n.TemporarilyDisabled = true);
-                // IndexedList.IndexedTerms.ForEach(i => i.IndexedFiles.Where(n => !FilterOnName.Any(f => n.Name.Contains(f, StringComparison.CurrentCultureIgnoreCase))).ToList().ForEach(n => n.TemporarilyDisabled = true));
+                IndexedList.IndexedTerms.AsParallel().ForAll(n => n.TemporarilyDisabled = false);
+                IndexedList.IndexedTerms.AsParallel().ForAll(n => n.IndexedFiles.ForEach(m => m.TemporarilyDisabled = false));
             }
 
-            if (TermOptions.ExcludeRules.IgnoreTermsWithAgeGreaterThan > 0)
+            using (new TimeOperation("ApplyFilter P2 Operation"))
             {
-                foreach (var iterm in IndexedList.IndexedTerms.EnabledList)
+                if (FilterOnName.Count > 0)
                 {
-                    iterm.IndexedFiles.AsParallel().Where(n => n.Enabled).Where(n => n.File.CreationTime < DateTime.Now.AddDays(-1 * TermOptions.ExcludeRules.IgnoreTermsWithAgeGreaterThan)).ToList().AsParallel().ForAll(n => n.TemporarilyDisabled = true);
+                    IndexedList.IndexedTerms.AsParallel().ForAll(n => n.PermanentlyDisabled = false);
+                    IndexedList.IndexedTerms.EnabledList.AsParallel().Where(n => !FilterOnName.Any(f => n.Term.Contains(f, StringComparison.CurrentCultureIgnoreCase))).ToList().AsParallel().ForAll(n => n.TemporarilyDisabled = true);
+                }
+            }
+
+            using (new TimeOperation("ApplyFilter P3 Operation"))
+            {
+                if (TermOptions.ExcludeRules.IgnoreTermsWithAgeGreaterThan > 0)
+                {
+                    foreach (var iterm in IndexedList.IndexedTerms.EnabledList)
+                    {
+                        iterm.IndexedFiles.AsParallel().Where(n => n.Enabled).Where(n => n.File.CreationTime < DateTime.Now.AddDays(-1 * TermOptions.ExcludeRules.IgnoreTermsWithAgeGreaterThan)).ToList().AsParallel().ForAll(n => n.TemporarilyDisabled = true);
+                    }
                 }
             }
 
@@ -631,6 +650,10 @@ namespace FSIndexer
                     {
                         iterm.TemporarilyDisabled = true;
                     }
+                    if (filter.HasFlag(FilterShowTypes.NA) && (itemFilter.HasFlag(FilterShowTypes.MV) || itemFilter.HasFlag(FilterShowTypes.SV)))
+                    {
+                        iterm.TemporarilyDisabled = true;
+                    }
                     else if (filter.HasFlag(FilterShowTypes.MV) && !itemFilter.HasFlag(FilterShowTypes.MV))
                     {
                         iterm.TemporarilyDisabled = true;
@@ -642,23 +665,48 @@ namespace FSIndexer
                 }
             }
 
-            IndexedList.IndexedTerms.EnabledList.AsParallel().Where(n => n.IndexedFiles.Count == 0 || !n.IndexedFiles.Any(f => f.Enabled) || n.IndexedFiles.Count < TermOptions.ExcludeRules.IgnoreTermsWithChildrenLessThan).ToList().AsParallel().ForAll(n => n.TemporarilyDisabled = true);
-
-            TopNode.Nodes.Clear();
-
-            foreach (var iterm in IndexedList.IndexedTerms.EnabledList)
+            using (new TimeOperation("ApplyFilter P4 Operation"))
             {
-                var newNode = CreateTreeNode(iterm);
-                var node = TopNode.Nodes[TopNode.Nodes.Add(newNode)];
+                TopNode.Nodes.Clear();
 
-                foreach (var subitem in iterm.IndexedFiles.Where(n => n.Enabled))
+                if (filter != FilterShowTypes.NA)
                 {
-                    var newSubNode = CreateTreeNode(subitem);
+                    IndexedList.IndexedTerms.EnabledList.AsParallel().Where(n => n.IndexedFiles.Count == 0 || !n.IndexedFiles.Any(f => f.Enabled) || n.IndexedFiles.Count < TermOptions.ExcludeRules.IgnoreTermsWithChildrenLessThan).ToList().AsParallel().ForAll(n => n.TemporarilyDisabled = true);
 
-                    if (!node.Nodes.Cast<TreeNode>().Any(n => n.Text == newSubNode.Text))
+                    foreach (var iterm in IndexedList.IndexedTerms.EnabledList)
                     {
-                        node.Nodes.Add(newSubNode);
+                        var newNode = CreateTreeNode(iterm);
+                        var node = TopNode.Nodes[TopNode.Nodes.Add(newNode)];
+
+                        foreach (var subitem in iterm.IndexedFiles.Where(n => n.Enabled))
+                        {
+                            var newSubNode = CreateTreeNode(subitem);
+
+                            if (!node.Nodes.Cast<TreeNode>().Any(n => n.Text == newSubNode.Text))
+                            {
+                                node.Nodes.Add(newSubNode);
+                            }
+                        }
                     }
+                }
+                else
+                {
+                    var savedTermsDictionary = new Dictionary<string, bool>();
+                    Main.InfoTrackerList.List.Select(n => n.Term.ToLower()).Distinct().ToList().ForEach(n => savedTermsDictionary[n] = true);
+                    Main.MoveTrackerList.List.Select(n => n.Tag.ToLower()).Distinct().ToList().ForEach(n => savedTermsDictionary[n] = true);
+
+                    var noSavedTermsInFile = IndexedList.IndexedFiles.Where(n => !n.IndexedStrings.Any(i => savedTermsDictionary.ContainsKey(i))).OrderBy(n => n.File.Name).ToList();
+                    var newNode = CreateTreeNode(new IndexedTerm("Unsorted") { IndexedFiles = noSavedTermsInFile.Select(n => n.FileData).ToList() });
+                    var node = TopNode.Nodes[TopNode.Nodes.Add(newNode)];
+
+                    foreach (var file in noSavedTermsInFile)
+                    {
+                        node.Nodes.Add(CreateTreeNode(file.FileData));
+                    }
+
+                    TopNode.ExpandAll();
+                    TopNode.Nodes[0].ExpandAll();
+                    node.Expand();
                 }
             }
         }
@@ -675,8 +723,8 @@ namespace FSIndexer
                 {
                     foreach (TreeNode node in parentNode.Nodes)
                     {
-                        int tr = IndexedList.IndexedTerms.Single(n => n.ID == parentNode.Name).IndexedFiles.RemoveAll(m => m.Name == node.Text);
-                        int tf = IndexedList.IndexedFiles.RemoveAll(n => n.File.Name == node.Text);
+                        IndexedList.IndexedTerms.ForEach(n => n.IndexedFiles.RemoveAll(m => m.Name == node.Text));
+                        IndexedList.IndexedFiles.RemoveAll(n => n.File.Name == node.Text);
                     }
                 }
 
@@ -687,8 +735,8 @@ namespace FSIndexer
             {
                 foreach (TreeNode node in item.Nodes)
                 {
-                    int tr = IndexedList.IndexedTerms.Single(n => n.ID == item.Name).IndexedFiles.RemoveAll(m => m.Name == node.Text);
-                    int tf = IndexedList.IndexedFiles.RemoveAll(n => n.File.Name == node.Text);
+                    IndexedList.IndexedTerms.ForEach(n => n.IndexedFiles.RemoveAll(m => m.Name == node.Text));
+                    IndexedList.IndexedFiles.RemoveAll(n => n.File.Name == node.Text);
                 }
 
                 next = item.NextNode != null ? item.NextNode : item.PrevNode;
@@ -696,9 +744,9 @@ namespace FSIndexer
             }
             else if (item != null)
             {
-                int tr = IndexedList.IndexedTerms.Single(n => n.ID == item.Parent.Name).IndexedFiles.RemoveAll(m => m.Name == item.Text);
-                int tf = IndexedList.IndexedFiles.RemoveAll(n => n.File.Name == item.Text);
-                
+                IndexedList.IndexedTerms.ForEach(n => n.IndexedFiles.RemoveAll(m => m.Name == item.Text));
+                IndexedList.IndexedFiles.RemoveAll(n => n.File.Name == item.Text);
+
                 next = item.NextNode != null ? item.NextNode : item.PrevNode;
                 TreeNode parent = item.Parent;
                 parent.Nodes.Remove(item);
@@ -1241,6 +1289,10 @@ namespace FSIndexer
 
         private void btnExecute_Click(object sender, EventArgs e)
         {
+            rtbExecuteWindow.Text = rtbExecuteWindow.Text.Trim();
+            rtbExecuteWindow.Lines.ToList().ForEach(l => Console.WriteLine("\t" + l));
+            rtbExecuteWindow.Lines = rtbExecuteWindow.Lines.Where(l => l.Length > 0 && !l.StartsWith("REM", StringComparison.CurrentCultureIgnoreCase)).ToArray();
+
             if (string.IsNullOrEmpty(rtbExecuteWindow.Text))
                 return;
 
@@ -1251,8 +1303,6 @@ namespace FSIndexer
 
             try
             {
-                //this.Enabled = false;
-
                 string batchContents = "CD \\" + Environment.NewLine + /* "CLS" + */ Environment.NewLine + rtbExecuteWindow.Text;
 
                 if (Control.ModifierKeys == Keys.Shift || Control.ModifierKeys == Keys.Control)
@@ -1270,7 +1320,7 @@ namespace FSIndexer
                         Process p = new Process();
                         p.StartInfo.FileName = fi.FullName;
                         p.StartInfo.Verb = "runas";
-                        
+
                         if (AutomationRunning)
                         {
                             p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
@@ -1453,6 +1503,7 @@ namespace FSIndexer
                 else
                 {
                     var fi = IndexedList.IndexedTerms.Find(SelectedNode.Parent.Name, SelectedNode.Text);
+                    var fi2 = IndexedList.IndexedFiles.Find(SelectedNode);
 
                     if (fi != null)
                     {
@@ -1732,7 +1783,7 @@ namespace FSIndexer
             moveStandardToolStripMenuItem.Enabled = !isTop;
             doNotRememberLocationToolStripMenuItem.Enabled = (!isTop && GetFilterShowType != FilterShowTypes.MV && GetFilterShowType != FilterShowTypes.SV);
             toolStripMenuItemRename.Enabled = !isTop;
-            
+
             toolStripMenuItemResetAutoMove.Enabled = !isTop;
             toolStripMenuItemAddNote.Enabled = (isParent && !IsMultipleParent);
             toolStripMenuItemSetRating.Enabled = (isParent && !IsMultipleParent);
@@ -1798,7 +1849,7 @@ namespace FSIndexer
                 {
                     item.DropDown.Items[i].Visible = false;
                 }
-                
+
                 return;
             }
 
@@ -2241,188 +2292,191 @@ namespace FSIndexer
             this.Enabled = false;
             int heightBefore = this.Height;
 
-            try
+            using (new TimeOperation("Remove Duplicates Operation"))
             {
-                if (!AutomationRunning)
+                try
                 {
-                    this.Height = PrivateViewingHeight;
-                }
-
-                Debug.WriteLine(DateTime.Now.ToString("hh:mm:ss.ff") + " -> " + " Remove Dups Start");
-
-                // Search for files that have been deleted in the past
-                var seenBefore = HashTrackerList.List.AsParallel().
-                    Where(n => n.Length > TermOptions.ExcludeRules.MinimumSizeToIndexInB).
-                    GroupBy(n => new { FileName = Path.GetFileName(n.Path) }).
-                    Select(n => new
+                    if (!AutomationRunning)
                     {
-                        FileName = n.Key,
-                        List = HashTrackerList.List.Where(i => Path.GetFileName(i.Path) == n.Key.FileName && i.DateModified != DateTime.MinValue).ToList()
-                    }).
-                    Select(n => new
-                    {
-                        FileName = n.FileName,
-                        List = n.List,
-                        Master = n.List.OrderBy(d => d.DateModified).FirstOrDefault(),
-                    }).
-                    Select(n => new
-                    {
-                        FileName = n.FileName,
-                        List = n.List,
-                        Master = n.Master,
-                        FilesToDelete = n.List.Where(i => File.Exists(i.Path) && i.DateModified != n.Master.DateModified && (i.Length > n.Master.Length ? (i.Length / 2) < n.Master.Length : (n.Master.Length / 2) < i.Length)).ToList(),
-                    }).
-                    Where(n => n.FilesToDelete.Count > 0).
-                    ToList();
-
-                foreach (var item in seenBefore)
-                {
-                    rtbExecuteWindow.Text += "REM Earliest File Seen Date: " + item.Master.DateModified.ToShortDateString() + " " + item.Master.DateModified.ToLongTimeString() + Environment.NewLine;
-                    foreach (var file in item.FilesToDelete)
-                    {
-                        rtbExecuteWindow.Text += "REM This File Seen Date:        " + file.DateModified.ToShortDateString() + " " + file.DateModified.ToLongTimeString() + Environment.NewLine;
-                        rtbExecuteWindow.Text += "DEL \"" + file.Path + "\"" + Environment.NewLine;
+                        this.Height = PrivateViewingHeight;
                     }
-                }
 
-                Dictionary<string, List<FileInfo>> dictHash = new Dictionary<string, List<FileInfo>>();
-                Dictionary<string, List<FileInfo>> dictName = new Dictionary<string, List<FileInfo>>();
-                List<string> dupesHash = new List<string>();
-                List<string> dupesName = new List<string>();
-
-                foreach (var sd in SourceDirectoriesToCheckForDuplicates)
-                {
-                    Task t = Task.Factory.StartNew(() =>
+                    using (new TimeOperation("Duplicates Seen Before Operation"))
+                    {
+                        // Search for files that have been deleted in the past
+                        var seenBefore = HashTrackerList.List.AsParallel().
+                        Where(n => n.Length > TermOptions.ExcludeRules.MinimumSizeToIndexInB).
+                        GroupBy(n => new { FileName = Path.GetFileName(n.Path) }).
+                        Select(n => new
                         {
-                            Parallel.ForEach(sd.GetFiles(), (fi) =>
+                            FileName = n.Key,
+                            List = HashTrackerList.List.Where(i => Path.GetFileName(i.Path) == n.Key.FileName && i.DateModified != DateTime.MinValue).ToList()
+                        }).
+                        Select(n => new
+                        {
+                            FileName = n.FileName,
+                            List = n.List,
+                            Master = n.List.OrderBy(d => d.DateModified).FirstOrDefault()
+                        }).
+                        Select(n => new
+                        {
+                            // FileName = n.FileName,
+                            // List = n.List,
+                            Master = n.Master,
+                            FilesToDelete = n.List.Where(i => File.Exists(i.Path) && i.DateModified != n.Master.DateModified && (i.Length > n.Master.Length ? (i.Length / 2) < n.Master.Length : (n.Master.Length / 2) < i.Length)).ToList(),
+                        }).
+                        Where(n => n.FilesToDelete.Count > 0).
+                        ToList();
+
+                        foreach (var item in seenBefore)
+                        {
+                            rtbExecuteWindow.Text += "REM Earliest File Seen Date: " + item.Master.DateModified.ToShortDateString() + " " + item.Master.DateModified.ToLongTimeString() + Environment.NewLine;
+                            foreach (var file in item.FilesToDelete)
                             {
-                                if (IndexExtensions.DefaultIndexExtentions.Any(n => n.Equals(fi.Extension, StringComparison.CurrentCultureIgnoreCase)))
+                                rtbExecuteWindow.Text += "REM This File Seen Date:        " + file.DateModified.ToShortDateString() + " " + file.DateModified.ToLongTimeString() + Environment.NewLine;
+                                rtbExecuteWindow.Text += "DEL \"" + file.Path + "\"" + Environment.NewLine;
+                            }
+                        }
+                    }
+
+                    Dictionary<string, List<FileInfo>> dictHash = new Dictionary<string, List<FileInfo>>();
+                    Dictionary<string, List<FileInfo>> dictName = new Dictionary<string, List<FileInfo>>();
+                    List<string> dupesHash = new List<string>();
+                    List<string> dupesName = new List<string>();
+
+                    using (new TimeOperation("Hash Update Operation"))
+                    {
+                        foreach (var sd in SourceDirectoriesToCheckForDuplicates)
+                        {
+                            Task t = Task.Factory.StartNew(() =>
                                 {
-                                    if (!fi.FullName.StartsWith(@"E:\_P\_Air"))
+                                    Parallel.ForEach(sd.GetFiles(), (fi) =>
                                     {
-                                        var hti = HashTrackerList.GetItem(fi);
-
-                                        lock (dictHash)
+                                        if (IndexExtensions.DefaultIndexExtentions.Any(n => n.Equals(fi.Extension, StringComparison.CurrentCultureIgnoreCase)) && !fi.FullName.StartsWith(@"E:\_P\_Air"))
                                         {
-                                            if (dictHash.ContainsKey(hti.ShortHash))
-                                            {
-                                                dictHash[hti.ShortHash].Add(fi);
-                                                dupesHash.Add(hti.ShortHash);
-                                            }
-                                            else
-                                            {
-                                                dictHash[hti.ShortHash] = new List<FileInfo>() { fi };
-                                            }
-                                        }
+                                            var hti = HashTrackerList.GetItem(fi);
 
-                                        string name = Path.GetFileNameWithoutExtension(fi.Name.ToLower());
+                                            lock (dictHash)
+                                            {
+                                                if (dictHash.ContainsKey(hti.ShortHash))
+                                                {
+                                                    dictHash[hti.ShortHash].Add(fi);
+                                                    dupesHash.Add(hti.ShortHash);
+                                                }
+                                                else
+                                                {
+                                                    dictHash[hti.ShortHash] = new List<FileInfo>() { fi };
+                                                }
+                                            }
 
-                                        lock (dictName)
-                                        {
-                                            if (dictName.ContainsKey(name))
+                                            string name = Path.GetFileNameWithoutExtension(fi.Name.ToLower());
+
+                                            lock (dictName)
                                             {
-                                                dictName[name].Add(fi);
-                                                dupesName.Add(name);
+                                                if (dictName.ContainsKey(name))
+                                                {
+                                                    dictName[name].Add(fi);
+                                                    dupesName.Add(name);
+                                                }
+                                                else
+                                                {
+                                                    dictName[name] = new List<FileInfo>() { fi };
+                                                }
                                             }
-                                            else
-                                            {
-                                                dictName[name] = new List<FileInfo>() { fi };
-                                            }
+
                                         }
-                                    }
+                                    });
                                 }
-                            });
-                        }
-                    );
+                            );
 
-                    while (!t.IsCompleted)
-                    {
-                        Application.DoEvents();
-                        Thread.Sleep(500);
-                    }
-                }
-
-                List<string> NoLongerExist = new List<string>();
-
-                if (dupesName.Count > 0)
-                {
-                    rtbExecuteWindow.Text += "REM Removing Dupes based on file name" + Environment.NewLine;
-                }
-
-                foreach (string name in dupesName)
-                {
-                    var winner = dictName[name].Where(n => n.Length == dictName[name].Max(m => m.Length)).OrderBy(n => n.FullName.Length).First();
-
-                    foreach (var item in dictName[name])
-                    {
-                        if (item == winner)
-                        {
-                            rtbExecuteWindow.Text += "REM Keeping winner: " + item.FullName + "\"" + Environment.NewLine;
-                        }
-                        else
-                        {
-                            rtbExecuteWindow.Text += "REM Removing loser: " + item.FullName + "\"" + Environment.NewLine;
-                            rtbExecuteWindow.Text += "DEL \"" + item.FullName + "\"" + Environment.NewLine;
-                            NoLongerExist.Add(item.FullName);
-                        }
-                    }
-
-                    foreach (var item in dictName[name])
-                    {
-                        if (item != winner && item.FullName.StartsWith(KeepDirectory) && !winner.FullName.StartsWith(KeepDirectory))
-                        {
-                            rtbExecuteWindow.Text += "REM Moving winner: " + item.FullName + "\"" + Environment.NewLine;
-                            rtbExecuteWindow.Text += GetMoveCmd(winner.FullName, item.Directory) + Environment.NewLine;
-                            NoLongerExist.Add(winner.FullName);
-                            NoLongerExist.Add(Path.Combine(item.Directory.FullName, winner.Name));
-                            break;
-                        }
-                    }
-                }
-
-                if (dupesHash.Count > 0)
-                {
-                    rtbExecuteWindow.Text += "REM Removing Dupes based on file hash" + Environment.NewLine;
-                }
-
-                foreach (string hash in dupesHash)
-                {
-                    var winner = HashTrackerList.GetItem(dictHash[hash].Where(n => n.Length == dictHash[hash].Max(m => m.Length)).OrderBy(n => n.FullName.Length).First());
-
-                    rtbExecuteWindow.Text += "REM Keeping winner: " + winner.Path + "\"" + Environment.NewLine;
-
-                    foreach (var item in dictHash[hash])
-                    {
-                        if (!NoLongerExist.Contains(item.FullName, StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            if (item.FullName != winner.Path)
+                            while (!t.IsCompleted)
                             {
-                                var hti = HashTrackerList.GetItem(item);
+                                Application.DoEvents();
+                                Thread.Sleep(500);
+                            }
+                        }
+                    }
 
-                                // Check the hash farther in
-                                if (hti.LongHash == winner.LongHash)
+                    List<string> NoLongerExist = new List<string>();
+
+                    if (dupesName.Count > 0)
+                    {
+                        rtbExecuteWindow.Text += "REM Removing Dupes based on file name" + Environment.NewLine;
+                    }
+
+                    foreach (string name in dupesName)
+                    {
+                        var winner = dictName[name].Where(n => n.Length == dictName[name].Max(m => m.Length)).OrderBy(n => n.FullName.Length).First();
+
+                        foreach (var item in dictName[name])
+                        {
+                            if (item == winner)
+                            {
+                                rtbExecuteWindow.Text += "REM Keeping winner: " + item.FullName + "\"" + Environment.NewLine;
+                            }
+                            else
+                            {
+                                rtbExecuteWindow.Text += "REM Removing loser: " + item.FullName + "\"" + Environment.NewLine;
+                                rtbExecuteWindow.Text += "DEL \"" + item.FullName + "\"" + Environment.NewLine;
+                                NoLongerExist.Add(item.FullName);
+                            }
+                        }
+
+                        foreach (var item in dictName[name])
+                        {
+                            if (item != winner && item.FullName.StartsWith(KeepDirectory) && !winner.FullName.StartsWith(KeepDirectory))
+                            {
+                                rtbExecuteWindow.Text += "REM Moving winner: " + item.FullName + "\"" + Environment.NewLine;
+                                rtbExecuteWindow.Text += GetMoveCmd(winner.FullName, item.Directory) + Environment.NewLine;
+                                NoLongerExist.Add(winner.FullName);
+                                NoLongerExist.Add(Path.Combine(item.Directory.FullName, winner.Name));
+                                break;
+                            }
+                        }
+                    }
+
+                    if (dupesHash.Count > 0)
+                    {
+                        rtbExecuteWindow.Text += "REM Removing Dupes based on file hash" + Environment.NewLine;
+                    }
+
+                    foreach (string hash in dupesHash)
+                    {
+                        var winner = HashTrackerList.GetItem(dictHash[hash].Where(n => n.Length == dictHash[hash].Max(m => m.Length)).OrderBy(n => n.FullName.Length).First());
+
+                        rtbExecuteWindow.Text += "REM Keeping winner: " + winner.Path + "\"" + Environment.NewLine;
+
+                        foreach (var item in dictHash[hash])
+                        {
+                            if (!NoLongerExist.Contains(item.FullName, StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                if (item.FullName != winner.Path)
                                 {
-                                    rtbExecuteWindow.Text += "REM Removing loser: " + item.FullName + "\"" + Environment.NewLine;
-                                    rtbExecuteWindow.Text += "DEL \"" + item.FullName + "\"" + Environment.NewLine;
-                                }
-                                // Same small hashes but different large hashes, probably a longer version of the same movie
-                                else if (item.Length <= winner.Length)
-                                {
-                                    rtbExecuteWindow.Text += "REM Removing loser: " + item.FullName + "\"" + Environment.NewLine;
-                                    rtbExecuteWindow.Text += "DEL \"" + item.FullName + "\"" + Environment.NewLine;
+                                    var hti = HashTrackerList.GetItem(item);
+
+                                    // Check the hash farther in
+                                    if (hti.LongHash == winner.LongHash)
+                                    {
+                                        rtbExecuteWindow.Text += "REM Removing loser: " + item.FullName + "\"" + Environment.NewLine;
+                                        rtbExecuteWindow.Text += "DEL \"" + item.FullName + "\"" + Environment.NewLine;
+                                    }
+                                    // Same small hashes but different large hashes, probably a longer version of the same movie
+                                    else if (item.Length <= winner.Length)
+                                    {
+                                        rtbExecuteWindow.Text += "REM Removing loser: " + item.FullName + "\"" + Environment.NewLine;
+                                        rtbExecuteWindow.Text += "DEL \"" + item.FullName + "\"" + Environment.NewLine;
+                                    }
                                 }
                             }
                         }
                     }
                 }
+                finally
+                {
+                    this.Height = heightBefore;
+                    this.Enabled = true;
+                }
             }
-            finally
-            {
-                this.Height = heightBefore;
-                this.Enabled = true;
-            }
-
-            Debug.WriteLine(DateTime.Now.ToString("hh:mm:ss.ff") + " -> " + " Remove Dups End");
         }
 
         private void btnClearTrash_Click(object sender, EventArgs e)
@@ -2441,48 +2495,42 @@ namespace FSIndexer
                 return Guid.Empty.ToString();
             }
 
-            if (writeTiming)
+            using (new TimeOperation("GetMD5Hash Operation", !writeTiming))
             {
-                Debug.WriteLine(DateTime.Now.ToString("hh:mm:ss.ff") + " -> " + " GetMD5Hash Start: " + fi.Name);
-            }
-
-            try
-            {
-                if (readBytes <= 0)
+                try
                 {
-                    using (MD5CryptoServiceProvider csp = new MD5CryptoServiceProvider())
+                    if (readBytes <= 0)
+                    {
+                        using (MD5CryptoServiceProvider csp = new MD5CryptoServiceProvider())
+                        {
+                            using (FileStream fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                            {
+                                return BitConverter.ToString(csp.ComputeHash(fs)).Replace("-", "");
+                            }
+                        }
+                    }
+                    else
                     {
                         using (FileStream fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
-                            return BitConverter.ToString(csp.ComputeHash(fs)).Replace("-", "");
-                        }
-                    }
-                }
-                else
-                {
-                    using (FileStream fs = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                    {
-                        using (BinaryReader br = new BinaryReader(fs))
-                        {
-                            if (readBytes > fs.Length)
+                            using (BinaryReader br = new BinaryReader(fs))
                             {
-                                readBytes = fs.Length;
-                            }
-                            else if (readBytes > int.MaxValue)
-                            {
-                                readBytes = 0;
-                            }
+                                if (readBytes > fs.Length)
+                                {
+                                    readBytes = fs.Length;
+                                }
+                                else if (readBytes > int.MaxValue)
+                                {
+                                    readBytes = 0;
+                                }
 
-                            return GetMD5Hash(br.ReadBytes((int)readBytes));
+                                return GetMD5Hash(br.ReadBytes((int)readBytes));
+                            }
                         }
                     }
                 }
-            }
-            finally
-            {
-                if (writeTiming)
+                finally
                 {
-                    Debug.WriteLine(DateTime.Now.ToString("hh:mm:ss.ff") + " -> " + " GetMD5Hash End: " + fi.Name);
                 }
             }
         }
@@ -2687,41 +2735,45 @@ namespace FSIndexer
         {
             string cmd = "";
 
-            if (!Directory.Exists(destinationFile.Directory.FullName))
+            if (File.Exists(sourceFile))
             {
-                cmd += "IF NOT EXIST \"" + destinationFile.Directory.FullName + "\" MD \"" + destinationFile.Directory.FullName + "\"" + Environment.NewLine;
-            }
-
-            cmd += UnhideFile(sourceFile);
-            cmd += "MOVE ";
-
-            if (overwriteIfExistsAndNotSmaller)
-            {
-                string newFilePath = destinationFile.FullName;
-
-                // file already exists at destination and is not smaller, delete source
-                if (!sourceFile.Equals(newFilePath, StringComparison.CurrentCultureIgnoreCase) && File.Exists(newFilePath) && new FileInfo(newFilePath).Length >= new FileInfo(sourceFile).Length)
+                if (!Directory.Exists(destinationFile.Directory.FullName))
                 {
-                    var fi = new FileInfo(sourceFile);
-                    fi.IsReadOnly = false;
+                    cmd += "IF NOT EXIST \"" + destinationFile.Directory.FullName + "\" MD \"" + destinationFile.Directory.FullName + "\"" + Environment.NewLine;
+                }
 
-                    cmd = "";
-                    cmd += UnhideFile(sourceFile);
-                    cmd += "REM Duplicate Files, Deleting Smaller File" + Environment.NewLine;
-                    cmd += "DEL \"" + sourceFile + "\"";
-                    return cmd;
+                cmd += UnhideFile(sourceFile);
+                cmd += "MOVE ";
+
+                if (overwriteIfExistsAndNotSmaller)
+                {
+                    string newFilePath = destinationFile.FullName;
+
+                    // file already exists at destination and is not smaller, delete source
+                    if (!sourceFile.Equals(newFilePath, StringComparison.CurrentCultureIgnoreCase) && File.Exists(newFilePath) && new FileInfo(newFilePath).Length >= new FileInfo(sourceFile).Length)
+                    {
+                        var fi = new FileInfo(sourceFile);
+                        fi.IsReadOnly = false;
+
+                        cmd = "";
+                        cmd += UnhideFile(sourceFile);
+                        cmd += "REM Duplicate Files, Deleting Smaller File" + Environment.NewLine;
+                        cmd += "DEL \"" + sourceFile + "\"";
+                        return cmd;
+                    }
+                    else
+                    {
+                        cmd += "/Y ";
+                    }
                 }
                 else
                 {
-                    cmd += "/Y ";
+                    return "";
                 }
-            }
-            else
-            {
-                return "";
+
+                cmd += "\"" + sourceFile + "\" \"" + destinationFile.FullName + "\"";
             }
 
-            cmd += "\"" + sourceFile + "\" \"" + destinationFile.FullName + "\"";
             return cmd;
         }
 
@@ -2773,7 +2825,12 @@ namespace FSIndexer
 
             foreach (TreeNode node in treeNodes)
             {
-                var it = IndexedList.IndexedTerms.Find(node);
+                var it = IndexedList.IndexedFiles.Find(node);
+
+                if (it == null)
+                {
+                    it = IndexedList.IndexedTerms.Find(node);
+                }
 
                 if (it != null && it.FileExists())
                 {
@@ -2781,7 +2838,10 @@ namespace FSIndexer
                 }
             }
 
-            args += "\"" + TheEndPath + "\" ";
+            if (!string.IsNullOrEmpty(args))
+            {
+                args += "\"" + TheEndPath + "\" ";
+            }
 
             return args;
         }
@@ -3141,8 +3201,6 @@ namespace FSIndexer
             }
         }
 
-        private bool AutomationRunning = false;
-
         private void btnAutomate_Click(object sender, EventArgs e)
         {
             // Stop automation
@@ -3155,6 +3213,7 @@ namespace FSIndexer
                 Application.DoEvents();
                 this.Controls.Cast<Control>().Where(c => c is Button && c != btnAutomate).ToList().ForEach(c => c.Enabled = true);
                 Application.DoEvents();
+                ReloadList(true, false);
             }
             // Start automation
             else
@@ -3168,51 +3227,95 @@ namespace FSIndexer
 
                 var AutomationTask = Task.Factory.StartNew(() =>
                 {
-                    int lastCount = 0;
+                    var logList = new List<string>();
+                    var lastFileList = new List<FileInfo>();
 
                     while (AutomationRunning)
                     {
-                        int currentCount = 0;
+                        var currentFileList = new List<FileInfo>();
 
-                        using (new TimeOperation("Sum of source directory files."))
+                        using (new TimeOperation("Interate Source Files Operation"))
                         {
-                            currentCount = SourceDirectoriesToAutoFile.Sum(n => n.GetFiles(true).Count());
+                            currentFileList = SourceDirectoriesToAutoFile.Select(d => d.GetFiles(true)).SelectMany(f => f).ToList();
                         }
 
-                        if (currentCount != lastCount)
+                        // Compare entire size collection to last size collection
+                        if (currentFileList.Sum(f => f.Length) != lastFileList.Sum(f => f.Length))
                         {
-                            lastCount = currentCount;
-
                             for (int i = 0; i < 5; i++)
                             {
+                                logList.Add("REM btnClearTrash_Click");
                                 this.InvokeEx(a => a.btnClearTrash_Click(null, null));
+                                logList.Add("REM btnAutoFile_Click");
                                 this.InvokeEx(a => a.btnAutoFile_Click(null, null));
                                 this.InvokeEx(a =>
                                 {
-                                    if (a.rtbExecuteWindow.Text.Length == 0)
+                                    if (a.rtbExecuteWindow.Text.Trim().Length == 0)
                                     {
                                         i = int.MaxValue - 1;
                                     }
                                     else
                                     {
+                                        logList.Add("REM Lines = " + a.rtbExecuteWindow.Lines.Count());
+                                        logList.Add("REM btnExecute_Click");
+                                        logList.Add("");
                                         a.btnExecute_Click(null, null);
                                     }
                                 });
                             }
-
-                            this.InvokeEx(a => a.btnRemoveDups_Click(null, null));
-                            this.InvokeEx(a => a.btnExecute_Click(null, null));
                         }
+
+                        // Compare video size collection to last video size collection
+                        if (currentFileList.Where(f => IndexExtensions.DefaultIndexExtentions.Contains(f.Extension)).Sum(f => f.Length) != lastFileList.Where(f => IndexExtensions.DefaultIndexExtentions.Contains(f.Extension)).Sum(f => f.Length))
+                        {
+                            for (int i = 0; i < 5; i++)
+                            {
+                                logList.Add("REM btnRemoveDups_Click");
+                                this.InvokeEx(a => a.btnRemoveDups_Click(null, null));
+                                this.InvokeEx(a =>
+                                {
+                                    if (a.rtbExecuteWindow.Text.Trim().Length == 0)
+                                    {
+                                        i = int.MaxValue - 1;
+                                    }
+                                    else
+                                    {
+                                        logList.Add("REM btnExecute_Click");
+                                        logList.Add("");
+                                        a.btnExecute_Click(null, null);
+                                    }
+                                });
+                            }
+                        }
+
+                        lastFileList = currentFileList;
+
+                        logList.ForEach(l => this.InvokeEx(a => a.rtbExecuteWindow.Text += l + Environment.NewLine));
+
+                        this.InvokeEx(a =>
+                        {
+                            a.rtbExecuteWindow.Text += "REM Automation Run: " + DateTime.Now.ToString("hh:mm:ss.fff") + Environment.NewLine;
+                            a.rtbExecuteWindow.SelectionStart = rtbExecuteWindow.Text.Length;
+                            a.rtbExecuteWindow.ScrollToCaret();
+                        });
 
                         int sleepTime = 5 * 60;
+                        DateTime stopTime = DateTime.UtcNow.AddSeconds(sleepTime);
 
-                        for (int i = 0; i < sleepTime; i++)
+                        while (DateTime.UtcNow < stopTime)
                         {
                             if (!AutomationRunning)
+                            {
                                 break;
+                            }
                             else
-                                Thread.Sleep(1000);
+                            {
+                                Application.DoEvents();
+                                Thread.Sleep(500);
+                            }
                         }
+
+                        this.InvokeEx(a => a.rtbExecuteWindow.Clear());
                     }
                 });
             }

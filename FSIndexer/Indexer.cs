@@ -30,11 +30,8 @@ namespace FSIndexer
 
         public void Index(DirectoryInfoExtended die, SearchOption so = SearchOption.AllDirectories)
         {
-            // foreach (var fi in IndexExtensions.FindExtensionMatches(die))
             Parallel.ForEach(IndexExtensions.FindExtensionMatches(die), fi =>
             {
-                // Main.PrintInfo("Index Start: " + die.DirectoryInfo.Name);
-
                 if (fi.Length < TermOptions.ExcludeRules.MinimumSizeToIndexInB)
                     return; 
 
@@ -84,8 +81,6 @@ namespace FSIndexer
                         }
                     }
                 }
-
-                // Main.PrintInfo("Index End: " + die.DirectoryInfo.Name);
             });
 
             Sort();

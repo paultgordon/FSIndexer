@@ -270,10 +270,10 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.rtbExecuteWindow.DetectUrls = false;
             this.rtbExecuteWindow.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rtbExecuteWindow.Location = new System.Drawing.Point(12, 487);
+            this.rtbExecuteWindow.Location = new System.Drawing.Point(12, 485);
             this.rtbExecuteWindow.Name = "rtbExecuteWindow";
             this.rtbExecuteWindow.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Horizontal;
-            this.rtbExecuteWindow.Size = new System.Drawing.Size(1113, 125);
+            this.rtbExecuteWindow.Size = new System.Drawing.Size(1113, 186);
             this.rtbExecuteWindow.TabIndex = 5;
             this.rtbExecuteWindow.Text = "";
             this.rtbExecuteWindow.TextChanged += new System.EventHandler(this.rtbLogging_TextChanged);
@@ -483,7 +483,7 @@
             this.mtvTerms.Name = "mtvTerms";
             this.mtvTerms.SelectedNodes = ((System.Collections.Generic.List<System.Windows.Forms.TreeNode>)(resources.GetObject("mtvTerms.SelectedNodes")));
             this.mtvTerms.ShowNodeToolTips = true;
-            this.mtvTerms.Size = new System.Drawing.Size(1113, 440);
+            this.mtvTerms.Size = new System.Drawing.Size(1113, 438);
             this.mtvTerms.TabIndex = 20;
             this.mtvTerms.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TV_NodeMouseClick);
             this.mtvTerms.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TV_NodeMouseDoubleClick);
@@ -515,7 +515,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1137, 624);
+            this.ClientSize = new System.Drawing.Size(1137, 683);
             this.Controls.Add(this.btnAutomate);
             this.Controls.Add(this.btnClearTrash);
             this.Controls.Add(this.btnResetHashes);

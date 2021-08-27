@@ -77,9 +77,10 @@ namespace FSIndexer
             if (!die.DirectoryInfo.Exists)
                 return list;
 
-            Main.PrintInfo("GetFiles Start");
-            list.AddRange(die.GetFiles(false).Where(n => this.Contains(n)));
-            Main.PrintInfo("GetFiles End");
+            using (new TimeOperation("GetFiles Operation"))
+            {
+                list.AddRange(die.GetFiles(false).Where(n => this.Contains(n)));
+            }
 
             return list.Where(n => n != null).ToList();
         }

@@ -61,6 +61,11 @@ namespace FSIndexer
             return GetFileList("*", DirectoryInfo.FullName, SearchOption, includeHidden);
         }
 
+        public IEnumerable<FileInfo> GetFiles(string fileSearchPattern, bool includeHidden = false)
+        {
+            return GetFileList(fileSearchPattern, DirectoryInfo.FullName, SearchOption, includeHidden);
+        }
+
         private static IEnumerable<FileInfo> GetFileList(string fileSearchPattern, string rootFolderPath, SearchOptionExtended so, bool includeHidden = false)
         {
             DateTime writeTimeCutoff = DateTime.UtcNow.AddSeconds(-5);
