@@ -3227,11 +3227,11 @@ namespace FSIndexer
 
                 var AutomationTask = Task.Factory.StartNew(() =>
                 {
-                    var logList = new List<string>();
                     var lastFileList = new List<FileInfo>();
 
                     while (AutomationRunning)
                     {
+                        var logList = new List<string>();
                         var currentFileList = new List<FileInfo>();
 
                         using (new TimeOperation("Interate Source Files Operation"))
@@ -3264,6 +3264,10 @@ namespace FSIndexer
                                 });
                             }
                         }
+                        else
+                        {
+                            logList.Add("REM Nothing to auto file");
+                        }
 
                         // Compare video size collection to last video size collection
                         if (currentFileList.Where(f => IndexExtensions.DefaultIndexExtentions.Contains(f.Extension)).Sum(f => f.Length) != lastFileList.Where(f => IndexExtensions.DefaultIndexExtentions.Contains(f.Extension)).Sum(f => f.Length))
@@ -3287,6 +3291,10 @@ namespace FSIndexer
                                 });
                             }
                         }
+                        else
+                        {
+                            logList.Add("REM No duplicates to remove");
+                        }
 
                         lastFileList = currentFileList;
 
@@ -3295,11 +3303,11 @@ namespace FSIndexer
                         this.InvokeEx(a =>
                         {
                             a.rtbExecuteWindow.Text += "REM Automation Run: " + DateTime.Now.ToString("hh:mm:ss.fff") + Environment.NewLine;
-                            a.rtbExecuteWindow.SelectionStart = rtbExecuteWindow.Text.Length;
+                            a.rtbExecuteWindow.SelectionStart = a.rtbExecuteWindow.Text.Length;
                             a.rtbExecuteWindow.ScrollToCaret();
                         });
 
-                        int sleepTime = 5 * 60;
+                        int sleepTime = 1 * 60;
                         DateTime stopTime = DateTime.UtcNow.AddSeconds(sleepTime);
 
                         while (DateTime.UtcNow < stopTime)
