@@ -68,9 +68,10 @@
             this.btnRemoveDups = new System.Windows.Forms.Button();
             this.cbInvert = new System.Windows.Forms.CheckBox();
             this.btnResetHashes = new System.Windows.Forms.Button();
-            this.mtvTerms = new FSIndexer.MultiSelectTreeview();
             this.btnClearTrash = new System.Windows.Forms.Button();
             this.btnAutomate = new System.Windows.Forms.Button();
+            this.toolStripMenuItemStreaming = new System.Windows.Forms.ToolStripMenuItem();
+            this.mtvTerms = new FSIndexer.MultiSelectTreeview();
             this.contextMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numFilterOnChildrenSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numFilterOnTermLength)).BeginInit();
@@ -101,6 +102,7 @@
             // 
             this.toolStripMenuItemMove.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.moveStandardToolStripMenuItem,
+            this.toolStripMenuItemStreaming,
             this.moveGoodToolStripMenuItem,
             this.moveGreatToolStripMenuItem});
             this.toolStripMenuItemMove.Name = "toolStripMenuItemMove";
@@ -114,7 +116,7 @@
             this.moveStandardToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.doNotRememberLocationToolStripMenuItem});
             this.moveStandardToolStripMenuItem.Name = "moveStandardToolStripMenuItem";
-            this.moveStandardToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.moveStandardToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.moveStandardToolStripMenuItem.Text = "Standard";
             this.moveStandardToolStripMenuItem.Click += new System.EventHandler(this.btnMoveSelected_Click);
             this.moveStandardToolStripMenuItem.DoubleClick += new System.EventHandler(this.btnMoveSelected_Click);
@@ -129,14 +131,14 @@
             // moveGoodToolStripMenuItem
             // 
             this.moveGoodToolStripMenuItem.Name = "moveGoodToolStripMenuItem";
-            this.moveGoodToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.moveGoodToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.moveGoodToolStripMenuItem.Text = "With Good Shortcut";
             this.moveGoodToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItemMoveAndShortcut_Click);
             // 
             // moveGreatToolStripMenuItem
             // 
             this.moveGreatToolStripMenuItem.Name = "moveGreatToolStripMenuItem";
-            this.moveGreatToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.moveGreatToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.moveGreatToolStripMenuItem.Text = "With Great Shortcut";
             this.moveGreatToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItemMoveAndShortcutStar_Click);
             // 
@@ -401,7 +403,7 @@
             0});
             this.numFilterOnMinimumSize.Location = new System.Drawing.Point(414, 15);
             this.numFilterOnMinimumSize.Maximum = new decimal(new int[] {
-            8192,
+            10000,
             0,
             0,
             0});
@@ -470,25 +472,6 @@
             this.btnResetHashes.UseVisualStyleBackColor = true;
             this.btnResetHashes.Click += new System.EventHandler(this.btnResetHashes_Click);
             // 
-            // mtvTerms
-            // 
-            this.mtvTerms.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.mtvTerms.ContextMenuStrip = this.contextMenuStrip;
-            this.mtvTerms.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.mtvTerms.FullRowSelect = true;
-            this.mtvTerms.HideSelection = false;
-            this.mtvTerms.Location = new System.Drawing.Point(12, 41);
-            this.mtvTerms.Name = "mtvTerms";
-            this.mtvTerms.SelectedNodes = ((System.Collections.Generic.List<System.Windows.Forms.TreeNode>)(resources.GetObject("mtvTerms.SelectedNodes")));
-            this.mtvTerms.ShowNodeToolTips = true;
-            this.mtvTerms.Size = new System.Drawing.Size(1113, 438);
-            this.mtvTerms.TabIndex = 20;
-            this.mtvTerms.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TV_NodeMouseClick);
-            this.mtvTerms.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TV_NodeMouseDoubleClick);
-            this.mtvTerms.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TV_KeyDown);
-            // 
             // btnClearTrash
             // 
             this.btnClearTrash.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -510,6 +493,32 @@
             this.btnAutomate.Text = "Automate";
             this.btnAutomate.UseVisualStyleBackColor = true;
             this.btnAutomate.Click += new System.EventHandler(this.btnAutomate_Click);
+            // 
+            // toolStripMenuItemStreaming
+            // 
+            this.toolStripMenuItemStreaming.Name = "toolStripMenuItemStreaming";
+            this.toolStripMenuItemStreaming.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItemStreaming.Text = "Streaming";
+            this.toolStripMenuItemStreaming.Click += new System.EventHandler(this.toolStripMenuItemMoveToStreaming_Click);
+            // 
+            // mtvTerms
+            // 
+            this.mtvTerms.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.mtvTerms.ContextMenuStrip = this.contextMenuStrip;
+            this.mtvTerms.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.mtvTerms.FullRowSelect = true;
+            this.mtvTerms.HideSelection = false;
+            this.mtvTerms.Location = new System.Drawing.Point(12, 41);
+            this.mtvTerms.Name = "mtvTerms";
+            this.mtvTerms.SelectedNodes = ((System.Collections.Generic.List<System.Windows.Forms.TreeNode>)(resources.GetObject("mtvTerms.SelectedNodes")));
+            this.mtvTerms.ShowNodeToolTips = true;
+            this.mtvTerms.Size = new System.Drawing.Size(1113, 438);
+            this.mtvTerms.TabIndex = 20;
+            this.mtvTerms.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TV_NodeMouseClick);
+            this.mtvTerms.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TV_NodeMouseDoubleClick);
+            this.mtvTerms.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TV_KeyDown);
             // 
             // Main
             // 
@@ -596,6 +605,7 @@
         private System.Windows.Forms.Button btnResetHashes;
         private System.Windows.Forms.Button btnClearTrash;
         private System.Windows.Forms.Button btnAutomate;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemStreaming;
     }
 }
 

@@ -34,6 +34,7 @@ namespace FSIndexer
         public const string KeepDirectory = @"E:\_P";
         public const string FavoritesDir = @"E:\_P\_Best";
         public const string FavoritesStarDir = @"E:\_P\_Best\_AllTimeBest";
+        public const string StreamingPath = @"E:\_P\_Air";
         public const string VLCPath = @"C:\Program Files\VideoLAN\VLC\vlc.exe";
         public const string NzbPath = @"E:\Downloads\NG\_Decoded";
         public const string TorrentPath = @"E:\Downloads\NG\_Decoded\_Torrents";
@@ -68,6 +69,8 @@ namespace FSIndexer
         internal static TrackerList<InfoTrackerItem> InfoTrackerList;
 
         internal static ConsoleInputReader.Reader Reader = null;
+
+        private static object filesMovedLocker = new object();
 
         internal class TAGS
         {
@@ -638,6 +641,17 @@ namespace FSIndexer
                 }
             }
 
+            using (new TimeOperation("ApplyFilter P4 Operation"))
+            {
+                if (TermOptions.ExcludeRules.MinimumSizeToIndexInMB > 0)
+                {
+                    foreach (var iterm in IndexedList.IndexedTerms.EnabledList)
+                    {
+                        iterm.IndexedFiles.AsParallel().Where(n => n.Enabled).Where(n => n.File.Length < TermOptions.ExcludeRules.MinimumSizeToIndexInMB * MB).ToList().AsParallel().ForAll(n => n.TemporarilyDisabled = true);
+                    }
+                }
+            }
+
             FilterShowTypes filter = GetFilterShowType;
 
             if (filter != FilterShowTypes.ALL)
@@ -665,7 +679,7 @@ namespace FSIndexer
                 }
             }
 
-            using (new TimeOperation("ApplyFilter P4 Operation"))
+            using (new TimeOperation("ApplyFilter P5 Operation"))
             {
                 TopNode.Nodes.Clear();
 
@@ -796,6 +810,45 @@ namespace FSIndexer
         private string FriendlyDateTime(FileInfo fi)
         {
             return fi.LastWriteTime.ToShortDateString().Replace("/", "-") + " " + fi.LastWriteTime.ToShortTimeString();
+        }
+
+        private List<FileInfo> _MoveSelected(TreeNode node, DirectoryInfo forcePath)
+        {
+            List<FileInfo> movedList = new List<FileInfo>();
+
+            if (IsParent || IsMultipleParent || IsMultipleChild)
+            {
+                return movedList;
+            }
+            else
+            {
+                FileInfo fi = IndexedList.IndexedTerms.Find(node.Parent.Name, node.Text);
+                fi.IsReadOnly = false;
+
+                if (fi != null && fi.Directory.FullName != forcePath.FullName)
+                {
+                    string newPath = Path.Combine(forcePath.FullName, fi.Name);
+
+                    if (File.Exists(newPath))
+                    {
+                        if (MessageBox.Show("Really overwrite file: \n" + newPath, "Overwrite File?", MessageBoxButtons.OKCancel) != System.Windows.Forms.DialogResult.OK)
+                        {
+                            return movedList;
+                        }
+                    }
+
+                    string logText = "";
+                    logText += "MOVE /-Y \"" + fi.FullName + "\" \"" + forcePath.FullName + "\"" + Environment.NewLine;
+                    logText += "RD /Q \"" + fi.Directory.FullName + "\" >NUL 2>&1" + Environment.NewLine;
+                    rtbExecuteWindow.Text += logText;
+
+                    movedList.Add(new FileInfo(newPath));
+
+                    RemoveItem(node);
+                }
+            }
+
+            return movedList;
         }
 
         private List<FileInfo> _MoveSelected(TreeNode node, bool isParent, bool doNotRememberLocation = false, bool skipKeepDirectoryItems = false)
@@ -968,6 +1021,12 @@ namespace FSIndexer
         {
             contextMenuStrip.Close();
             MoveSelected();
+        }
+
+        private void toolStripMenuItemMoveToStreaming_Click(object sender, EventArgs e)
+        {
+            contextMenuStrip.Close();
+            _MoveSelected(SelectedNode, new DirectoryInfo(StreamingPath));
         }
 
         private void btnMoveSelectedDoNotRemember_Click(object sender, EventArgs e)
@@ -1796,6 +1855,7 @@ namespace FSIndexer
 
             // Only valid for children
             toolStripMenuItemOpenFolder.Enabled = isChild;
+            toolStripMenuItemStreaming.Enabled = isChild;
             moveGoodToolStripMenuItem.Enabled = isChild;
             moveGreatToolStripMenuItem.Enabled = isChild;
             toolStripMenuItemGoogle.Enabled = isChild;
@@ -2085,16 +2145,17 @@ namespace FSIndexer
             foreach (var ilDir in SourceDirectoriesToAutoFile)
             {
                 Parallel.ForEach(ilDir.GetFiles(true), (ilFile) =>
-                // foreach (var ilFile in ilDir.GetFiles(true))
                 {
                     if (!IndexExtensions.DefaultIndexExtentions.Any(n => n.Equals(ilFile.Extension, StringComparison.CurrentCultureIgnoreCase)))
                     {
                         return;
                     }
 
-                    lock (filesMoved)
+                    // lock (filesMoved)
+                    lock (filesMovedLocker)
                     {
-                        if (filesMoved.ToList().Any(n => n == ilFile.FullName))
+                        // var fm = filesMoved.ToList().ToLookup(x => x, x => x);
+                        if (filesMoved.Any(n => n == ilFile.FullName))
                         {
                             return;
                         }
@@ -2198,6 +2259,7 @@ namespace FSIndexer
                         }
 
                         name = RemoveStartsWithOnlyNumbers(name);
+                        name = TermOptions.InsertSeperatorBetweenNumbers(name, minNumbersLength: 2, minLettersLength: 3);
 
                         // Try to normalize date strings
                         name = FormatDate(name);
@@ -2212,7 +2274,11 @@ namespace FSIndexer
                     {
                         string newPath = Path.Combine(ilFile.DirectoryName, name + Path.GetExtension(ilFile.Name).ToLower());
                         executeText += GetMoveCmd(ilFile.FullName, new FileInfo(newPath)) + Environment.NewLine;
-                        filesMoved.Add(ilFile.FullName);
+
+                        lock (filesMovedLocker)
+                        {
+                            filesMoved.Add(ilFile.FullName);
+                        }
                     }
                 });
             }
@@ -2552,10 +2618,10 @@ namespace FSIndexer
                 // Insert seperators between date parts
                 result = Regex.Replace(result, @"\b(\d{2})(\d{2})20(\d{2})\b", "$1.$2.$3");
 
-                //// Reduce from YYYY to YY When year at end
+                //// Reduce from YYYY to YY when year at end
                 result = Regex.Replace(result, @"\b(\d{2})\.(\d{2})\.20(\d{2})\b", "$1.$2.$3");
 
-                // Reduce from YYYY to YY and put year least When year at end
+                // Reduce from YYYY to YY and put year last when year at end
                 result = Regex.Replace(result, @"\b20(\d{2})\.(\d{2})\.(\d{2})\b", "$2.$3.$1");
 
                 //// Reduce from YYYY to YY When year at end
@@ -2569,9 +2635,9 @@ namespace FSIndexer
                 //      "${a}${b}${c}");
 
                 //// Insert seperators between date parts
-                //result = Regex.Replace(result,
-                //      "\\b(?<a>\\d{2,2})(?<b>\\d{2,2})(?<c>\\d{2,2})\\b",
-                //      "${a}.${b}.${c}");
+                result = Regex.Replace(result,
+                      "\\b(?<a>\\d{2,2})(?<b>\\d{2,2})(?<c>\\d{2,2})\\b",
+                      "${a}.${b}.${c}");
 
                 //result = Regex.Replace(result,
                 //      "\\b(?<a>\\d{2,2})(?<b>\\d{2,2})(?<c>\\d{2,2})\\b",

@@ -99,20 +99,6 @@ namespace FSIndexer
         public static List<string> AutoRemoveStartingTags =
             new List<string>()
             {
-                //"ktr.",
-                //"sexo.",
-                //"iak.",
-                //"fps.",
-                //"i.",
-                //"ohrly.",
-                //"c69.",
-                //"divas.",
-                //"oro.",
-                //"inya.",
-                //"vbt.",
-                //"mistress.",
-                //"ieva.",
-                //"ggw."
             };
 
         public static List<string> AutoRemoveContainingTags =
@@ -303,7 +289,9 @@ namespace FSIndexer
         }
 
         // Would change my1234file to my.1234.file
-        public static string InsertSeperatorBetweenNumbers(string str)
+        // If MNL = 4 and MLL = 4, would change my1234file to my.1234.file
+        // If MNL = 5 and MLL = 4, would not change my1234file
+        public static string InsertSeperatorBetweenNumbers(string str, int minNumbersLength = 1, int minLettersLength = 1)
         {
             if (!ExcludeRules.InsertSeperatorBetweenNumbersInTerms)
                 return str;
@@ -315,26 +303,72 @@ namespace FSIndexer
 
             string sep = IndexSeperators.PrimarySeperator;
             string newStr = "";
+            string strSection = "";
             string lastChar = string.Empty;
 
-            foreach (char c in str)
+            List<string> newStrList = new List<string>();
+
+            for (int i = 0; i < str.Length; i++)
             {
+                char c = str[i];
                 if (lastChar != string.Empty)
                 {
-                    // Last char was a number, this char is not
+                    if (c.ToString() == sep)
+                    {
+                        newStrList.Add(strSection + c);
+                        strSection = "";
+                        continue;
+                    }
+
+                    // This char is a number, Previous char is NOT
                     if (char.IsNumber(c) && !char.IsNumber(lastChar[0]))
                     {
-                        newStr += sep;
+                        newStrList.Add(strSection + (strSection.Length >= minLettersLength ? sep : ""));
+                        strSection = "";
                     }
-                    // Last char was not a number, this char is
+                    // This char is NOT a number, Previous char is
                     else if (!char.IsNumber(c) && char.IsNumber(lastChar[0]))
                     {
-                        newStr += sep;
+                        newStrList.Add(strSection + (strSection.Length >= minNumbersLength ? sep : ""));
+                        strSection = "";
                     }
                 }
-
-                newStr += c;
+                
                 lastChar = c.ToString();
+                strSection += c;
+
+                if (i == str.Length - 1)
+                {
+                    newStrList.Add(strSection);
+                    strSection = "";
+                }
+            }
+
+            newStr = string.Join("", newStrList);
+
+            //foreach (char c in str)
+            //{
+            //    if (lastChar != string.Empty && c.ToString() != sep && lastChar[0].ToString() != sep)
+            //    {
+            //        // Last char was a number, this char is not
+            //        if (char.IsNumber(c) && !char.IsNumber(lastChar[0]))
+            //        {
+            //            newStr += sep;
+            //        }
+            //        // Last char was not a number, this char is
+            //        else if (!char.IsNumber(c) && char.IsNumber(lastChar[0]))
+            //        {
+            //            newStr += sep;
+            //        }
+            //    }
+
+            //    newStr += c;
+            //    lastChar = c.ToString();
+            //}
+
+            while (newStr.Contains(".."))
+            {
+                newStr = newStr.Replace("..", ".");
             }
 
             return newStr;
