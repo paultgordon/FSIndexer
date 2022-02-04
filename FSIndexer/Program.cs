@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -13,6 +14,8 @@ namespace FSIndexer
         [STAThread]
         static void Main(string[] args)
         {
+            // Directory.GetFiles(@"E:\Downloads\NG\_Decoded\lp").Select(i => new FileInfo(i)).ToList().ForEach(f => File.Move(f.FullName, Path.Combine(f.DirectoryName, "lp." + f.Name)));
+
             try
             {
                 Application.EnableVisualStyles();

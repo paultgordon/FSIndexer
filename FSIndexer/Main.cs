@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -38,6 +39,7 @@ namespace FSIndexer
         public const string VLCPath = @"C:\Program Files\VideoLAN\VLC\vlc.exe";
         public const string NzbPath = @"E:\Downloads\NG\_Decoded";
         public const string TorrentPath = @"E:\Downloads\NG\_Decoded\_Torrents";
+        public const string NircmdPath = @"C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\nircmd.exe";
         public string TheEndPath { get { return Path.Combine(SaveDirectory, "TheEnd_NS.mp4"); } }
 
         private string SaveDirectory { get { return Directory.GetParent(Path.GetDirectoryName(Path.GetFullPath(Assembly.GetExecutingAssembly().Location))).FullName; } }
@@ -2089,7 +2091,6 @@ namespace FSIndexer
             foreach (var ilDir in SourceDirectories.Where(n => n.AutoFile && n.RenameFolders))
             {
                 Parallel.ForEach(ilDir.GetFiles(true), (ilFile) =>
-                // foreach (var ilFile in ilDir.GetFiles(true))
                 {
                     // Skip files located in the root directory
                     if (ilDir.DirectoryInfo.FullName == ilFile.Directory.FullName)
@@ -2151,10 +2152,8 @@ namespace FSIndexer
                         return;
                     }
 
-                    // lock (filesMoved)
                     lock (filesMovedLocker)
                     {
-                        // var fm = filesMoved.ToList().ToLookup(x => x, x => x);
                         if (filesMoved.Any(n => n == ilFile.FullName))
                         {
                             return;
@@ -2415,44 +2414,44 @@ namespace FSIndexer
                         foreach (var sd in SourceDirectoriesToCheckForDuplicates)
                         {
                             Task t = Task.Factory.StartNew(() =>
+                            {
+                                Parallel.ForEach(sd.GetFiles(), (fi) =>
                                 {
-                                    Parallel.ForEach(sd.GetFiles(), (fi) =>
+                                    if (IndexExtensions.DefaultIndexExtentions.Any(n => n.Equals(fi.Extension, StringComparison.CurrentCultureIgnoreCase)) && !fi.FullName.StartsWith(@"E:\_P\_Air"))
                                     {
-                                        if (IndexExtensions.DefaultIndexExtentions.Any(n => n.Equals(fi.Extension, StringComparison.CurrentCultureIgnoreCase)) && !fi.FullName.StartsWith(@"E:\_P\_Air"))
+                                        var hti = HashTrackerList.GetItem(fi);
+
+                                        lock (dictHash)
                                         {
-                                            var hti = HashTrackerList.GetItem(fi);
-
-                                            lock (dictHash)
+                                            if (dictHash.ContainsKey(hti.ShortHash))
                                             {
-                                                if (dictHash.ContainsKey(hti.ShortHash))
-                                                {
-                                                    dictHash[hti.ShortHash].Add(fi);
-                                                    dupesHash.Add(hti.ShortHash);
-                                                }
-                                                else
-                                                {
-                                                    dictHash[hti.ShortHash] = new List<FileInfo>() { fi };
-                                                }
+                                                dictHash[hti.ShortHash].Add(fi);
+                                                dupesHash.Add(hti.ShortHash);
                                             }
-
-                                            string name = Path.GetFileNameWithoutExtension(fi.Name.ToLower());
-
-                                            lock (dictName)
+                                            else
                                             {
-                                                if (dictName.ContainsKey(name))
-                                                {
-                                                    dictName[name].Add(fi);
-                                                    dupesName.Add(name);
-                                                }
-                                                else
-                                                {
-                                                    dictName[name] = new List<FileInfo>() { fi };
-                                                }
+                                                dictHash[hti.ShortHash] = new List<FileInfo>() { fi };
                                             }
-
                                         }
-                                    });
-                                }
+
+                                        string name = Path.GetFileNameWithoutExtension(fi.Name.ToLower());
+
+                                        lock (dictName)
+                                        {
+                                            if (dictName.ContainsKey(name))
+                                            {
+                                                dictName[name].Add(fi);
+                                                dupesName.Add(name);
+                                            }
+                                            else
+                                            {
+                                                dictName[name] = new List<FileInfo>() { fi };
+                                            }
+                                        }
+
+                                    }
+                                });
+                            }
                             );
 
                             while (!t.IsCompleted)
@@ -2683,7 +2682,6 @@ namespace FSIndexer
             string executeText = "";
 
             Parallel.ForEach(root.GetFiles(true).Where(n => n.Length < TermOptions.ExcludeRules.MinimumSizeToKeepInB && n.Name[0] != '_' && !n.FullName.StartsWith(KeepDirectory)), (fi) =>
-            // foreach (var fi in root.GetFiles(true).Where(n => n.Length < TermOptions.ExcludeRules.MinimumSizeToKeepInB && n.Name[0] != '_' && !n.FullName.StartsWith(KeepDirectory)))
             {
                 // Skip files that have been modified recently
                 if (fi.LastWriteTimeUtc > DateTime.UtcNow.Subtract(TimeSpan.FromSeconds(30)))
@@ -2912,7 +2910,7 @@ namespace FSIndexer
             return args;
         }
 
-        private string ConvertVideo(string source, string dest, string format = null, int quality = 20, bool vfr = true)
+        private string ConvertVideo(string source, string dest, string format = null, int quality = 20, bool vfr = true, bool sameDates = true)
         {
             if (string.IsNullOrEmpty(format))
                 format = ConvertOptions.ConvertToFileExtensionForHandbrake;
@@ -2940,8 +2938,11 @@ namespace FSIndexer
                 return null;
             }
 
+            FileInfo fiSource = new FileInfo(source);
             string args = string.Format("-i \"{0}\" -t 1 -c 1 -o \"{1}\" -f {4} -e x264 -q {2} --{3} -a 1 -E av_aac -B 160 -6 dpl2 -R Auto -D 0 --gain=0 --audio-fallback av_aac -x ref=1:weightp=1:subq=2:rc-lookahead=10:trellis=0:8x8dct=0 --verbose=1", source, dest, quality, vfr ? "vfr" : "cfr", format);
-            return program + " " + args;
+            return program + " " + args + Environment.NewLine + string.Format("\"{0}\" setfiletime \"{1}\" \"{2}\" \"{3}\" \"{4}\"", NircmdPath, dest, fiSource.CreationTime.ToString("dd-MM-yyyy HH:mm:ss"), fiSource.LastWriteTime.ToString("dd-MM-yyyy HH:mm:ss"), "now");
+                                         // nircmd.exe setfiletime "d:\test\log1.txt" "03/08/2019 17:00:00" "" "03/08/2019 17:10:00"
+                                         // "27-01-2022 13:47:15"
         }
 
         private void toolStripMenuItemGoogle_Click(object sender, EventArgs e)

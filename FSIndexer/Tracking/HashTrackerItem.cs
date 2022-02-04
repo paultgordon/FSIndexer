@@ -11,25 +11,26 @@ namespace FSIndexer
     [Serializable()]
     public class HashTrackerItem : IComparable<HashTrackerItem>
     {
+        // [XmlIgnore]
         public string Path { get; set; } = string.Empty;
+        //{
+        //    get
+        //    {
+        //        return DecodeFrom64(EncryptedPath);
+        //    }
+        //    set
+        //    {
+        //        EncryptedPath = EncodeTo64(value);
+        //    }
+        //}
+
+        // public string EncryptedPath { get; set; } = string.Empty;
         public long Length { get; set; } = -1;
         internal DateTime DateCreated { get; set; } = DateTime.MinValue;
         public DateTime DateModified { get; set; } = DateTime.MinValue;
 
         private string _shortHash { get; set; } = string.Empty;
         private string _longHash { get; set; } = string.Empty;
-
-        public string EncryptedPath
-        {
-            get
-            {
-                return EncodeTo64(Path);
-            }
-            set
-            {
-                Path = DecodeFrom64(value);
-            }
-        }
 
         public string ShortHash
         {
