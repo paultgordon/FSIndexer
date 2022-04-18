@@ -10,11 +10,13 @@ namespace FSIndexer
     [Serializable()]
     public class HashTrackerList
     {
+        public Dictionary<string, List<HashTrackerItem>> Dictionary;
         public List<HashTrackerItem> List { get; set; }
         public static bool AutoCreateLongHash = true;
 
         public HashTrackerList()
         {
+            Dictionary = new Dictionary<string, List<HashTrackerItem>>();
             List = new List<HashTrackerItem>();
         }
 
@@ -84,10 +86,11 @@ namespace FSIndexer
 
             try
             {
-                Stream streamWrite = File.Create(tmpFile);
-                System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(mtl.GetType());
-                xs.Serialize(streamWrite, mtl);
-                streamWrite.Close();
+                using (Stream streamWrite = File.Create(tmpFile))
+                {
+                    System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(mtl.GetType());
+                    xs.Serialize(streamWrite, mtl);
+                }
 
                 if (File.Exists(file))
                     File.Delete(file);
@@ -104,18 +107,13 @@ namespace FSIndexer
         {
             try
             {
-                Stream streamRead = File.OpenRead(file);
-                System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(typeof(HashTrackerList));
-                HashTrackerList obj = (HashTrackerList)xs.Deserialize(streamRead);
-                streamRead.Close();
-
-                //obj.List.RemoveAll(n => !File.Exists(n.Path));
-                //obj.List.Where(n => n.DateModified == DateTime.MinValue && File.Exists(n.Path)).ToList().ForEach(n => n.DateModified = new FileInfo(n.Path).LastWriteTimeUtc);
-                // obj.List.Where(n => !File.Exists(n.Path)).ToList().ForEach(n => n.)
-                // obj.List.RemoveAll(n => !File.Exists(n.Path));
-                obj.Sort();
-
-                return obj;
+                using (Stream streamRead = File.OpenRead(file))
+                {
+                    System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(typeof(HashTrackerList));
+                    HashTrackerList obj = (HashTrackerList)xs.Deserialize(streamRead);
+                    obj.Sort();
+                    return obj;
+                }
             }
             catch
             {

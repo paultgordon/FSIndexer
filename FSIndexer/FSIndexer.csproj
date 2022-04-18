@@ -103,8 +103,11 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="FolderBrowserLauncher.cs" />
     <Compile Include="TimeOperation.cs" />
+    <Compile Include="Tracking\HashTrackerItem2.cs" />
     <Compile Include="Tracking\HashTrackerItem.cs" />
+    <Compile Include="Tracking\HashTrackerList2.cs" />
     <Compile Include="Tracking\HashTrackerList.cs" />
+    <Compile Include="Tracking\HashTrackerSubList2.cs" />
     <Compile Include="Tracking\IgnoreTrackerItem.cs" />
     <Compile Include="DirectoryInfoExtended.cs" />
     <Compile Include="IndexedBase.cs" />
