@@ -234,7 +234,7 @@ namespace FSIndexer
             public static readonly string ConvertToFileExtension = ".mp4";
             public static readonly List<string> ConvertFileExtensions = new List<string>()
             {
-                ".wmv", ".avi", ".flv", ".ts", ".mpg", ".mpeg", ".m4v", ".webm"
+                ".wmv", ".avi", ".flv", ".ts", ".mpg", ".mpeg", ".m4v", ".webm", ".vob"
             };
         }
 
@@ -2385,21 +2385,33 @@ namespace FSIndexer
                         }).
                         Select(n => new
                         {
-                            // FileName = n.FileName,
-                            // List = n.List,
                             Master = n.Master,
-                            FilesToDelete = n.List.Where(i => File.Exists(i.Path) && i.DateModified != n.Master.DateModified && (i.Length > n.Master.Length ? (i.Length / 2) < n.Master.Length : (n.Master.Length / 2) < i.Length)).ToList(),
+                            FilesToDelete = n.List.Where(i => !i.Path.StartsWith(KeepDirectory) && File.Exists(i.Path) && (i.Length > n.Master.Length ? (i.Length / 2) < n.Master.Length : (n.Master.Length / 2) < i.Length) && (i.DateModified != n.Master.DateModified || i.DateModified != (new FileInfo(i.Path).LastAccessTimeUtc))).ToList()
                         }).
                         Where(n => n.FilesToDelete.Count > 0).
                         ToList();
 
                         foreach (var item in seenBefore)
                         {
-                            rtbExecuteWindow.Text += "REM Earliest File Seen Date: " + item.Master.DateModified.ToShortDateString() + " " + item.Master.DateModified.ToLongTimeString() + Environment.NewLine;
+                            bool headerWritten = false;
+                            
                             foreach (var file in item.FilesToDelete)
                             {
-                                rtbExecuteWindow.Text += "REM This File Seen Date:        " + file.DateModified.ToShortDateString() + " " + file.DateModified.ToLongTimeString() + Environment.NewLine;
-                                rtbExecuteWindow.Text += "DEL \"" + file.Path + "\"" + Environment.NewLine;
+                                FileInfo latest = new FileInfo(file.Path);
+
+                                if (latest.LastWriteTimeUtc != item.Master.DateModified)
+                                {
+                                    if (!headerWritten)
+                                    {
+                                        headerWritten = true;
+                                        rtbExecuteWindow.Text += "REM Earliest File Seen Date: " + item.Master.DateModified.ToShortDateString() + " " + item.Master.DateModified.ToLongTimeString() + Environment.NewLine;
+                                    }
+
+                                    rtbExecuteWindow.Text += "REM This File Seen Date:        " + latest.LastWriteTimeUtc.ToShortDateString() + " " + latest.LastWriteTimeUtc.ToLongTimeString() + Environment.NewLine;
+                                    rtbExecuteWindow.Text += "DEL \"" + file.Path + "\"" + Environment.NewLine;
+                                    //rtbExecuteWindow.Text += "REM This File Seen Date:        " + file.DateModified.ToShortDateString() + " " + file.DateModified.ToLongTimeString() + Environment.NewLine;
+                                    //rtbExecuteWindow.Text += "DEL \"" + file.Path + "\"" + Environment.NewLine;
+                                }
                             }
                         }
                     }
@@ -3419,18 +3431,41 @@ namespace FSIndexer
                 if (rnReplaceWith.Remember)
                     RenameTrackerList.Add(rnSearchFor.TextName, rnReplaceWith.TextName, false);
 
-                foreach (var item in IndexedList.IndexedFiles)
+                foreach (TreeNode parentNode in TopNode.Nodes)
                 {
-                    if (item.File.Name.Contains(rnSearchFor.TextName, StringComparison.CurrentCultureIgnoreCase) && File.Exists(item.File.FullName))
+                    foreach (TreeNode node in parentNode.Nodes)
                     {
-                        string newFullName = Path.Combine(item.File.DirectoryName, item.File.Name.Replace(rnSearchFor.TextName, rnReplaceWith.TextName, StringComparison.CurrentCultureIgnoreCase));
+                        var it = IndexedList.IndexedFiles.Find(node);
 
-                        if (item.File.FullName != newFullName)
+                        if (it == null)
                         {
-                            filesToChange.Add(GetMoveCmd(item.File.FullName, new FileInfo(newFullName)));
+                            it = IndexedList.IndexedTerms.Find(node);
+                        }
+
+                        if (it != null && it.FileExists() && it.Name.Contains(rnSearchFor.TextName, StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            string newFullName = Path.Combine(it.DirectoryName, it.Name.Replace(rnSearchFor.TextName, rnReplaceWith.TextName, StringComparison.CurrentCultureIgnoreCase));
+
+                            if (it.FullName != newFullName)
+                            {
+                                filesToChange.Add(GetMoveCmd(it.FullName, new FileInfo(newFullName)));
+                            }
                         }
                     }
                 }
+
+                //foreach (var item in IndexedList.IndexedFiles)
+                //{
+                //    if (item.File.Name.Contains(rnSearchFor.TextName, StringComparison.CurrentCultureIgnoreCase) && File.Exists(item.File.FullName))
+                //    {
+                //        string newFullName = Path.Combine(item.File.DirectoryName, item.File.Name.Replace(rnSearchFor.TextName, rnReplaceWith.TextName, StringComparison.CurrentCultureIgnoreCase));
+
+                //        if (item.File.FullName != newFullName)
+                //        {
+                //            filesToChange.Add(GetMoveCmd(item.File.FullName, new FileInfo(newFullName)));
+                //        }
+                //    }
+                //}
             }
 
             if (filesToChange.Count > 0)
@@ -3476,23 +3511,6 @@ namespace FSIndexer
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
-            // RenameTrackerList.SyncDictionaryToList();
-            //bool changed = false;
-
-            //foreach (var item in RenameTrackerList.List)
-            //{
-            //    if (TermOptions.AutoReplaceTags.Any(n => n.Key == item.SourceString && n.Value == item.DestinationString))
-            //    {
-            //        item.DateCreated = new DateTime(2000, 1, 1);
-            //        changed = true;
-            //    }
-            //}
-
-            //if (changed)
-            //{
-            //    RenameTrackerList.SyncListToDictionary();
-            //}
-
             MoveTrackerList.SaveToFile(MoveTrackingFile, MoveTrackerList);
             RenameTrackerList.SaveToFile(RenameTrackingFile, RenameTrackerList);
             HashTrackerList.SaveToFile(HashTrackingFile, HashTrackerList);

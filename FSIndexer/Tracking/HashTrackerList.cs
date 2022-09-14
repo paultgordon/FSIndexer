@@ -10,13 +10,13 @@ namespace FSIndexer
     [Serializable()]
     public class HashTrackerList
     {
-        public Dictionary<string, List<HashTrackerItem>> Dictionary;
+        // public Dictionary<string, List<HashTrackerItem>> Dictionary;
         public List<HashTrackerItem> List { get; set; }
         public static bool AutoCreateLongHash = true;
 
         public HashTrackerList()
         {
-            Dictionary = new Dictionary<string, List<HashTrackerItem>>();
+            // Dictionary = new Dictionary<string, List<HashTrackerItem>>();
             List = new List<HashTrackerItem>();
         }
 

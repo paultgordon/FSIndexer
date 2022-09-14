@@ -11,20 +11,60 @@ namespace FSIndexer
     [Serializable()]
     public class HashTrackerItem : IComparable<HashTrackerItem>
     {
+        // [XmlIgnore]
         public string Path { get; set; } = string.Empty;
-        public string Name
-        {
-            get
-            {
-                return System.IO.Path.GetFileName(Path);
-            }
-        }
+        //{
+        //    get
+        //    {
+        //        return DecodeFrom64(EncryptedPath);
+        //    }
+        //    set
+        //    {
+        //        EncryptedPath = EncodeTo64(value);
+        //    }
+        //}
 
         // public string EncryptedPath { get; set; } = string.Empty;
         public long Length { get; set; } = -1;
         internal DateTime DateCreated { get; set; } = DateTime.MinValue;
         public DateTime DateModified { get; set; } = DateTime.MinValue;
-        public string ShortHash { get; set; } = string.Empty;
+
+        private string _shortHash { get; set; } = string.Empty;
+        private string _longHash { get; set; } = string.Empty;
+
+        public string ShortHash
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_shortHash))
+                {
+                    _shortHash = Main.GetMD5Hash(new FileInfo(Path), Main.HashSizeShort);
+                }
+
+                return _shortHash;
+            }
+            set
+            {
+                _shortHash = value;
+            }
+        }
+
+        public string LongHash
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_longHash) && HashTrackerList.AutoCreateLongHash)
+                {
+                    _longHash = Main.GetMD5Hash(new FileInfo(Path), Main.HashSizeLong);
+                }
+
+                return _longHash;
+            }
+            set
+            {
+                _longHash = value;
+            }
+        }
 
         public HashTrackerItem()
         {
@@ -36,7 +76,7 @@ namespace FSIndexer
             Length = fi.Length;
             DateCreated = fi.CreationTimeUtc;
             DateModified = fi.LastWriteTimeUtc;
-            ShortHash = Main.GetMD5Hash(new FileInfo(Path), Main.HashSizeShort);
+            var fsh = ShortHash;
         }
 
         public int CompareTo(HashTrackerItem other)
