@@ -41,7 +41,6 @@ namespace FSIndexer
         public const string TorrentPath = @"E:\Downloads\NG\_Decoded\_Torrents";
         public const string NircmdPath = @"C:\Users\Paul\Documents\Visual Studio Projects\FSIndexer\FSIndexer\bin\nircmd.exe";
         public string TheEndPath { get { return Path.Combine(SaveDirectory, "TheEnd_NS.mp4"); } }
-
         private string SaveDirectory { get { return Directory.GetParent(Path.GetDirectoryName(Path.GetFullPath(Assembly.GetExecutingAssembly().Location))).FullName; } }
         private string MoveTrackingFile { get { return Path.Combine(SaveDirectory, "MoveTrackerList.xml"); } }
         private string RenameTrackingFile { get { return Path.Combine(SaveDirectory, "RenameTrackerList.xml"); } }
@@ -49,6 +48,7 @@ namespace FSIndexer
         private string IgnoreTrackingFile { get { return Path.Combine(SaveDirectory, "IgnoreTrackerList.xml"); } }
         private string InfoTrackingFile { get { return Path.Combine(SaveDirectory, "InfoTrackerList.xml"); } }
         private string ShortcutCreator { get { return Path.Combine(SaveDirectory, "Shortcut.exe"); } }
+        private string RemoveForeignCharsScriptFile { get { return Path.Combine(SaveDirectory, "RemoveForeignChars.ps1"); } }
 
         private static bool IsLoading { get; set; } = false;
         private static bool AutomationRunning { get; set; } = false;
@@ -69,10 +69,13 @@ namespace FSIndexer
         internal static HashTrackerList HashTrackerList;
         internal static TrackerList<IgnoreTrackerItem> IgnoreTrackerList;
         internal static TrackerList<InfoTrackerItem> InfoTrackerList;
+        internal static List<string> FilesChangesSeen = new List<string>();
 
         internal static ConsoleInputReader.Reader Reader = null;
 
         private static object filesMovedLocker = new object();
+
+        private FileSystemWatcher FileWatcher { get; set; } = null;
 
         internal class TAGS
         {
@@ -149,6 +152,7 @@ namespace FSIndexer
             //var mi = ReadMediaInfo(SourceDirectoriesToIndex.First());
             //var tsDur = DateTime.Now.Subtract(dtStart).TotalSeconds;
             //PrintInfo("It took " + (int)tsDur + "s to load the media for " + mi.Count + " items.");
+            StartFileWatcher();
         }
 
         private void Main_Shown(object sender, EventArgs e)
@@ -537,7 +541,7 @@ namespace FSIndexer
                     IndexedTerm it = parentNode != null ? IndexedList.IndexedTerms.Find(parentNode.Name) : null;
                     bool expandNode = parentNode != null ? parentNode.IsExpanded : true;
 
-                    bool reallyRefresh = refreshFileSystem || NeedsRefresh(SourceDirectoriesToIndex);
+                    bool reallyRefresh = refreshFileSystem || NeedsRefresh(SourceDirectoriesToIndex) || AutomationRunning;
 
                     if (reallyRefresh)
                     {
@@ -2063,6 +2067,8 @@ namespace FSIndexer
         {
             Cursor = Cursors.WaitCursor;
 
+            RunPowershellScript(RemoveForeignCharsScriptFile);
+
             List<string> filesMoved = new List<string>();
 
             foreach (var ilTerm in IndexedList.IndexedTerms)
@@ -2394,7 +2400,7 @@ namespace FSIndexer
                         foreach (var item in seenBefore)
                         {
                             bool headerWritten = false;
-                            
+
                             foreach (var file in item.FilesToDelete)
                             {
                                 FileInfo latest = new FileInfo(file.Path);
@@ -2953,8 +2959,8 @@ namespace FSIndexer
             FileInfo fiSource = new FileInfo(source);
             string args = string.Format("-i \"{0}\" -t 1 -c 1 -o \"{1}\" -f {4} -e x264 -q {2} --{3} -a 1 -E av_aac -B 160 -6 dpl2 -R Auto -D 0 --gain=0 --audio-fallback av_aac -x ref=1:weightp=1:subq=2:rc-lookahead=10:trellis=0:8x8dct=0 --verbose=1", source, dest, quality, vfr ? "vfr" : "cfr", format);
             return program + " " + args + Environment.NewLine + string.Format("\"{0}\" setfiletime \"{1}\" \"{2}\" \"{3}\" \"{4}\"", NircmdPath, dest, fiSource.CreationTime.ToString("dd-MM-yyyy HH:mm:ss"), fiSource.LastWriteTime.ToString("dd-MM-yyyy HH:mm:ss"), "now");
-                                         // nircmd.exe setfiletime "d:\test\log1.txt" "03/08/2019 17:00:00" "" "03/08/2019 17:10:00"
-                                         // "27-01-2022 13:47:15"
+            // nircmd.exe setfiletime "d:\test\log1.txt" "03/08/2019 17:00:00" "" "03/08/2019 17:10:00"
+            // "27-01-2022 13:47:15"
         }
 
         private void toolStripMenuItemGoogle_Click(object sender, EventArgs e)
@@ -3285,6 +3291,7 @@ namespace FSIndexer
             // Stop automation
             if (AutomationRunning)
             {
+                StopFileWatcher();
                 StartNormalViewing();
                 AutomationRunning = false;
                 rtbExecuteWindow.Clear();
@@ -3306,22 +3313,20 @@ namespace FSIndexer
 
                 var AutomationTask = Task.Factory.StartNew(() =>
                 {
-                    var lastFileList = new List<FileInfo>();
+                    StartFileWatcher();
+                    bool ForceRun = true;
 
                     while (AutomationRunning)
                     {
-                        var logList = new List<string>();
-                        var currentFileList = new List<FileInfo>();
-
-                        using (new TimeOperation("Interate Source Files Operation"))
+                        if (FilesChangesSeen.Count > 0 || ForceRun)
                         {
-                            currentFileList = SourceDirectoriesToAutoFile.Select(d => d.GetFiles(true)).SelectMany(f => f).ToList();
-                        }
+                            this.InvokeEx(a => a.rtbExecuteWindow.Clear());
 
-                        // Compare entire size collection to last size collection
-                        if (currentFileList.Sum(f => f.Length) != lastFileList.Sum(f => f.Length))
-                        {
-                            for (int i = 0; i < 5; i++)
+                            FilesChangesSeen.RemoveAll(n => !File.Exists(n));
+                            var FilesChangesSeenSnapshot = new List<string>(FilesChangesSeen);
+                            var logList = new List<string>();
+
+                            for (int i = 0; i < 8; i++)
                             {
                                 logList.Add("REM btnClearTrash_Click");
                                 this.InvokeEx(a => a.btnClearTrash_Click(null, null));
@@ -3331,7 +3336,7 @@ namespace FSIndexer
                                 {
                                     if (a.rtbExecuteWindow.Text.Trim().Length == 0)
                                     {
-                                        i = int.MaxValue - 1;
+                                        i = int.MaxValue - 1; // Break loop
                                     }
                                     else
                                     {
@@ -3342,69 +3347,118 @@ namespace FSIndexer
                                     }
                                 });
                             }
-                        }
-                        else
-                        {
-                            logList.Add("REM Nothing to auto file");
-                        }
 
-                        // Compare video size collection to last video size collection
-                        if (currentFileList.Where(f => IndexExtensions.DefaultIndexExtentions.Contains(f.Extension)).Sum(f => f.Length) != lastFileList.Where(f => IndexExtensions.DefaultIndexExtentions.Contains(f.Extension)).Sum(f => f.Length))
-                        {
-                            for (int i = 0; i < 5; i++)
+                            if (FilesChangesSeen.Any(f => IndexExtensions.DefaultIndexExtentions.Contains(Path.GetExtension(f))) || ForceRun)
                             {
-                                logList.Add("REM btnRemoveDups_Click");
-                                this.InvokeEx(a => a.btnRemoveDups_Click(null, null));
-                                this.InvokeEx(a =>
+                                for (int i = 0; i < 1; i++)
                                 {
-                                    if (a.rtbExecuteWindow.Text.Trim().Length == 0)
+                                    logList.Add("REM btnRemoveDups_Click");
+                                    this.InvokeEx(a => a.btnRemoveDups_Click(null, null));
+                                    this.InvokeEx(a =>
                                     {
-                                        i = int.MaxValue - 1;
-                                    }
-                                    else
-                                    {
-                                        logList.Add("REM btnExecute_Click");
-                                        logList.Add("");
-                                        a.btnExecute_Click(null, null);
-                                    }
-                                });
-                            }
-                        }
-                        else
-                        {
-                            logList.Add("REM No duplicates to remove");
-                        }
-
-                        lastFileList = currentFileList;
-
-                        logList.ForEach(l => this.InvokeEx(a => a.rtbExecuteWindow.Text += l + Environment.NewLine));
-
-                        this.InvokeEx(a =>
-                        {
-                            a.rtbExecuteWindow.Text += "REM Automation Run: " + DateTime.Now.ToString("hh:mm:ss.fff") + Environment.NewLine;
-                            a.rtbExecuteWindow.SelectionStart = a.rtbExecuteWindow.Text.Length;
-                            a.rtbExecuteWindow.ScrollToCaret();
-                        });
-
-                        int sleepTime = 1 * 60;
-                        DateTime stopTime = DateTime.UtcNow.AddSeconds(sleepTime);
-
-                        while (DateTime.UtcNow < stopTime)
-                        {
-                            if (!AutomationRunning)
-                            {
-                                break;
+                                        if (a.rtbExecuteWindow.Text.Trim().Length == 0)
+                                        {
+                                            i = int.MaxValue - 1; // Break loop
+                                        }
+                                        else
+                                        {
+                                            logList.Add("REM btnExecute_Click");
+                                            logList.Add("");
+                                            a.btnExecute_Click(null, null);
+                                        }
+                                    });
+                                }
                             }
                             else
                             {
-                                Application.DoEvents();
-                                Thread.Sleep(500);
+                                logList.Add("REM No duplicates to remove");
+                            }
+
+                            logList.ForEach(l => this.InvokeEx(a => a.rtbExecuteWindow.Text += l + Environment.NewLine));
+
+                            this.InvokeEx(a =>
+                            {
+                                a.rtbExecuteWindow.Text += "REM Automation Run: " + DateTime.Now.ToString("hh:mm:ss.fff") + Environment.NewLine;
+                                a.rtbExecuteWindow.SelectionStart = a.rtbExecuteWindow.Text.Length;
+                                a.rtbExecuteWindow.ScrollToCaret();
+                            });
+
+                            lock (FilesChangesSeen)
+                            {
+                                FilesChangesSeen.RemoveAll(n => FilesChangesSeenSnapshot.Contains(n));
+                            }
+
+                            ForceRun = false;
+
+                            int sleepTime = 1 * 10;
+                            DateTime stopTime = DateTime.UtcNow.AddSeconds(sleepTime);
+
+                            while (DateTime.UtcNow < stopTime)
+                            {
+                                if (!AutomationRunning)
+                                {
+                                    break;
+                                }
+                                else
+                                {
+                                    Application.DoEvents();
+                                    Thread.Sleep(500);
+                                }
                             }
                         }
-
-                        this.InvokeEx(a => a.rtbExecuteWindow.Clear());
                     }
+
+                    StopFileWatcher();
                 });
+            }
+        }
+
+        private void StartFileWatcher()
+        {
+            if (FileWatcher != null)
+            {
+                FileWatcher.Changed -= FileWatcher_Changed;
+            }
+
+            FilesChangesSeen.Clear();
+
+            FileWatcher = new FileSystemWatcher();
+            FileWatcher.Path = TorrentPath;
+            FileWatcher.Filter = "*.*";
+            FileWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.CreationTime | NotifyFilters.Size | NotifyFilters.FileName;
+            FileWatcher.Created += FileWatcher_Changed;
+            FileWatcher.Changed += FileWatcher_Changed;
+            FileWatcher.EnableRaisingEvents = true;
+        }
+
+        private void FileWatcher_Created(object sender, FileSystemEventArgs e)
+        {
+            // FilesChangesSeen.Add(e.FullPath);
+        }
+
+        private void FileWatcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            lock (FilesChangesSeen)
+            {
+                using (new TimeOperation($"FileWatcher_Changed ({e.ChangeType.ToString()}): " + e.FullPath))
+                {
+                }
+
+                FilesChangesSeen.Add(e.FullPath);
+            }
+        }
+
+        private void StopFileWatcher()
+        {
+            if (FileWatcher != null)
+            {
+                FileWatcher.Changed -= FileWatcher_Changed;
+                FileWatcher = null;
+            }
+
+            lock (FilesChangesSeen)
+            {
+                FilesChangesSeen.Clear();
             }
         }
 
@@ -3564,6 +3618,32 @@ namespace FSIndexer
             }
 
             this.PrivateViewing = true;
+        }
+
+        private List<System.Management.Automation.PSObject> RunPowershellScript(string scriptPath)
+        {
+            System.Management.Automation.Runspaces.RunspaceConfiguration runspaceConfiguration = System.Management.Automation.Runspaces.RunspaceConfiguration.Create();
+            
+            using (System.Management.Automation.Runspaces.Runspace runspace = System.Management.Automation.Runspaces.RunspaceFactory.CreateRunspace(runspaceConfiguration))
+            {
+                runspace.Open();
+
+                using (System.Management.Automation.Runspaces.Pipeline pipeline = runspace.CreatePipeline())
+                {
+                    // Here's how you add a new script with arguments
+                    System.Management.Automation.Runspaces.Command myCommand = new System.Management.Automation.Runspaces.Command(scriptPath); //, true, true);
+
+                    System.Management.Automation.Runspaces.CommandParameter dirParam = new System.Management.Automation.Runspaces.CommandParameter("Directory", NzbPath);
+                    myCommand.Parameters.Add(dirParam);
+
+                    pipeline.Commands.Add(myCommand);
+
+                    // Execute PowerShell script
+                    var results = pipeline.Invoke().ToList();
+                    return results;
+                }
+            }
+
         }
     }
 }
