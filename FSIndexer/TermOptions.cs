@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -94,6 +95,20 @@ namespace FSIndexer
                 "on",
                 "of",
                 "it"
+            };
+
+        public static bool IgnoreItem(string fullPath)
+        {
+            string ext = new FileInfo(fullPath).Extension;
+
+            return true;
+        }
+
+        public static List<string> IgnoreExtensions =
+            new List<string>()
+            {
+                ".!qb",
+                ".parts"
             };
 
         public static List<string> AutoRemoveStartingTags =

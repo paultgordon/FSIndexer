@@ -84,6 +84,11 @@ namespace FSIndexer
 
         public Main(string[] args = null)
         {
+            //TermOptions.IgnoreItem(@"E:\Downloads\NG\_Decoded\_Torrents\evilangel.23.02.02.tommy.king.mp4.!qB");
+            //TermOptions.IgnoreItem(@"E:\Downloads\NG\_Decoded\_Torrents\evilangel.23.02.02.tommy.king.!qB");
+            //TermOptions.IgnoreItem(@"E:\Downloads\NG\_Decoded\_Torrents\evilangel.23.02.02.tommy.king.mp4");
+            //TermOptions.IgnoreItem(@"E:\Downloads\NG\_Decoded\_Torrents");
+
             IsLoading = true;
             Reader = new ConsoleInputReader.Reader(args);
             FilterOnName = new List<string>();
@@ -182,7 +187,7 @@ namespace FSIndexer
 
                     foreach (var die in dieList)
                     {
-                        count += die.GetFiles().Count();
+                        count += die.GetFiles().Where(n => !TermOptions.IgnoreExtensions.Contains(n.Extension.ToLower())).Count();
                     }
 
                     return count;
@@ -2699,7 +2704,7 @@ namespace FSIndexer
         {
             string executeText = "";
 
-            Parallel.ForEach(root.GetFiles(true).Where(n => n.Length < TermOptions.ExcludeRules.MinimumSizeToKeepInB && n.Name[0] != '_' && !n.FullName.StartsWith(KeepDirectory)), (fi) =>
+            Parallel.ForEach(root.GetFiles(true).Where(n => n.Length < TermOptions.ExcludeRules.MinimumSizeToKeepInB && n.Name[0] != '_' && !n.FullName.StartsWith(KeepDirectory) && !TermOptions.IgnoreExtensions.Contains(new FileInfo(n.FullName).Extension.ToLower())), (fi) =>
             {
                 // Skip files that have been modified recently
                 if (fi.LastWriteTimeUtc > DateTime.UtcNow.Subtract(TimeSpan.FromSeconds(30)))
@@ -3438,6 +3443,11 @@ namespace FSIndexer
 
         private void FileWatcher_Changed(object sender, FileSystemEventArgs e)
         {
+            if (TermOptions.IgnoreExtensions.Contains(new FileInfo(e.FullPath).Extension.ToLower()))
+            {
+                return;
+            }
+
             lock (FilesChangesSeen)
             {
                 using (new TimeOperation($"FileWatcher_Changed ({e.ChangeType.ToString()}): " + e.FullPath))
