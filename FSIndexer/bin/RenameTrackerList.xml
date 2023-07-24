@@ -4859,6 +4859,41 @@
     <RequireTermAtStart>false</RequireTermAtStart>
   </RenameTrackerItem>
   <RenameTrackerItem>
+    <DateCreated>2023-07-06T11:39:58.2025897-04:00</DateCreated>
+    <SourceString>vrconk</SourceString>
+    <DestinationString>vr.conk</DestinationString>
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2023-07-06T11:40:06.8141521-04:00</DateCreated>
+    <SourceString>sinsvr</SourceString>
+    <DestinationString>sins.vr</DestinationString>
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2023-07-06T11:40:12.5167297-04:00</DateCreated>
+    <SourceString>fuckpassvr</SourceString>
+    <DestinationString>fuckpass.vr</DestinationString>
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2023-07-06T11:40:27.2614509-04:00</DateCreated>
+    <SourceString>czechvrcasting</SourceString>
+    <DestinationString>czechcasting.vr.</DestinationString>
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2023-07-06T11:41:03.8425726-04:00</DateCreated>
+    <SourceString>.vr.vr.</SourceString>
+    <DestinationString>.vr.</DestinationString>
+    <TagOnly>false</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
     <DateCreated>2000-01-01T00:00:00</DateCreated>
     <SourceString> </SourceString>
     <DestinationString>.</DestinationString>

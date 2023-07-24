@@ -135,7 +135,7 @@ namespace FSIndexer
                 "[","]",
                 "{","}",
                 "(",")",
-                ",", "&", "!", "#", "$", "%", "^", ";", "'", "?"
+                ",", "&", "!", "#", "$", "%", "^", ";", "'", "?", "="
             };
 
         public static List<KeyValuePair<string, string>> AutoReplaceTags

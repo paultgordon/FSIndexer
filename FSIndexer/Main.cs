@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using Shell32;
 
 namespace FSIndexer
@@ -84,11 +85,6 @@ namespace FSIndexer
 
         public Main(string[] args = null)
         {
-            //TermOptions.IgnoreItem(@"E:\Downloads\NG\_Decoded\_Torrents\evilangel.23.02.02.tommy.king.mp4.!qB");
-            //TermOptions.IgnoreItem(@"E:\Downloads\NG\_Decoded\_Torrents\evilangel.23.02.02.tommy.king.!qB");
-            //TermOptions.IgnoreItem(@"E:\Downloads\NG\_Decoded\_Torrents\evilangel.23.02.02.tommy.king.mp4");
-            //TermOptions.IgnoreItem(@"E:\Downloads\NG\_Decoded\_Torrents");
-
             IsLoading = true;
             Reader = new ConsoleInputReader.Reader(args);
             FilterOnName = new List<string>();
@@ -850,7 +846,7 @@ namespace FSIndexer
 
                     string logText = "";
                     logText += "MOVE /-Y \"" + fi.FullName + "\" \"" + forcePath.FullName + "\"" + Environment.NewLine;
-                    logText += "RD /Q \"" + fi.Directory.FullName + "\" >NUL 2>&1" + Environment.NewLine;
+                    logText += GetRemoveDirectoryCmd(fi.Directory.FullName);
                     rtbExecuteWindow.Text += logText;
 
                     movedList.Add(new FileInfo(newPath));
@@ -978,7 +974,7 @@ namespace FSIndexer
 
                     foreach (var di in diMovedFrom)
                     {
-                        logText += "RD /Q \"" + di + "\" >NUL 2>&1" + Environment.NewLine;
+                        logText += GetRemoveDirectoryCmd(di);
                     }
 
                     if (itemsToMove > 0)
@@ -1007,7 +1003,7 @@ namespace FSIndexer
                         {
                             itemsToMove++;
                             logText += "MOVE /-Y \"" + fi.FullName + "\" \"" + newFolder + "\"" + Environment.NewLine;
-                            logText += "RD /Q \"" + fi.Directory.FullName + "\" >NUL 2>&1" + Environment.NewLine;
+                            logText += GetRemoveDirectoryCmd(fi.Directory.FullName);
                             movedList.Add(new FileInfo(Path.Combine(newFolder.FullName, fi.Name)));
 
                             if (!doNotRememberLocation)
@@ -1548,7 +1544,7 @@ namespace FSIndexer
 
                     foreach (var di in diMovedFrom)
                     {
-                        rtbExecuteWindow.Text += "RD /Q \"" + di + "\" >NUL 2>&1" + Environment.NewLine;
+                        rtbExecuteWindow.Text += GetRemoveDirectoryCmd(di);
                     }
 
                     RemoveItem(SelectedNode);
@@ -1587,7 +1583,7 @@ namespace FSIndexer
                 {
                     fi.IsReadOnly = false;
                     rtbExecuteWindow.Text += "DEL \"" + fi.FullName + "\"" + Environment.NewLine;
-                    rtbExecuteWindow.Text += "RD /Q \"" + fi.Directory.FullName + "\" >NUL 2>&1" + Environment.NewLine;
+                    rtbExecuteWindow.Text += GetRemoveDirectoryCmd(fi.Directory.FullName);
                 }
 
                 if (SelectedNode.Parent != null)
@@ -1602,6 +1598,22 @@ namespace FSIndexer
             }
 
             //WaitForCmd = true;
+        }
+
+        private string GetRemoveDirectoryCmd(string directory)
+        {
+            if (!IsSymbolic(directory) && !directory.ToLower().Equals(TorrentPath.ToLower()))
+            {
+                return "RD /Q \"" + directory + "\" >NUL 2>&1" + Environment.NewLine;
+            }
+
+            return string.Empty;
+        }
+
+        private bool IsSymbolic(string path)
+        {
+            FileInfo pathInfo = new FileInfo(path);
+            return pathInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
         }
 
         private void rtbLogging_TextChanged(object sender, EventArgs e)
@@ -2693,7 +2705,7 @@ namespace FSIndexer
             {
                 if (subDir.GetDirectories().Count() == 0 && subDir.GetFiles().Count() == 0 && subDir.Name[0] != '_')
                 {
-                    executeText += "RD /Q \"" + subDir.FullName + "\" >NUL 2>&1" + Environment.NewLine;
+                    executeText += GetRemoveDirectoryCmd(subDir.FullName);
                 }
             });
 
@@ -2704,7 +2716,7 @@ namespace FSIndexer
         {
             string executeText = "";
 
-            Parallel.ForEach(root.GetFiles(true).Where(n => n.Length < TermOptions.ExcludeRules.MinimumSizeToKeepInB && n.Name[0] != '_' && !n.FullName.StartsWith(KeepDirectory) && !TermOptions.IgnoreExtensions.Contains(new FileInfo(n.FullName).Extension.ToLower())), (fi) =>
+            Parallel.ForEach(root.GetFiles(true).Where(n => n.Length < TermOptions.ExcludeRules.MinimumSizeToKeepInB && n.Name[0] != '_' && !n.FullName.StartsWith(KeepDirectory) &&  !TermOptions.IgnoreExtensions.Contains(new FileInfo(n.FullName).Extension.ToLower())), (fi) =>
             {
                 // Skip files that have been modified recently
                 if (fi.LastWriteTimeUtc > DateTime.UtcNow.Subtract(TimeSpan.FromSeconds(30)))
