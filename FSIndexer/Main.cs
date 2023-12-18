@@ -239,7 +239,7 @@ namespace FSIndexer
             public static readonly string ConvertToFileExtension = ".mp4";
             public static readonly List<string> ConvertFileExtensions = new List<string>()
             {
-                ".wmv", ".avi", ".flv", ".ts", ".mpg", ".mpeg", ".m4v", ".webm", ".vob"
+                ".wmv", ".avi", ".flv", ".ts", ".mpg", ".mpeg", ".m4v", ".webm", ".vob", ".mkv"
             };
         }
 
