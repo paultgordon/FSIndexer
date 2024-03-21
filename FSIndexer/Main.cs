@@ -2701,9 +2701,8 @@ namespace FSIndexer
             string executeText = "";
 
             Parallel.ForEach(root.GetDirectories(true), (subDir) =>
-            // foreach (var subDir in root.GetDirectories(true))
             {
-                if (subDir.GetDirectories().Count() == 0 && subDir.GetFiles().Count() == 0 && subDir.Name[0] != '_')
+                if (subDir.GetDirectories().Count() == 0 && subDir.GetFiles().Count() == 0 && subDir.Name[0] != '_' && subDir.Name[0] != '$')
                 {
                     executeText += GetRemoveDirectoryCmd(subDir.FullName);
                 }
