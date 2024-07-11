@@ -4047,9 +4047,9 @@
     <RequireTermAtStart>false</RequireTermAtStart>
   </RenameTrackerItem>
   <RenameTrackerItem>
-    <DateCreated>2018-12-21T15:57:27.5041983-05:00</DateCreated>
+    <DateCreated>2024-05-08T15:33:13.0564475-04:00</DateCreated>
     <SourceString>virtualrealtrans</SourceString>
-    <DestinationString>virtualrealtrans</DestinationString>
+    <DestinationString>vrt</DestinationString>
     <TagOnly>true</TagOnly>
     <RequireTermAtStart>false</RequireTermAtStart>
   </RenameTrackerItem>
@@ -5094,6 +5094,97 @@
     <SourceString>conv</SourceString>
     <DestinationString>000</DestinationString>
     <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-04-05T12:11:08.7925568-04:00</DateCreated>
+    <SourceString>vrmansion</SourceString>
+    <DestinationString>vr.mansion</DestinationString>
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-04-05T12:11:15.9524049-04:00</DateCreated>
+    <SourceString>hologirlsvr</SourceString>
+    <DestinationString>hologirls.vr</DestinationString>
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-04-05T12:11:26.9954829-04:00</DateCreated>
+    <SourceString>studiovr</SourceString>
+    <DestinationString>studio.vr</DestinationString>
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-04-06T13:55:09.3134654-04:00</DateCreated>
+    <SourceString>bbcsurprise</SourceString>
+    <DestinationString>bbcsurprise</DestinationString>
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-04-10T12:46:16.8515054-04:00</DateCreated>
+    <SourceString>castingcouch.x.</SourceString>
+    <DestinationString>castingcouchx.</DestinationString>
+    <TagOnly>false</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-04-10T12:46:40.5925402-04:00</DateCreated>
+    <SourceString>castingcouch</SourceString>
+    <DestinationString>cchd</DestinationString>
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-04-10T12:47:08.629264-04:00</DateCreated>
+    <SourceString>prt</SourceString>
+    <DestinationString />
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-04-10T12:51:19.7992321-04:00</DateCreated>
+    <SourceString>xleech</SourceString>
+    <DestinationString />
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-05-08T15:33:29.4829399-04:00</DateCreated>
+    <SourceString>vrt</SourceString>
+    <DestinationString>vrt</DestinationString>
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-05-08T15:39:41.2481232-04:00</DateCreated>
+    <SourceString>ob.ob</SourceString>
+    <DestinationString>ob.</DestinationString>
+    <TagOnly>false</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-05-08T15:40:04.9939628-04:00</DateCreated>
+    <SourceString>ob.lp</SourceString>
+    <DestinationString>ob.</DestinationString>
+    <TagOnly>false</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-06-11T12:32:53.4410765-04:00</DateCreated>
+    <SourceString>jaxslayher</SourceString>
+    <DestinationString>jaxslayher</DestinationString>
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-06-11T14:19:02.3132608-04:00</DateCreated>
+    <SourceString>3600.p</SourceString>
+    <DestinationString>.</DestinationString>
+    <TagOnly>false</TagOnly>
     <RequireTermAtStart>false</RequireTermAtStart>
   </RenameTrackerItem>
   <RenameTrackerItem>

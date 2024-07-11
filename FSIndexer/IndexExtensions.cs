@@ -30,6 +30,7 @@ namespace FSIndexer
                 list.Add(".m4v");
                 list.Add(".webm");
                 list.Add(".vob");
+                list.Add(".vid");
 
                 return list;
             }

@@ -266,16 +266,6 @@ namespace FSIndexer
                 }
             }
 
-            //foreach (string pat in MonthData.REMPutYearFirst)
-            //{
-            //    Regex regex = new Regex(pat, RegexOptions.IgnoreCase);
-
-            //    if (regex.IsMatch(str))
-            //    {
-            //        str = regex.Replace(str, MonthData.RPYearFirst);
-            //    }
-            //}
-
             return str;
         }
 

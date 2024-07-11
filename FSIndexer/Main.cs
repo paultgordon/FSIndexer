@@ -239,7 +239,7 @@ namespace FSIndexer
             public static readonly string ConvertToFileExtension = ".mp4";
             public static readonly List<string> ConvertFileExtensions = new List<string>()
             {
-                ".wmv", ".avi", ".flv", ".ts", ".mpg", ".mpeg", ".m4v", ".webm", ".vob", ".mkv"
+                ".wmv", ".avi", ".flv", ".ts", ".mpg", ".mpeg", ".m4v", ".webm", ".vob", ".mkv", ".vid"
             };
         }
 
@@ -2715,7 +2715,7 @@ namespace FSIndexer
         {
             string executeText = "";
 
-            Parallel.ForEach(root.GetFiles(true).Where(n => n.Length < TermOptions.ExcludeRules.MinimumSizeToKeepInB && n.Name[0] != '_' && !n.FullName.StartsWith(KeepDirectory) &&  !TermOptions.IgnoreExtensions.Contains(new FileInfo(n.FullName).Extension.ToLower())), (fi) =>
+            Parallel.ForEach(root.GetFiles(true).Where(n => n.FullName.Length < 256 && n.Length < TermOptions.ExcludeRules.MinimumSizeToKeepInB && n.Name[0] != '_' && !n.FullName.StartsWith(KeepDirectory) &&  !TermOptions.IgnoreExtensions.Contains(new FileInfo(n.FullName).Extension.ToLower())), (fi) =>
             {
                 // Skip files that have been modified recently
                 if (fi.LastWriteTimeUtc > DateTime.UtcNow.Subtract(TimeSpan.FromSeconds(30)))
