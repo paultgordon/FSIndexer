@@ -14,7 +14,7 @@
       <DestinationDir>E:\Downloads\NG\_Decoded\lp</DestinationDir>
     </MoveTrackerItem>
     <MoveTrackerItem>
-      <Strength>1082</Strength>
+      <Strength>1126</Strength>
       <Tag>lp</Tag>
       <SourceDir>E:\Downloads\NG\_Decoded\_Torrents</SourceDir>
       <DestinationDir>E:\Downloads\NG\_Decoded\lp</DestinationDir>
@@ -104,16 +104,16 @@
       <DestinationDir>E:\Downloads\NG\_Decoded\lta</DestinationDir>
     </MoveTrackerItem>
     <MoveTrackerItem>
+      <Strength>215</Strength>
+      <Tag>evilangel</Tag>
+      <SourceDir>E:\Downloads\NG\_Decoded\_Torrents</SourceDir>
+      <DestinationDir>E:\Downloads\NG\_Decoded\evilangel</DestinationDir>
+    </MoveTrackerItem>
+    <MoveTrackerItem>
       <Strength>213</Strength>
       <Tag>ikillitts</Tag>
       <SourceDir>E:\Downloads\NG\_Decoded\sm\ikillitts</SourceDir>
       <DestinationDir>E:\Downloads\NG\_Decoded\sm</DestinationDir>
-    </MoveTrackerItem>
-    <MoveTrackerItem>
-      <Strength>211</Strength>
-      <Tag>evilangel</Tag>
-      <SourceDir>E:\Downloads\NG\_Decoded\_Torrents</SourceDir>
-      <DestinationDir>E:\Downloads\NG\_Decoded\evilangel</DestinationDir>
     </MoveTrackerItem>
     <MoveTrackerItem>
       <Strength>207</Strength>
@@ -284,6 +284,12 @@
       <DestinationDir>E:\Downloads\NG\_Decoded\bcc</DestinationDir>
     </MoveTrackerItem>
     <MoveTrackerItem>
+      <Strength>123</Strength>
+      <Tag>vr</Tag>
+      <SourceDir>E:\Downloads\NG\_Decoded\_Torrents</SourceDir>
+      <DestinationDir>E:\Downloads\NG\_Decoded\vr</DestinationDir>
+    </MoveTrackerItem>
+    <MoveTrackerItem>
       <Strength>119</Strength>
       <Tag>wcx</Tag>
       <SourceDir>E:\Downloads\NG\_Decoded\wcx</SourceDir>
@@ -339,12 +345,6 @@
     </MoveTrackerItem>
     <MoveTrackerItem>
       <Strength>97</Strength>
-      <Tag>vr</Tag>
-      <SourceDir>E:\Downloads\NG\_Decoded\_Torrents</SourceDir>
-      <DestinationDir>E:\Downloads\NG\_Decoded\vr</DestinationDir>
-    </MoveTrackerItem>
-    <MoveTrackerItem>
-      <Strength>97</Strength>
       <Tag>chickiporn</Tag>
       <SourceDir>E:\Downloads\NG\_Decoded</SourceDir>
       <DestinationDir>E:\Downloads\NG\_Decoded\chickiporn</DestinationDir>
@@ -372,6 +372,12 @@
       <Tag>ata</Tag>
       <SourceDir>E:\Downloads\NG\_Decoded</SourceDir>
       <DestinationDir>E:\Downloads\NG\_Decoded\ata</DestinationDir>
+    </MoveTrackerItem>
+    <MoveTrackerItem>
+      <Strength>95</Strength>
+      <Tag>tsh</Tag>
+      <SourceDir>E:\Downloads\NG\_Decoded\_Torrents</SourceDir>
+      <DestinationDir>E:\Downloads\NG\_Decoded\tsh</DestinationDir>
     </MoveTrackerItem>
     <MoveTrackerItem>
       <Strength>94</Strength>
@@ -452,12 +458,6 @@
       <DestinationDir>E:\Downloads\NG\_Decoded\tinyk</DestinationDir>
     </MoveTrackerItem>
     <MoveTrackerItem>
-      <Strength>84</Strength>
-      <Tag>tsh</Tag>
-      <SourceDir>E:\Downloads\NG\_Decoded\_Torrents</SourceDir>
-      <DestinationDir>E:\Downloads\NG\_Decoded\tsh</DestinationDir>
-    </MoveTrackerItem>
-    <MoveTrackerItem>
       <Strength>83</Strength>
       <Tag>jandm</Tag>
       <SourceDir>E:\Downloads\NG\_Decoded</SourceDir>
@@ -498,6 +498,12 @@
       <Tag>dtt</Tag>
       <SourceDir>E:\Downloads\NG\_Decoded\dtt</SourceDir>
       <DestinationDir>E:\_P\DTT</DestinationDir>
+    </MoveTrackerItem>
+    <MoveTrackerItem>
+      <Strength>78</Strength>
+      <Tag>bcc</Tag>
+      <SourceDir>E:\Downloads\NG\_Decoded\_Torrents\$Pack\$Bcc</SourceDir>
+      <DestinationDir>E:\Downloads\NG\_Decoded\bcc</DestinationDir>
     </MoveTrackerItem>
     <MoveTrackerItem>
       <Strength>77</Strength>
@@ -654,6 +660,12 @@
       <Tag>evilangel</Tag>
       <SourceDir>E:\Downloads\NG\_Decoded</SourceDir>
       <DestinationDir>E:\Downloads\NG\_Decoded\evilangel</DestinationDir>
+    </MoveTrackerItem>
+    <MoveTrackerItem>
+      <Strength>57</Strength>
+      <Tag>bcc</Tag>
+      <SourceDir>E:\Downloads\NG\_Decoded\_Torrents</SourceDir>
+      <DestinationDir>E:\Downloads\NG\_Decoded\bcc</DestinationDir>
     </MoveTrackerItem>
     <MoveTrackerItem>
       <Strength>56</Strength>
@@ -894,12 +906,6 @@
       <Tag>dsp</Tag>
       <SourceDir>E:\Downloads\NG\_Decoded</SourceDir>
       <DestinationDir>E:\Downloads\NG\_Decoded\dsp</DestinationDir>
-    </MoveTrackerItem>
-    <MoveTrackerItem>
-      <Strength>45</Strength>
-      <Tag>bcc</Tag>
-      <SourceDir>E:\Downloads\NG\_Decoded\_Torrents</SourceDir>
-      <DestinationDir>E:\Downloads\NG\_Decoded\bcc</DestinationDir>
     </MoveTrackerItem>
     <MoveTrackerItem>
       <Strength>44</Strength>
@@ -1302,6 +1308,12 @@
       <Tag>ahf</Tag>
       <SourceDir>Z:\_Sort\AF Sort</SourceDir>
       <DestinationDir>E:\Downloads\NG\_Decoded\ahf</DestinationDir>
+    </MoveTrackerItem>
+    <MoveTrackerItem>
+      <Strength>28</Strength>
+      <Tag>vrt</Tag>
+      <SourceDir>E:\Downloads\NG\_Decoded\sm\virtualrealtrans</SourceDir>
+      <DestinationDir>E:\Downloads\NG\_Decoded\vrt</DestinationDir>
     </MoveTrackerItem>
     <MoveTrackerItem>
       <Strength>28</Strength>
@@ -2142,6 +2154,12 @@
       <Tag>bigbootytgirls</Tag>
       <SourceDir>E:\Downloads\NG\_Decoded\_sm_sort</SourceDir>
       <DestinationDir>E:\Downloads\NG\_Decoded\sm</DestinationDir>
+    </MoveTrackerItem>
+    <MoveTrackerItem>
+      <Strength>13</Strength>
+      <Tag>vrt</Tag>
+      <SourceDir>E:\Downloads\NG\_Decoded\_Torrents</SourceDir>
+      <DestinationDir>E:\Downloads\NG\_Decoded\sm\virtualrealtrans</DestinationDir>
     </MoveTrackerItem>
     <MoveTrackerItem>
       <Strength>13</Strength>
@@ -3273,6 +3291,12 @@
     </MoveTrackerItem>
     <MoveTrackerItem>
       <Strength>6</Strength>
+      <Tag>vrt</Tag>
+      <SourceDir>E:\Downloads\NG\_Decoded\vrt\$Keep</SourceDir>
+      <DestinationDir>E:\Downloads\NG\_Decoded\vrt</DestinationDir>
+    </MoveTrackerItem>
+    <MoveTrackerItem>
+      <Strength>6</Strength>
       <Tag>virtualrealporn</Tag>
       <SourceDir>E:\Downloads\NG\_Decoded</SourceDir>
       <DestinationDir>E:\Downloads\NG\_Decoded\vr</DestinationDir>
@@ -3510,6 +3534,12 @@
       <Tag>wse</Tag>
       <SourceDir>E:\Downloads\NG\_Decoded</SourceDir>
       <DestinationDir>E:\Downloads\NG\_Decoded\wse</DestinationDir>
+    </MoveTrackerItem>
+    <MoveTrackerItem>
+      <Strength>5</Strength>
+      <Tag>vrt</Tag>
+      <SourceDir>E:\Downloads\NG\_Decoded\_Torrents</SourceDir>
+      <DestinationDir>E:\Downloads\NG\_Decoded\vrt</DestinationDir>
     </MoveTrackerItem>
     <MoveTrackerItem>
       <Strength>5</Strength>
@@ -3858,12 +3888,6 @@
       <Tag>wlts</Tag>
       <SourceDir>E:\Downloads\NG\_Decoded</SourceDir>
       <DestinationDir>E:\Downloads\NG\_Decoded\wlts</DestinationDir>
-    </MoveTrackerItem>
-    <MoveTrackerItem>
-      <Strength>4</Strength>
-      <Tag>vrt</Tag>
-      <SourceDir>E:\Downloads\NG\_Decoded\_Torrents</SourceDir>
-      <DestinationDir>E:\Downloads\NG\_Decoded\sm\virtualrealtrans</DestinationDir>
     </MoveTrackerItem>
     <MoveTrackerItem>
       <Strength>4</Strength>

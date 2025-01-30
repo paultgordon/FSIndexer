@@ -2454,18 +2454,19 @@ namespace FSIndexer
                                 {
                                     if (IndexExtensions.DefaultIndexExtentions.Any(n => n.Equals(fi.Extension, StringComparison.CurrentCultureIgnoreCase)) && !fi.FullName.StartsWith(@"E:\_P\_Air"))
                                     {
-                                        var hti = HashTrackerList.GetItem(fi);
-
-                                        lock (dictHash)
+                                        foreach (var hti in HashTrackerList.GetItems(fi))
                                         {
-                                            if (dictHash.ContainsKey(hti.ShortHash))
+                                            lock (dictHash)
                                             {
-                                                dictHash[hti.ShortHash].Add(fi);
-                                                dupesHash.Add(hti.ShortHash);
-                                            }
-                                            else
-                                            {
-                                                dictHash[hti.ShortHash] = new List<FileInfo>() { fi };
+                                                if (dictHash.ContainsKey(hti.ShortHash))
+                                                {
+                                                    dictHash[hti.ShortHash].Add(fi);
+                                                    dupesHash.Add(hti.ShortHash);
+                                                }
+                                                else
+                                                {
+                                                    dictHash[hti.ShortHash] = new List<FileInfo>() { fi };
+                                                }
                                             }
                                         }
 
@@ -2542,7 +2543,9 @@ namespace FSIndexer
 
                     foreach (string hash in dupesHash)
                     {
-                        var winner = HashTrackerList.GetItem(dictHash[hash].Where(n => n.Length == dictHash[hash].Max(m => m.Length)).OrderBy(n => n.FullName.Length).First());
+                        // var winner = HashTrackerList.GetItem(dictHash[hash].Where(n => n.Length == dictHash[hash].Max(m => m.Length)).OrderBy(n => n.FullName.Length).First());
+                        var winningHash = dictHash[hash].Where(n => n.Length == dictHash[hash].Max(m => m.Length)).OrderBy(n => n.FullName.Length).First();
+                        var winner = HashTrackerList.GetItems(new FileInfo(winningHash.FullName)).FirstOrDefault(n => n.ShortHash == hash);
 
                         rtbExecuteWindow.Text += "REM Keeping winner: " + winner.Path + "\"" + Environment.NewLine;
 
@@ -2552,19 +2555,20 @@ namespace FSIndexer
                             {
                                 if (item.FullName != winner.Path)
                                 {
-                                    var hti = HashTrackerList.GetItem(item);
-
-                                    // Check the hash farther in
-                                    if (hti.LongHash == winner.LongHash)
+                                    foreach (var hti in HashTrackerList.GetItems(item))
                                     {
-                                        rtbExecuteWindow.Text += "REM Removing loser: " + item.FullName + "\"" + Environment.NewLine;
-                                        rtbExecuteWindow.Text += "DEL \"" + item.FullName + "\"" + Environment.NewLine;
-                                    }
-                                    // Same small hashes but different large hashes, probably a longer version of the same movie
-                                    else if (item.Length <= winner.Length)
-                                    {
-                                        rtbExecuteWindow.Text += "REM Removing loser: " + item.FullName + "\"" + Environment.NewLine;
-                                        rtbExecuteWindow.Text += "DEL \"" + item.FullName + "\"" + Environment.NewLine;
+                                        // Check the hash farther in
+                                        if (hti.LongHash == winner.LongHash)
+                                        {
+                                            rtbExecuteWindow.Text += "REM Removing loser: " + item.FullName + "\"" + Environment.NewLine;
+                                            rtbExecuteWindow.Text += "DEL \"" + item.FullName + "\"" + Environment.NewLine;
+                                        }
+                                        // Same small hashes but different large hashes, probably a longer version of the same movie
+                                        else if (item.Length <= winner.Length)
+                                        {
+                                            rtbExecuteWindow.Text += "REM Removing loser: " + item.FullName + "\"" + Environment.NewLine;
+                                            rtbExecuteWindow.Text += "DEL \"" + item.FullName + "\"" + Environment.NewLine;
+                                        }
                                     }
                                 }
                             }
@@ -2702,7 +2706,7 @@ namespace FSIndexer
 
             Parallel.ForEach(root.GetDirectories(true), (subDir) =>
             {
-                if (subDir.GetDirectories().Count() == 0 && subDir.GetFiles().Count() == 0 && subDir.Name[0] != '_' && subDir.Name[0] != '$')
+                if (subDir.GetDirectories().Count() == 0 && subDir.GetFiles().Count() == 0 && subDir.Name[0] != '_' && !subDir.Name.Contains('$'))
                 {
                     executeText += GetRemoveDirectoryCmd(subDir.FullName);
                 }
@@ -2717,6 +2721,12 @@ namespace FSIndexer
 
             Parallel.ForEach(root.GetFiles(true).Where(n => n.FullName.Length < 256 && n.Length < TermOptions.ExcludeRules.MinimumSizeToKeepInB && n.Name[0] != '_' && !n.FullName.StartsWith(KeepDirectory) &&  !TermOptions.IgnoreExtensions.Contains(new FileInfo(n.FullName).Extension.ToLower())), (fi) =>
             {
+                if (fi.FullName.Contains("_$"))
+
+                {
+                    return;
+                }
+
                 // Skip files that have been modified recently
                 if (fi.LastWriteTimeUtc > DateTime.UtcNow.Subtract(TimeSpan.FromSeconds(30)))
                 {

@@ -4348,9 +4348,9 @@
     <RequireTermAtStart>true</RequireTermAtStart>
   </RenameTrackerItem>
   <RenameTrackerItem>
-    <DateCreated>2020-12-08T15:13:32.5035027-05:00</DateCreated>
+    <DateCreated>2024-10-11T15:34:37.6784774-04:00</DateCreated>
     <SourceString>netvideogirls</SourceString>
-    <DestinationString>netvideogirls</DestinationString>
+    <DestinationString>nvg</DestinationString>
     <TagOnly>true</TagOnly>
     <RequireTermAtStart>false</RequireTermAtStart>
   </RenameTrackerItem>
@@ -5185,6 +5185,62 @@
     <SourceString>3600.p</SourceString>
     <DestinationString>.</DestinationString>
     <TagOnly>false</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-07-20T13:12:32.414728-04:00</DateCreated>
+    <SourceString>xxx</SourceString>
+    <DestinationString />
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-07-20T13:12:38.5894944-04:00</DateCreated>
+    <SourceString>xxxx</SourceString>
+    <DestinationString />
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-07-21T20:14:57.136638-04:00</DateCreated>
+    <SourceString>ppvs</SourceString>
+    <DestinationString />
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-10-11T15:33:36.9470376-04:00</DateCreated>
+    <SourceString>ng</SourceString>
+    <DestinationString>nvg</DestinationString>
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-12-03T10:27:14.1990816-05:00</DateCreated>
+    <SourceString>.ob</SourceString>
+    <DestinationString>.ob.</DestinationString>
+    <TagOnly>false</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-12-03T12:12:43.8987629-05:00</DateCreated>
+    <SourceString>blackinwhite</SourceString>
+    <DestinationString>biw</DestinationString>
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-12-29T15:38:22.2344709-05:00</DateCreated>
+    <SourceString>virtualxporn</SourceString>
+    <DestinationString>vr.virtual.xporn</DestinationString>
+    <TagOnly>true</TagOnly>
+    <RequireTermAtStart>false</RequireTermAtStart>
+  </RenameTrackerItem>
+  <RenameTrackerItem>
+    <DateCreated>2024-12-29T15:38:54.7024798-05:00</DateCreated>
+    <SourceString>vrdome</SourceString>
+    <DestinationString>vr.dome</DestinationString>
+    <TagOnly>true</TagOnly>
     <RequireTermAtStart>false</RequireTermAtStart>
   </RenameTrackerItem>
   <RenameTrackerItem>

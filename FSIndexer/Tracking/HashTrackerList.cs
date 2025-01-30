@@ -10,25 +10,32 @@ namespace FSIndexer
     [Serializable()]
     public class HashTrackerList
     {
-        // public Dictionary<string, List<HashTrackerItem>> Dictionary;
+        private Dictionary<string, List<HashTrackerItem>> Dictionary;
         public List<HashTrackerItem> List { get; set; }
         public static bool AutoCreateLongHash = true;
 
         public HashTrackerList()
         {
-            // Dictionary = new Dictionary<string, List<HashTrackerItem>>();
+            Dictionary = new Dictionary<string, List<HashTrackerItem>>();
             List = new List<HashTrackerItem>();
         }
 
         public void Add(HashTrackerItem item)
         {
-            lock (List)
+            lock (Dictionary)
             {
-                var found = List.FirstOrDefault(n => n.Equals(item));
-
-                if (found == null)
+                if (Dictionary.ContainsKey(item.Path))
                 {
-                    List.Add(item);
+                    var found = Dictionary[item.Path].FirstOrDefault(n => n.Equals(item));
+
+                    if (found == null)
+                    {
+                        Dictionary[item.Path].Add(item);
+                    }
+                }
+                else
+                {
+                    Dictionary.Add(item.Path, new List<HashTrackerItem>() { item });
                 }
             }
         }
@@ -40,28 +47,22 @@ namespace FSIndexer
 
         public bool Contains(FileInfo fi)
         {
-            lock (List)
+            lock (Dictionary)
             {
-                return List.Any(n => n.Path == fi.FullName && n.Length == fi.Length);
+                return Dictionary.ContainsKey(fi.FullName) && Dictionary[fi.FullName].Any(n => n.Length == fi.Length);
             }
         }
 
-        public HashTrackerItem GetItem(FileInfo fi)
+        public List<HashTrackerItem> GetItems(FileInfo fi)
         {
-            lock (List)
+            lock (Dictionary)
             {
-                HashTrackerItem item = List.SingleOrDefault(n => n.Path == fi.FullName && n.Length == fi.Length);
+                if (!Dictionary.ContainsKey(fi.FullName))
+                {
+                    Dictionary.Add(fi.FullName, new List<HashTrackerItem>() { new HashTrackerItem(fi) });
+                }
 
-                if (item != null)
-                {
-                    return item;
-                }
-                else
-                {
-                    item = new HashTrackerItem(fi);
-                    List.Add(item);
-                    return item;
-                }
+                return Dictionary[fi.FullName];
             }
         }
 
@@ -86,6 +87,8 @@ namespace FSIndexer
 
             try
             {
+                mtl.SyncToDictionary();
+
                 using (Stream streamWrite = File.Create(tmpFile))
                 {
                     System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(mtl.GetType());
@@ -112,12 +115,41 @@ namespace FSIndexer
                     System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(typeof(HashTrackerList));
                     HashTrackerList obj = (HashTrackerList)xs.Deserialize(streamRead);
                     obj.Sort();
+                    obj.SyncFromList();
                     return obj;
                 }
             }
             catch
             {
                 throw;
+            }
+        }
+
+        public void SyncFromList()
+        {
+            foreach (var item in List)
+            {
+                if (!Dictionary.ContainsKey(item.Path))
+                {
+                    Dictionary.Add(item.Path, new List<HashTrackerItem>() { item });
+                }
+                else
+                {
+                    Dictionary[item.Path].Add(item);
+                }
+            }
+        }
+
+        public void SyncToDictionary()
+        {
+            List.Clear();
+
+            foreach (var list in Dictionary)
+            {
+                foreach (var item in list.Value)
+                {
+                    List.Add(item);
+                }
             }
         }
 
