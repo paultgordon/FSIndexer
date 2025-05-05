@@ -19,7 +19,7 @@ function RemoveForeignChars ([string]$s)
 	$r = ""
 	for ($i = 0; $i -lt $s.Length; $i++)
 	{
-		if ([int]($s[$i]) -ge 32 -and [int]($s[$i]) -le 126 -and $s[$i] -ne ' ' -and $s[$i] -ne '%' -and $s[$i] -ne ']' -and $s[$i] -ne '[')
+		if ([int]($s[$i]) -ge 32 -and [int]($s[$i]) -le 126 -and $s[$i] -ne ' ' -and $s[$i] -ne '%' -and $s[$i] -ne ']' -and $s[$i] -ne '[' -and $s[$i] -ne '(' -and $s[$i] -ne ')')
 		{
 			$r += $s[$i]
 		}

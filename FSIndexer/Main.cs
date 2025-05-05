@@ -64,7 +64,6 @@ namespace FSIndexer
         internal static List<DirectoryInfoExtended> SourceDirectoriesToIndex { get { return SourceDirectories.Where(n => n.Index).ToList(); } }
         internal static List<DirectoryInfoExtended> SourceDirectoriesToAutoFile { get { return SourceDirectories.Where(n => n.AutoFile).ToList(); } }
         internal static List<DirectoryInfoExtended> SourceDirectoriesToCheckForDuplicates { get { return SourceDirectories.Where(n => n.CheckForDuplicates).ToList(); } }
-        //internal static List<DirectoryInfoExtended> SourceDirectoriesToAutoName = new List<DirectoryInfoExtended>();
         internal static MoveTrackerList MoveTrackerList;
         internal static RenameTrackerList RenameTrackerList;
         internal static HashTrackerList HashTrackerList;
@@ -139,6 +138,8 @@ namespace FSIndexer
             HashTrackerList = HashTrackerList.LoadFromFile(HashTrackingFile);
             IgnoreTrackerList = TrackerList<IgnoreTrackerItem>.LoadFromFile(IgnoreTrackingFile, false);
             InfoTrackerList = TrackerList<InfoTrackerItem>.LoadFromFile(InfoTrackingFile, false);
+
+            var list = RenameTrackerList.List.Where(n => n.SourceString.Equals(n.DestinationString, StringComparison.InvariantCultureIgnoreCase)).ToList();
 
             if (!AreArgsEmpty(Reader))
             {
@@ -239,7 +240,7 @@ namespace FSIndexer
             public static readonly string ConvertToFileExtension = ".mp4";
             public static readonly List<string> ConvertFileExtensions = new List<string>()
             {
-                ".wmv", ".avi", ".flv", ".ts", ".mpg", ".mpeg", ".m4v", ".webm", ".vob", ".mkv", ".vid"
+                ".wmv", ".avi", ".flv", ".ts", ".mpg", ".mpeg", ".m4v", ".webm", ".vob", ".mkv", ".vid", ".mov"
             };
         }
 
@@ -2215,7 +2216,7 @@ namespace FSIndexer
 
                         if (name.Length <= 4 && name.All(n => !char.IsLetter(n)))
                         {
-                            name = name + "_" + DateTime.Now.Ticks;
+                            name = name + "_" + ilFile.CreationTime.Ticks;
                         }
 
                         foreach (var ar in RenameTrackerList.GetList().Where(n => !n.TagOnly).OrderByDescending(n => n.SourceString.Length))
@@ -2963,7 +2964,7 @@ namespace FSIndexer
 
             if (new FileInfo(source).Length > (1024.0 * 1024.0 * 1024.0 * 2.0)) // 2 GB
             {
-                quality--;
+                quality++;
             }
 
             string program = "";
@@ -2985,8 +2986,6 @@ namespace FSIndexer
             FileInfo fiSource = new FileInfo(source);
             string args = string.Format("-i \"{0}\" -t 1 -c 1 -o \"{1}\" -f {4} -e x264 -q {2} --{3} -a 1 -E av_aac -B 160 -6 dpl2 -R Auto -D 0 --gain=0 --audio-fallback av_aac -x ref=1:weightp=1:subq=2:rc-lookahead=10:trellis=0:8x8dct=0 --verbose=1", source, dest, quality, vfr ? "vfr" : "cfr", format);
             return program + " " + args + Environment.NewLine + string.Format("\"{0}\" setfiletime \"{1}\" \"{2}\" \"{3}\" \"{4}\"", NircmdPath, dest, fiSource.CreationTime.ToString("dd-MM-yyyy HH:mm:ss"), fiSource.LastWriteTime.ToString("dd-MM-yyyy HH:mm:ss"), "now");
-            // nircmd.exe setfiletime "d:\test\log1.txt" "03/08/2019 17:00:00" "" "03/08/2019 17:10:00"
-            // "27-01-2022 13:47:15"
         }
 
         private void toolStripMenuItemGoogle_Click(object sender, EventArgs e)
