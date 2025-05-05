@@ -139,7 +139,7 @@ namespace FSIndexer
             IgnoreTrackerList = TrackerList<IgnoreTrackerItem>.LoadFromFile(IgnoreTrackingFile, false);
             InfoTrackerList = TrackerList<InfoTrackerItem>.LoadFromFile(InfoTrackingFile, false);
 
-            var list = RenameTrackerList.List.Where(n => n.SourceString.Equals(n.DestinationString, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            var list = RenameTrackerList.List.Where(n => n.SourceString.Equals(n.DestinationString, StringComparison.InvariantCulture) && !n.RequireTermAtStart).ToList();
 
             if (!AreArgsEmpty(Reader))
             {
@@ -3347,7 +3347,11 @@ namespace FSIndexer
                         {
                             this.InvokeEx(a => a.rtbExecuteWindow.Clear());
 
-                            FilesChangesSeen.RemoveAll(n => !File.Exists(n));
+                            lock (FilesChangesSeen)
+                            {
+                                FilesChangesSeen.RemoveAll(n => !File.Exists(n));
+                            }   
+
                             var FilesChangesSeenSnapshot = new List<string>(FilesChangesSeen);
                             var logList = new List<string>();
 
@@ -3443,6 +3447,7 @@ namespace FSIndexer
             if (FileWatcher != null)
             {
                 FileWatcher.Changed -= FileWatcher_Changed;
+                FileWatcher.Created -= FileWatcher_Created;
             }
 
             FilesChangesSeen.Clear();
@@ -3483,6 +3488,8 @@ namespace FSIndexer
             if (FileWatcher != null)
             {
                 FileWatcher.Changed -= FileWatcher_Changed;
+                FileWatcher.Created -= FileWatcher_Created;
+                FileWatcher.Dispose();
                 FileWatcher = null;
             }
 
@@ -3491,6 +3498,7 @@ namespace FSIndexer
                 FilesChangesSeen.Clear();
             }
         }
+
 
         private void btnGlobalReplace_Click(object sender, EventArgs e)
         {
