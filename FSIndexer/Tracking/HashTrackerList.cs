@@ -11,7 +11,7 @@ namespace FSIndexer
     public class HashTrackerList
     {
         private Dictionary<string, List<HashTrackerItem>> Dictionary;
-        public List<HashTrackerItem> List { get; set; }
+        protected List<HashTrackerItem> List { get; set; }
         public static bool AutoCreateLongHash = true;
 
         public HashTrackerList()

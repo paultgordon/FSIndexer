@@ -102,8 +102,6 @@ namespace FSIndexer
 
         private static void Serialize(string file, MoveTrackerList mtl)
         {
-            //string tmpFile = file + ".tmp";
-
             string tmpFile = Path.GetTempFileName();
 
             try

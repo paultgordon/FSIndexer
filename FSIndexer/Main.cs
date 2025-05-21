@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -17,6 +18,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using Shell32;
+// using static System.Net.Mime.MediaTypeNames;
 
 namespace FSIndexer
 {
@@ -50,7 +52,6 @@ namespace FSIndexer
         private string InfoTrackingFile { get { return Path.Combine(SaveDirectory, "InfoTrackerList.xml"); } }
         private string ShortcutCreator { get { return Path.Combine(SaveDirectory, "Shortcut.exe"); } }
         private string RemoveForeignCharsScriptFile { get { return Path.Combine(SaveDirectory, "RemoveForeignChars.ps1"); } }
-
         private static bool IsLoading { get; set; } = false;
         private static bool AutomationRunning { get; set; } = false;
         public const bool WaitForCmd = true;
@@ -139,7 +140,7 @@ namespace FSIndexer
             IgnoreTrackerList = TrackerList<IgnoreTrackerItem>.LoadFromFile(IgnoreTrackingFile, false);
             InfoTrackerList = TrackerList<InfoTrackerItem>.LoadFromFile(InfoTrackingFile, false);
 
-            var list = RenameTrackerList.List.Where(n => n.SourceString.Equals(n.DestinationString, StringComparison.InvariantCulture) && !n.RequireTermAtStart).ToList();
+            // RenameTrackerList.List.Where(n => n.SourceString.Equals(n.DestinationString, StringComparison.InvariantCulture) && !n.RequireTermAtStart).ToList().ForEach(n => RenameTrackerList.Remove(n));
 
             if (!AreArgsEmpty(Reader))
             {
@@ -547,24 +548,44 @@ namespace FSIndexer
 
                     if (reallyRefresh)
                     {
-                        LastLoadCount = GetFileCount(SourceDirectoriesToIndex);
-                        LastLoadTime = DateTime.UtcNow;
-
-                        using (new TimeOperation("RefreshFileSystem Operation"))
+                        try
                         {
-                            IndexedList.Reset();
+                            LastLoadCount = GetFileCount(SourceDirectoriesToIndex);
+                            LastLoadTime = DateTime.UtcNow;
 
-                            using (new TimeOperation("IndexedList Operation"))
+                            using (new TimeOperation("RefreshFileSystem Operation"))
                             {
-                                foreach (var die in SourceDirectoriesToIndex)
-                                {
-                                    IndexedList.Index(die);
-                                }
-                            }
+                                IndexedList.Reset();
 
-                            IndexedList.IndexedTerms.AsParallel().Where(n => n.Enabled && TermOptions.AutoSkipTags.Any(m => m.Equals(n.Term, StringComparison.CurrentCultureIgnoreCase))).ToList().AsParallel().ForAll(d => d.PermanentlyDisabled = true);
-                            IndexedList.IndexedTerms.AsParallel().Where(n => n.Enabled && IgnoreTrackerList.Contains(n.Term)).ToList().AsParallel().ForAll(d => d.PermanentlyDisabled = true);
-                            IndexedList.IndexedTerms.AsParallel().Where(n => n.Enabled && n.IndexedFiles.Count == 0).ToList().AsParallel().ForAll(d => d.PermanentlyDisabled = true);
+                                // Parallelize directory indexing
+                                Parallel.ForEach(SourceDirectoriesToIndex, die =>
+                                {
+                                    if (die != null)
+                                    {
+                                        IndexedList.Index(die);
+                                    }
+                                });
+
+                                // Prepare filter sets
+                                var autoSkipTags = TermOptions.AutoSkipTags?.ToHashSet(StringComparer.CurrentCultureIgnoreCase) ?? new HashSet<string>();
+                                var ignoredTerms = IgnoreTrackerList?.List?.Select(i => i.Tag)?.ToHashSet(StringComparer.CurrentCultureIgnoreCase) ?? new HashSet<string>();
+
+                                // Apply filters in parallel
+                                IndexedList.IndexedTerms?.AsParallel().ForAll(term =>
+                                {
+                                    if (term == null) return;
+
+                                    if (autoSkipTags.Contains(term.Term) || ignoredTerms.Contains(term.Term) || term.IndexedFiles.Count == 0)
+                                    {
+                                        term.PermanentlyDisabled = true;
+                                    }
+                                });
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // Log the exception and ensure the application remains stable
+                            Debug.WriteLine($"Error during RefreshFileSystem: {ex.Message}");
                         }
                     }
 
@@ -617,6 +638,7 @@ namespace FSIndexer
                 }
             }
         }
+
 
         private void ApplyFilter()
         {
@@ -846,9 +868,9 @@ namespace FSIndexer
                     }
 
                     string logText = "";
-                    logText += "MOVE /-Y \"" + fi.FullName + "\" \"" + forcePath.FullName + "\"" + Environment.NewLine;
+                    logText += "Move-Item \"" + EscapeForPowerShell(fi.FullName) + "\" \"" + EscapeForPowerShell(forcePath.FullName) + "\" -Verbose -Force" + Environment.NewLine;
                     logText += GetRemoveDirectoryCmd(fi.Directory.FullName);
-                    rtbExecuteWindow.Text += logText;
+                    AppendText(logText);
 
                     movedList.Add(new FileInfo(newPath));
 
@@ -941,13 +963,13 @@ namespace FSIndexer
                                     // New is larger than existing
                                     if (new FileInfo(fi.FullName).Length >= new FileInfo(Path.Combine(newFolder.FullName, fi.Name)).Length)
                                     {
-                                        rtbExecuteWindow.Text += "REM Duplicate Files, Deleting Smaller File" + Environment.NewLine;
-                                        rtbExecuteWindow.Text += "DEL \"" + Path.Combine(newFolder.FullName, fi.Name) + "\"" + Environment.NewLine;
+                                        AppendText("## Duplicate Files, Deleting Smaller File");
+                                        AppendText(GetDeleteCmd(Path.Combine(newFolder.FullName, fi.Name)));
                                     }
                                     else
                                     {
-                                        rtbExecuteWindow.Text += "REM Duplicate Files, Deleting Smaller File" + Environment.NewLine;
-                                        rtbExecuteWindow.Text += "DEL \"" + fi.FullName + "\"" + Environment.NewLine;
+                                        AppendText("## Duplicate Files, Deleting Smaller File");
+                                        AppendText(GetDeleteCmd(fi.FullName));
                                     }
 
                                     totalToMove--;
@@ -955,7 +977,7 @@ namespace FSIndexer
                                 }
 
                                 itemsToMove++;
-                                logText += "ECHO Moving " + itemsToMove.ToString() + " Of " + totalToMove.ToString() + " >NUL" + Environment.NewLine;
+                                logText += "Write-Host Moving " + itemsToMove.ToString() + " Of " + totalToMove.ToString() + Environment.NewLine;
                                 logText += GetMoveCmd(fi.FullName, newFolder) + Environment.NewLine;
                                 movedList.Add(new FileInfo(Path.Combine(newFolder.FullName, fi.Name)));
 
@@ -1003,7 +1025,7 @@ namespace FSIndexer
                         if (!breakEarly)
                         {
                             itemsToMove++;
-                            logText += "MOVE /-Y \"" + fi.FullName + "\" \"" + newFolder + "\"" + Environment.NewLine;
+                            logText += "Move-Item  \"" + EscapeForPowerShell(fi.FullName) + "\" \"" + newFolder + "\" -Verbose -Force" + Environment.NewLine;
                             logText += GetRemoveDirectoryCmd(fi.Directory.FullName);
                             movedList.Add(new FileInfo(Path.Combine(newFolder.FullName, fi.Name)));
 
@@ -1018,7 +1040,7 @@ namespace FSIndexer
 
             if (itemsToMove > 0)
             {
-                rtbExecuteWindow.Text += logText;
+                AppendText(logText);
                 //WaitForCmd = false;
             }
 
@@ -1119,7 +1141,7 @@ namespace FSIndexer
 
                     if (fi.FullName != newName)
                     {
-                        logText += "REN \"" + fi.FullName + "\" \"" + newName + "\"" + Environment.NewLine;
+                        logText += GetMoveCmd(fi.FullName, new FileInfo(Path.Combine(fi.DirectoryName, newName)), true) + Environment.NewLine;
                     }
                 }
             }
@@ -1131,7 +1153,7 @@ namespace FSIndexer
 
             currentParent.Remove();
 
-            rtbExecuteWindow.Text += logText;
+            AppendText(logText);
             //WaitForCmd = true;
         }
 
@@ -1268,7 +1290,7 @@ namespace FSIndexer
 
                     if (!it.FullName.Equals(newPath))
                     {
-                        rtbExecuteWindow.Text += GetMoveCmd(it.FullName, new FileInfo(newPath)) + Environment.NewLine;
+                        AppendText(GetMoveCmd(it.FullName, new FileInfo(newPath)));
                     }
                 }
 
@@ -1292,7 +1314,7 @@ namespace FSIndexer
 
                 if (!it.FullName.Equals(newPath))
                 {
-                    rtbExecuteWindow.Text += GetMoveCmd(it.FullName, new FileInfo(newPath)) + Environment.NewLine;
+                    AppendText(GetMoveCmd(it.FullName, new FileInfo(newPath)));
                     RemoveItem(SelectedNode);
                 }
             }
@@ -1358,7 +1380,7 @@ namespace FSIndexer
         {
             rtbExecuteWindow.Text = rtbExecuteWindow.Text.Trim();
             rtbExecuteWindow.Lines.ToList().ForEach(l => Console.WriteLine("\t" + l));
-            rtbExecuteWindow.Lines = rtbExecuteWindow.Lines.Where(l => l.Length > 0 && !l.StartsWith("REM", StringComparison.CurrentCultureIgnoreCase)).ToArray();
+            rtbExecuteWindow.Lines = rtbExecuteWindow.Lines.Where(l => l.Length > 0 && !l.StartsWith("##", StringComparison.CurrentCultureIgnoreCase)).ToArray();
 
             if (string.IsNullOrEmpty(rtbExecuteWindow.Text))
                 return;
@@ -1371,43 +1393,19 @@ namespace FSIndexer
             try
             {
                 string batchContents = "CD \\" + Environment.NewLine + /* "CLS" + */ Environment.NewLine + rtbExecuteWindow.Text;
+                bool pauseAfter = false;
 
                 if (Control.ModifierKeys == Keys.Shift || Control.ModifierKeys == Keys.Control)
                 {
-                    batchContents += Environment.NewLine + "pause";
+                    pauseAfter = true;
                 }
 
-                FileInfo fi = new FileInfo(Path.Combine(TempPath, Guid.NewGuid().ToString() + ".bat"));
+                FileInfo fi = new FileInfo(Path.Combine(TempPath, Guid.NewGuid().ToString() + ".ps1"));
                 File.WriteAllText(fi.FullName, batchContents);
 
                 rtbExecuteWindow.Clear();
 
-                Task t = Task.Factory.StartNew(() =>
-                    {
-                        Process p = new Process();
-                        p.StartInfo.FileName = fi.FullName;
-                        p.StartInfo.Verb = "runas";
-
-                        if (AutomationRunning)
-                        {
-                            p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                        }
-
-                        p.Start();
-
-                        if (WaitForCmd)
-                        {
-                            p.WaitForExit();
-                        }
-                    }
-                    );
-
-                while (!t.IsCompleted)
-                {
-                    Application.DoEvents();
-                    Thread.Sleep(200);
-                }
-
+                RunFileInPowerShell(fi.FullName, waitForExit: true, showWindow: !AutomationRunning, pauseAfter: pauseAfter);
                 File.Delete(fi.FullName);
 
                 LastLoadCount = -1;
@@ -1536,7 +1534,7 @@ namespace FSIndexer
                         if (fi.FileExists())
                         {
                             fi.IsReadOnly = false;
-                            rtbExecuteWindow.Text += "DEL \"" + fi.FullName + "\"" + Environment.NewLine;
+                            AppendText(GetDeleteCmd(fi.FullName));
 
                             if (!diMovedFrom.Contains(fi.DirectoryName, StringComparison.CurrentCultureIgnoreCase))
                                 diMovedFrom.Add(fi.DirectoryName);
@@ -1545,7 +1543,7 @@ namespace FSIndexer
 
                     foreach (var di in diMovedFrom)
                     {
-                        rtbExecuteWindow.Text += GetRemoveDirectoryCmd(di);
+                        AppendText(GetRemoveDirectoryCmd(di));
                     }
 
                     RemoveItem(SelectedNode);
@@ -1583,8 +1581,8 @@ namespace FSIndexer
                 foreach (var fi in indexedFiles)
                 {
                     fi.IsReadOnly = false;
-                    rtbExecuteWindow.Text += "DEL \"" + fi.FullName + "\"" + Environment.NewLine;
-                    rtbExecuteWindow.Text += GetRemoveDirectoryCmd(fi.Directory.FullName);
+                    AppendText(GetDeleteCmd(fi.FullName));
+                    AppendText(GetRemoveDirectoryCmd(fi.Directory.FullName));
                 }
 
                 if (SelectedNode.Parent != null)
@@ -1605,7 +1603,7 @@ namespace FSIndexer
         {
             if (!IsSymbolic(directory) && !directory.ToLower().Equals(TorrentPath.ToLower()))
             {
-                return "RD /Q \"" + directory + "\" >NUL 2>&1" + Environment.NewLine;
+                return "$d = \"" + EscapeForPowerShell(directory) + "\"; if ((Get-ChildItem -Path $d -Force).Count -eq 0) { Remove-Item -Path $d -Force -Verbose };";
             }
 
             return string.Empty;
@@ -1620,6 +1618,21 @@ namespace FSIndexer
         private void rtbLogging_TextChanged(object sender, EventArgs e)
         {
             btnExecute.Enabled = rtbExecuteWindow.Text.Length > 0;
+        }
+
+        private void AppendText(string text, bool addNewLine = true)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return;
+
+            if (addNewLine && !text.EndsWith(Environment.NewLine))
+            {
+                text += Environment.NewLine;
+            }
+
+            rtbExecuteWindow.AppendText(text);
+            rtbExecuteWindow.SelectionStart = rtbExecuteWindow.Text.Length;
+            rtbExecuteWindow.ScrollToCaret();
         }
 
         private void rtbExecuteWindow_KeyDown(object sender, KeyEventArgs e)
@@ -1759,7 +1772,7 @@ namespace FSIndexer
 
                         if (!it.FullName.Equals(newPath))
                         {
-                            rtbExecuteWindow.Text += GetMoveCmd(it.FullName, new FileInfo(newPath)) + Environment.NewLine;
+                            AppendText(GetMoveCmd(it.FullName, new FileInfo(newPath)));
 
                             if (rn.Remember)
                                 RenameTrackerList.Add(term, rn.TextName, true);
@@ -1780,7 +1793,7 @@ namespace FSIndexer
 
                 if (rn.ShowDialog() == System.Windows.Forms.DialogResult.OK && rn.TextName != fi.Name)
                 {
-                    rtbExecuteWindow.Text += GetMoveCmd(fi.FullName, new FileInfo(Path.Combine(fi.Directory.FullName, rn.TextName + fi.Extension))) + Environment.NewLine;
+                    AppendText(GetMoveCmd(fi.FullName, new FileInfo(Path.Combine(fi.Directory.FullName, rn.TextName + fi.Extension))));
 
                     if (rn.Remember)
                         RenameTrackerList.Add(fi.Name, rn.TextName, true);
@@ -1805,7 +1818,7 @@ namespace FSIndexer
 
                 foreach (var file in list)
                 {
-                    rtbExecuteWindow.Text += CreateShortcutString(Path.Combine(FavoritesDir, file.Name + " - Shortcut"), file.FullName) + Environment.NewLine;
+                    AppendText(CreateShortcutString(Path.Combine(FavoritesDir, file.Name + " - Shortcut"), file.FullName));
                 }
             }
         }
@@ -1820,7 +1833,7 @@ namespace FSIndexer
 
                 foreach (var file in list)
                 {
-                    rtbExecuteWindow.Text += CreateShortcutString(Path.Combine(FavoritesStarDir, file.Name + " - Shortcut"), file.FullName) + Environment.NewLine;
+                    AppendText(CreateShortcutString(Path.Combine(FavoritesStarDir, file.Name + " - Shortcut"), file.FullName));
                 }
             }
         }
@@ -2085,24 +2098,42 @@ namespace FSIndexer
         {
             Cursor = Cursors.WaitCursor;
 
-            RunPowershellScript(RemoveForeignCharsScriptFile);
+            RunFileInPowerShell(RemoveForeignCharsScriptFile, showWindow: false);
 
-            List<string> filesMoved = new List<string>();
+            Dictionary<string, string> filesMoved = new Dictionary<string, string>();
 
-            foreach (var ilTerm in IndexedList.IndexedTerms)
+            // List<string> filesMoved = new List<string>();
+
+            for (int indTerm = 0; indTerm < IndexedList.IndexedTerms.Count; indTerm++)
             {
+                var ilTerm = IndexedList.IndexedTerms[indTerm];
                 foreach (var ri in RenameTrackerList.GetList().Where(n => n.TagOnly).OrderByDescending(n => n.SourceString.Length))
                 {
+                    if (ri.SourceString.Equals(ri.DestinationString, StringComparison.CurrentCultureIgnoreCase))
+                        continue;
+
                     if (ilTerm.Term.Equals(ri.SourceString, StringComparison.CurrentCultureIgnoreCase))
                     {
-                        foreach (var indFile in ilTerm.IndexedFiles)
+                        for (int iFile = 0; iFile < ilTerm.IndexedFiles.Count; iFile++)
                         {
-                            string newPath = Path.Combine(indFile.DirectoryName, indFile.Name.Replace(ri.SourceString, ri.DestinationString, StringComparison.CurrentCultureIgnoreCase));
+                            var indFile = ilTerm.IndexedFiles[iFile];
+                            if (indFile == null)
+                                continue;
+
+                            string newPath = "";
+
+                            if (filesMoved.ContainsKey(indFile.FullName))
+                            {
+                                newPath = Path.Combine(Path.GetDirectoryName(filesMoved[indFile.FullName]), Path.GetFileName(filesMoved[indFile.FullName]).Replace(ri.SourceString, ri.DestinationString, StringComparison.CurrentCultureIgnoreCase));
+                            }
+                            else
+                            {
+                                newPath = indFile.FullName.Replace(ri.SourceString, ri.DestinationString, StringComparison.CurrentCultureIgnoreCase);
+                            }
 
                             if (!indFile.FullName.Equals(newPath, StringComparison.CurrentCultureIgnoreCase))
                             {
-                                rtbExecuteWindow.Text += GetMoveCmd(indFile.FullName, new FileInfo(newPath)) + Environment.NewLine;
-                                filesMoved.Add(indFile.FullName);
+                                filesMoved[indFile.FullName] = newPath;
                             }
                         }
                     }
@@ -2121,7 +2152,7 @@ namespace FSIndexer
                     {
                         return;
                     }
-                    else if (filesMoved.Any(n => n == ilFile.FullName))
+                    else if (filesMoved.ContainsKey(ilFile.FullName))
                     {
                         return;
                     }
@@ -2160,7 +2191,7 @@ namespace FSIndexer
 
                             lock (filesMoved)
                             {
-                                filesMoved.Add(ilFile.FullName);
+                                filesMoved[ilFile.FullName] = ilFile.FullName;
                             }
                         }
                     }
@@ -2176,17 +2207,20 @@ namespace FSIndexer
                         return;
                     }
 
-                    lock (filesMovedLocker)
+                    FileInfo workingFullName;
+
+                    if (filesMoved.ContainsKey(ilFile.FullName))
                     {
-                        if (filesMoved.Any(n => n == ilFile.FullName))
-                        {
-                            return;
-                        }
+                        workingFullName = new FileInfo(filesMoved[ilFile.FullName]);
+                    }
+                    else
+                    {
+                        workingFullName = new FileInfo(ilFile.FullName);
                     }
 
                     bool badCharsFound = false;
 
-                    string name = Path.GetFileNameWithoutExtension(ilFile.Name).ToLower();
+                    string name = Path.GetFileNameWithoutExtension(workingFullName.Name).ToLower();
                     var invalidChars = Path.GetInvalidFileNameChars().ToList();
                     invalidChars.Add('%');
 
@@ -2201,11 +2235,11 @@ namespace FSIndexer
 
                     if (badCharsFound)
                     {
-                        File.Move(ilFile.FullName, Path.Combine(ilFile.DirectoryName, name + Path.GetExtension(ilFile.Name).ToLower()));
+                        System.IO.File.Move(workingFullName.FullName, Path.Combine(workingFullName.DirectoryName, name + Path.GetExtension(workingFullName.Name).ToLower()));
                     }
                     else
                     {
-                        name = Path.GetFileNameWithoutExtension(ilFile.Name).ToLower();
+                        name = Path.GetFileNameWithoutExtension(workingFullName.Name).ToLower();
                     }
 
                     name = RemoveDiacritics(name);
@@ -2293,22 +2327,24 @@ namespace FSIndexer
                         }
                     }
 
-                    if (name != Path.GetFileNameWithoutExtension(ilFile.Name))
+                    if (name != Path.GetFileNameWithoutExtension(workingFullName.Name))
                     {
-                        string newPath = Path.Combine(ilFile.DirectoryName, name + Path.GetExtension(ilFile.Name).ToLower());
-                        executeText += GetMoveCmd(ilFile.FullName, new FileInfo(newPath)) + Environment.NewLine;
-
                         lock (filesMovedLocker)
                         {
-                            filesMoved.Add(ilFile.FullName);
+                            filesMoved[ilFile.FullName] = Path.Combine(workingFullName.DirectoryName, name + Path.GetExtension(workingFullName.Name).ToLower());
                         }
                     }
                 });
             }
 
+            foreach (var file in filesMoved)
+            {
+                AppendText(GetMoveCmd(file.Key, new FileInfo(file.Value)));
+            }
+
             if (!string.IsNullOrEmpty(executeText))
             {
-                rtbExecuteWindow.Text += executeText;
+                AppendText(executeText);
             }
 
             foreach (var sd in SourceDirectoriesToAutoFile.Where(n => n.CleanupSmallFiles))
@@ -2390,188 +2426,88 @@ namespace FSIndexer
                         this.Height = PrivateViewingHeight;
                     }
 
-                    using (new TimeOperation("Duplicates Seen Before Operation"))
-                    {
-                        // Search for files that have been deleted in the past
-                        var seenBefore = HashTrackerList.List.AsParallel().
-                        Where(n => n.Length > TermOptions.ExcludeRules.MinimumSizeToIndexInB).
-                        GroupBy(n => new { FileName = Path.GetFileName(n.Path) }).
-                        Select(n => new
-                        {
-                            FileName = n.Key,
-                            List = HashTrackerList.List.Where(i => Path.GetFileName(i.Path) == n.Key.FileName && i.DateModified != DateTime.MinValue).ToList()
-                        }).
-                        Select(n => new
-                        {
-                            FileName = n.FileName,
-                            List = n.List,
-                            Master = n.List.OrderBy(d => d.DateModified).FirstOrDefault()
-                        }).
-                        Select(n => new
-                        {
-                            Master = n.Master,
-                            FilesToDelete = n.List.Where(i => !i.Path.StartsWith(KeepDirectory) && File.Exists(i.Path) && (i.Length > n.Master.Length ? (i.Length / 2) < n.Master.Length : (n.Master.Length / 2) < i.Length) && (i.DateModified != n.Master.DateModified || i.DateModified != (new FileInfo(i.Path).LastAccessTimeUtc))).ToList()
-                        }).
-                        Where(n => n.FilesToDelete.Count > 0).
-                        ToList();
+                    // Thread-safe dictionaries for hash and name-based duplicates
+                    var dictHash = new ConcurrentDictionary<string, List<FileInfo>>();
+                    var dictName = new ConcurrentDictionary<string, List<FileInfo>>();
+                    var dupesHash = new ConcurrentBag<string>();
+                    var dupesName = new ConcurrentBag<string>();
 
-                        foreach (var item in seenBefore)
-                        {
-                            bool headerWritten = false;
-
-                            foreach (var file in item.FilesToDelete)
-                            {
-                                FileInfo latest = new FileInfo(file.Path);
-
-                                if (latest.LastWriteTimeUtc != item.Master.DateModified)
-                                {
-                                    if (!headerWritten)
-                                    {
-                                        headerWritten = true;
-                                        rtbExecuteWindow.Text += "REM Earliest File Seen Date: " + item.Master.DateModified.ToShortDateString() + " " + item.Master.DateModified.ToLongTimeString() + Environment.NewLine;
-                                    }
-
-                                    rtbExecuteWindow.Text += "REM This File Seen Date:        " + latest.LastWriteTimeUtc.ToShortDateString() + " " + latest.LastWriteTimeUtc.ToLongTimeString() + Environment.NewLine;
-                                    rtbExecuteWindow.Text += "DEL \"" + file.Path + "\"" + Environment.NewLine;
-                                    //rtbExecuteWindow.Text += "REM This File Seen Date:        " + file.DateModified.ToShortDateString() + " " + file.DateModified.ToLongTimeString() + Environment.NewLine;
-                                    //rtbExecuteWindow.Text += "DEL \"" + file.Path + "\"" + Environment.NewLine;
-                                }
-                            }
-                        }
-                    }
-
-                    Dictionary<string, List<FileInfo>> dictHash = new Dictionary<string, List<FileInfo>>();
-                    Dictionary<string, List<FileInfo>> dictName = new Dictionary<string, List<FileInfo>>();
-                    List<string> dupesHash = new List<string>();
-                    List<string> dupesName = new List<string>();
-
+                    // Process files in parallel
                     using (new TimeOperation("Hash Update Operation"))
                     {
-                        foreach (var sd in SourceDirectoriesToCheckForDuplicates)
-                        {
-                            Task t = Task.Factory.StartNew(() =>
+                        var tasks = SourceDirectoriesToCheckForDuplicates.Select(sd =>
+                            Task.Run(() =>
                             {
-                                Parallel.ForEach(sd.GetFiles(), (fi) =>
+                                foreach (var fi in sd.GetFiles())
                                 {
-                                    if (IndexExtensions.DefaultIndexExtentions.Any(n => n.Equals(fi.Extension, StringComparison.CurrentCultureIgnoreCase)) && !fi.FullName.StartsWith(@"E:\_P\_Air"))
+                                    if (!IndexExtensions.DefaultIndexExtentions.Any(ext => ext.Equals(fi.Extension, StringComparison.CurrentCultureIgnoreCase)) ||
+                                        fi.FullName.StartsWith(@"E:\_P\_Air"))
+                                        continue;
+
+                                    // Process hash-based duplicates
+                                    foreach (var hti in HashTrackerList.GetItems(fi))
                                     {
-                                        foreach (var hti in HashTrackerList.GetItems(fi))
-                                        {
-                                            lock (dictHash)
+                                        dictHash.AddOrUpdate(hti.ShortHash,
+                                            _ => new List<FileInfo> { fi },
+                                            (_, list) =>
                                             {
-                                                if (dictHash.ContainsKey(hti.ShortHash))
-                                                {
-                                                    dictHash[hti.ShortHash].Add(fi);
-                                                    dupesHash.Add(hti.ShortHash);
-                                                }
-                                                else
-                                                {
-                                                    dictHash[hti.ShortHash] = new List<FileInfo>() { fi };
-                                                }
-                                            }
-                                        }
-
-                                        string name = Path.GetFileNameWithoutExtension(fi.Name.ToLower());
-
-                                        lock (dictName)
-                                        {
-                                            if (dictName.ContainsKey(name))
-                                            {
-                                                dictName[name].Add(fi);
-                                                dupesName.Add(name);
-                                            }
-                                            else
-                                            {
-                                                dictName[name] = new List<FileInfo>() { fi };
-                                            }
-                                        }
-
+                                                list.Add(fi);
+                                                dupesHash.Add(hti.ShortHash);
+                                                return list;
+                                            });
                                     }
-                                });
-                            }
-                            );
 
-                            while (!t.IsCompleted)
-                            {
-                                Application.DoEvents();
-                                Thread.Sleep(500);
-                            }
-                        }
+                                    // Process name-based duplicates
+                                    string name = Path.GetFileNameWithoutExtension(fi.Name.ToLower());
+                                    dictName.AddOrUpdate(name,
+                                        _ => new List<FileInfo> { fi },
+                                        (_, list) =>
+                                        {
+                                            list.Add(fi);
+                                            dupesName.Add(name);
+                                            return list;
+                                        });
+                                }
+                            })
+                        ).ToArray();
+
+                        Task.WaitAll(tasks);
                     }
 
-                    List<string> NoLongerExist = new List<string>();
-
+                    // Remove duplicates by name
                     if (dupesName.Count > 0)
                     {
-                        rtbExecuteWindow.Text += "REM Removing Dupes based on file name" + Environment.NewLine;
-                    }
+                        AppendText("## Removing Dupes based on file name");
 
-                    foreach (string name in dupesName)
-                    {
-                        var winner = dictName[name].Where(n => n.Length == dictName[name].Max(m => m.Length)).OrderBy(n => n.FullName.Length).First();
-
-                        foreach (var item in dictName[name])
+                        foreach (var name in dupesName.Distinct())
                         {
-                            if (item == winner)
-                            {
-                                rtbExecuteWindow.Text += "REM Keeping winner: " + item.FullName + "\"" + Environment.NewLine;
-                            }
-                            else
-                            {
-                                rtbExecuteWindow.Text += "REM Removing loser: " + item.FullName + "\"" + Environment.NewLine;
-                                rtbExecuteWindow.Text += "DEL \"" + item.FullName + "\"" + Environment.NewLine;
-                                NoLongerExist.Add(item.FullName);
-                            }
-                        }
+                            if (!dictName.TryGetValue(name, out var files)) continue;
 
-                        foreach (var item in dictName[name])
-                        {
-                            if (item != winner && item.FullName.StartsWith(KeepDirectory) && !winner.FullName.StartsWith(KeepDirectory))
+                            var winner = files.OrderByDescending(f => f.Length).ThenBy(f => f.FullName.Length).First();
+                            foreach (var file in files)
                             {
-                                rtbExecuteWindow.Text += "REM Moving winner: " + item.FullName + "\"" + Environment.NewLine;
-                                rtbExecuteWindow.Text += GetMoveCmd(winner.FullName, item.Directory) + Environment.NewLine;
-                                NoLongerExist.Add(winner.FullName);
-                                NoLongerExist.Add(Path.Combine(item.Directory.FullName, winner.Name));
-                                break;
+                                if (file == winner) continue;
+
+                                AppendText(GetDeleteCmd(file.FullName));
                             }
                         }
                     }
 
+                    // Remove duplicates by hash
                     if (dupesHash.Count > 0)
                     {
-                        rtbExecuteWindow.Text += "REM Removing Dupes based on file hash" + Environment.NewLine;
-                    }
+                        AppendText("## Removing Dupes based on file hash");
 
-                    foreach (string hash in dupesHash)
-                    {
-                        // var winner = HashTrackerList.GetItem(dictHash[hash].Where(n => n.Length == dictHash[hash].Max(m => m.Length)).OrderBy(n => n.FullName.Length).First());
-                        var winningHash = dictHash[hash].Where(n => n.Length == dictHash[hash].Max(m => m.Length)).OrderBy(n => n.FullName.Length).First();
-                        var winner = HashTrackerList.GetItems(new FileInfo(winningHash.FullName)).FirstOrDefault(n => n.ShortHash == hash);
-
-                        rtbExecuteWindow.Text += "REM Keeping winner: " + winner.Path + "\"" + Environment.NewLine;
-
-                        foreach (var item in dictHash[hash])
+                        foreach (var hash in dupesHash.Distinct())
                         {
-                            if (!NoLongerExist.Contains(item.FullName, StringComparison.CurrentCultureIgnoreCase))
+                            if (!dictHash.TryGetValue(hash, out var files)) continue;
+
+                            var winner = files.OrderByDescending(f => f.Length).ThenBy(f => f.FullName.Length).First();
+                            foreach (var file in files)
                             {
-                                if (item.FullName != winner.Path)
-                                {
-                                    foreach (var hti in HashTrackerList.GetItems(item))
-                                    {
-                                        // Check the hash farther in
-                                        if (hti.LongHash == winner.LongHash)
-                                        {
-                                            rtbExecuteWindow.Text += "REM Removing loser: " + item.FullName + "\"" + Environment.NewLine;
-                                            rtbExecuteWindow.Text += "DEL \"" + item.FullName + "\"" + Environment.NewLine;
-                                        }
-                                        // Same small hashes but different large hashes, probably a longer version of the same movie
-                                        else if (item.Length <= winner.Length)
-                                        {
-                                            rtbExecuteWindow.Text += "REM Removing loser: " + item.FullName + "\"" + Environment.NewLine;
-                                            rtbExecuteWindow.Text += "DEL \"" + item.FullName + "\"" + Environment.NewLine;
-                                        }
-                                    }
-                                }
+                                if (file == winner) continue;
+
+                                AppendText(GetDeleteCmd(file.FullName));
                             }
                         }
                     }
@@ -2583,6 +2519,7 @@ namespace FSIndexer
                 }
             }
         }
+
 
         private void btnClearTrash_Click(object sender, EventArgs e)
         {
@@ -2703,27 +2640,32 @@ namespace FSIndexer
 
         private void ProcessEmptyDirectories(DirectoryInfoExtended root)
         {
-            string executeText = "";
+            List<string> cmdList = new List<string>();
 
             Parallel.ForEach(root.GetDirectories(true), (subDir) =>
             {
                 if (subDir.GetDirectories().Count() == 0 && subDir.GetFiles().Count() == 0 && subDir.Name[0] != '_' && !subDir.Name.Contains('$'))
                 {
-                    executeText += GetRemoveDirectoryCmd(subDir.FullName);
+                    lock (cmdList)
+                    {
+                        cmdList.Add(GetRemoveDirectoryCmd(subDir.FullName));
+                    }
                 }
             });
 
-            rtbExecuteWindow.Text += executeText;
+            cmdList.ForEach(cmd =>
+            {
+                AppendText(cmd);
+            });
         }
 
         private void ProcessSmallFiles(DirectoryInfoExtended root)
         {
-            string executeText = "";
+            List<string> cmdList = new List<string>();
 
             Parallel.ForEach(root.GetFiles(true).Where(n => n.FullName.Length < 256 && n.Length < TermOptions.ExcludeRules.MinimumSizeToKeepInB && n.Name[0] != '_' && !n.FullName.StartsWith(KeepDirectory) &&  !TermOptions.IgnoreExtensions.Contains(new FileInfo(n.FullName).Extension.ToLower())), (fi) =>
             {
                 if (fi.FullName.Contains("_$"))
-
                 {
                     return;
                 }
@@ -2742,13 +2684,19 @@ namespace FSIndexer
 
                 if (fi.LastWriteTimeUtc == File.GetLastWriteTimeUtc(fi.FullName) && fi.Length == new FileInfo(fi.FullName).Length) // Hasn't changed since loop query
                 {
-                    executeText += "REM Remove Files Below Acceptable Size Limit" + Environment.NewLine;
-                    executeText += UnhideFile(fi.FullName);
-                    executeText += "DEL \"" + fi.FullName + "\"" + Environment.NewLine;
+                    lock (cmdList)
+                    {
+                        cmdList.Add("## Remove Files Below Acceptable Size Limit");
+                        cmdList.Add(UnhideFile(fi.FullName));
+                        cmdList.Add(GetDeleteCmd(fi.FullName));
+                    }
                 }
             });
 
-            rtbExecuteWindow.Text += executeText;
+            cmdList.ForEach(cmd =>
+            {
+                AppendText(cmd);
+            });
         }
 
         private string UnhideFile(string fullFilePath)
@@ -2760,7 +2708,7 @@ namespace FSIndexer
 
             if (fi.Attributes.HasFlag(FileAttributes.Hidden))
             {
-                return "ATTRIB -H \"" + fi.FullName + "\"" + Environment.NewLine;
+                return "ATTRIB -H \"" + fi.FullName + "\"";
             }
             else
             {
@@ -2777,7 +2725,7 @@ namespace FSIndexer
 
             if (!fi.Attributes.HasFlag(FileAttributes.Hidden))
             {
-                return "ATTRIB +H \"" + fi.FullName + "\"" + Environment.NewLine;
+                return "ATTRIB +H \"" + fi.FullName + "\"";
             }
             else
             {
@@ -2817,24 +2765,25 @@ namespace FSIndexer
 
                         if (!newPath.Equals(fi.FullName, StringComparison.CurrentCultureIgnoreCase))
                         {
-                            rtbExecuteWindow.Text += GetMoveCmd(fi.FullName, new FileInfo(newPath)) + Environment.NewLine;
+                            AppendText(GetMoveCmd(fi.FullName, new FileInfo(newPath)));
                         }
                     }
                 }
             }
         }
 
+        private string GetDeleteCmd(string file)
+        {
+            return $"Remove-Item -LiteralPath \"{EscapeForPowerShell(file)}\" -Verbose";
+        }
+
         private string GetRenameCmd(string sourceDir, string destDir)
         {
             string cmd = "";
 
-            if (Directory.Exists(destDir))
+            if (!Directory.Exists(destDir))
             {
-
-            }
-            else
-            {
-                cmd += "REN \"" + sourceDir + "\" \"" + (Path.GetDirectoryName(destDir) == "" ? destDir : Path.GetDirectoryName(destDir)) + "\"";
+                cmd += $"Rename-Item -Path \"{EscapeForPowerShell(sourceDir)}\" -NewName \"{EscapeForPowerShell((Path.GetDirectoryName(destDir) == "" ? destDir : Path.GetDirectoryName(destDir)))}\"";
             }
 
             return cmd;
@@ -2852,7 +2801,6 @@ namespace FSIndexer
                 }
 
                 cmd += UnhideFile(sourceFile);
-                cmd += "MOVE ";
 
                 if (overwriteIfExistsAndNotSmaller)
                 {
@@ -2866,13 +2814,9 @@ namespace FSIndexer
 
                         cmd = "";
                         cmd += UnhideFile(sourceFile);
-                        cmd += "REM Duplicate Files, Deleting Smaller File" + Environment.NewLine;
-                        cmd += "DEL \"" + sourceFile + "\"";
+                        cmd += "## Duplicate Files, Deleting Smaller File" + Environment.NewLine;
+                        cmd += GetDeleteCmd(sourceFile) + Environment.NewLine;
                         return cmd;
-                    }
-                    else
-                    {
-                        cmd += "/Y ";
                     }
                 }
                 else
@@ -2880,7 +2824,7 @@ namespace FSIndexer
                     return "";
                 }
 
-                cmd += "\"" + sourceFile + "\" \"" + destinationFile.FullName + "\"";
+                cmd += "Move-Item \"" + EscapeForPowerShell(sourceFile) + "\" \"" + EscapeForPowerShell(destinationFile.FullName) + "\" -Verbose -Force";
             }
 
             return cmd;
@@ -2888,8 +2832,31 @@ namespace FSIndexer
 
         private string GetMoveCmd(string sourceFile, DirectoryInfo destinationFolder, bool overwriteIfExistsAndNotSmaller = true)
         {
-            string newFilePath = Path.Combine(destinationFolder.FullName, Path.GetFileName(sourceFile));
+            string newFilePath = EscapeForPowerShell(Path.Combine(destinationFolder.FullName, Path.GetFileName(sourceFile)));
             return GetMoveCmd(sourceFile, new FileInfo(newFilePath), overwriteIfExistsAndNotSmaller);
+        }
+
+        private string EscapeForPowerShell(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            string result = input;
+
+            // Characters that need escaping
+            string[] specialChars = { "`", "$", "\"", "(", ")", "{", "}", "@", "%", "&" };
+
+            foreach (var ch in specialChars)
+            {
+                result = result.Replace(ch, "`" + ch);
+            }
+
+            if (result != input)
+            {
+
+            }
+
+            return result;
         }
 
         private string CleanupFileName(string name)
@@ -2994,12 +2961,12 @@ namespace FSIndexer
             {
                 foreach (TreeNode node in SelectedNode.Nodes)
                 {
-                    rtbExecuteWindow.Text += GoogleSearch(node.Text) + Environment.NewLine;
+                    AppendText(GoogleSearch(node.Text));
                 }
             }
             if (IsChild)
             {
-                rtbExecuteWindow.Text += GoogleSearch(SelectedNode.Text) + Environment.NewLine;
+                AppendText(GoogleSearch(SelectedNode.Text));
             }
         }
 
@@ -3041,7 +3008,7 @@ namespace FSIndexer
 
             if (IsTopNode || IsParent)
             {
-                string batchContents = "@ECHO OFF" + Environment.NewLine;
+                string batchContents = "ECHO" + Environment.NewLine;
                 string convertContents = "";
 
                 List<Tuple<FileInfo, FileInfo>> convertList = new List<Tuple<FileInfo, FileInfo>>();
@@ -3112,11 +3079,11 @@ namespace FSIndexer
 
                         index++;
                         convertContents = "";
-                        convertContents += "ECHO." + Environment.NewLine + string.Format("ECHO ***** Starting {0} *****", index) + Environment.NewLine + "ECHO." + Environment.NewLine;
-                        convertContents += ConvertVideo(item.Item1.FullName, item.Item2.FullName) + Environment.NewLine + "ECHO." + Environment.NewLine;
+                        convertContents += "ECHO " + Environment.NewLine + string.Format("ECHO ***** Starting {0} *****", index) + Environment.NewLine + "ECHO " + Environment.NewLine;
+                        convertContents += ConvertVideo(item.Item1.FullName, item.Item2.FullName) + Environment.NewLine + "ECHO " + Environment.NewLine;
 
                         if (deleteAfterConvert)
-                            convertContents += "if exist \"" + item.Item2.FullName + "\" (del \"" + item.Item1.FullName + "\")" + Environment.NewLine + "ECHO." + Environment.NewLine;
+                            convertContents += "if exist \"" + item.Item2.FullName + "\" (del \"" + item.Item1.FullName + "\")" + Environment.NewLine + "ECHO " + Environment.NewLine;
 
                         convertContentsList.Add(convertContents);
                     }
@@ -3134,19 +3101,16 @@ namespace FSIndexer
 
                             if (counter % batchSize == 0 && counter != 0)
                             {
-                                batchContents = "@ECHO OFF" + Environment.NewLine;
+                                batchContents = "ECHO" + Environment.NewLine;
                                 batchContents += "CD \\" + Environment.NewLine + Environment.NewLine;
                                 batchContents += "ECHO Hit any key to begin converting: " + GetTerm(SelectedNode) + " (" + batchSize.ToString() + " total)" + Environment.NewLine;
                                 batchContents += itemsToConvert;
-
-                                if (AreArgsEmpty(Reader))
-                                    batchContents += "pause" + Environment.NewLine + Environment.NewLine + "ECHO." + Environment.NewLine + "ECHO." + Environment.NewLine;
 
                                 convertContents = batchContents + convertContents;
                                 convertContents += "ping 128.0.1.2 -n 5 >NUL";
                                 FileInfo fiBatch = new FileInfo(Path.Combine(TempPath, Guid.NewGuid().ToString() + ".bat"));
                                 File.WriteAllText(fiBatch.FullName, convertContents + Environment.NewLine);
-                                Process p = Process.Start(fiBatch.FullName);
+                                RunFileInCmd(fiBatch.FullName, waitForExit: false, showWindow: AreArgsEmpty(Reader));
                                 convertContents = "";
                                 itemsToConvert = "";
                             }
@@ -3157,26 +3121,23 @@ namespace FSIndexer
                         // process the remaining
                         if (counter % batchSize != 0)
                         {
-                            batchContents = "@ECHO OFF" + Environment.NewLine;
+                            batchContents = "ECHO" + Environment.NewLine;
                             batchContents += "CD \\" + Environment.NewLine + Environment.NewLine;
                             batchContents += "ECHO Hit any key to begin converting: " + GetTerm(SelectedNode) + " (" + (counter % batchSize).ToString() + " total)" + Environment.NewLine;
                             batchContents += itemsToConvert;
-
-                            if (AreArgsEmpty(Reader))
-                                batchContents += "pause" + Environment.NewLine + Environment.NewLine + "ECHO." + Environment.NewLine + "ECHO." + Environment.NewLine;
 
                             convertContents = batchContents + convertContents;
                             convertContents += "ping 128.0.1.2 -n 5 >NUL";
                             FileInfo fiBatch = new FileInfo(Path.Combine(TempPath, Guid.NewGuid().ToString() + ".bat"));
                             File.WriteAllText(fiBatch.FullName, convertContents + Environment.NewLine);
-                            Process p = Process.Start(fiBatch.FullName);
+                            RunFileInCmd(fiBatch.FullName, waitForExit: false, showWindow: AreArgsEmpty(Reader));
                             convertContents = "";
                             itemsToConvert = "";
                         }
                     }
                     else
                     {
-                        batchContents = "@ECHO OFF" + Environment.NewLine;
+                        batchContents = "ECHO" + Environment.NewLine;
                         batchContents += "CD \\" + Environment.NewLine + Environment.NewLine;
                         batchContents += "ECHO Hit any key to begin converting: " + GetTerm(SelectedNode) + " (" + convertList.Count.ToString() + " total)" + Environment.NewLine;
 
@@ -3185,14 +3146,11 @@ namespace FSIndexer
                             batchContents += "ECHO " + item.Item1.Name + Environment.NewLine;
                         }
 
-                        if (AreArgsEmpty(Reader))
-                            batchContents += "pause" + Environment.NewLine + Environment.NewLine + "ECHO." + Environment.NewLine + "ECHO." + Environment.NewLine;
-
                         convertContents = batchContents + string.Join("", convertContentsList);
                         convertContents += "ping 128.0.1.2 -n 5 >NUL";
                         FileInfo fiBatch = new FileInfo(Path.Combine(TempPath, Guid.NewGuid().ToString() + ".bat"));
                         File.WriteAllText(fiBatch.FullName, convertContents + Environment.NewLine);
-                        Process p = Process.Start(fiBatch.FullName);
+                        RunFileInCmd(fiBatch.FullName, waitForExit: false, showWindow: AreArgsEmpty(Reader));
                     }
 
                     this.BringToFront();
@@ -3222,15 +3180,15 @@ namespace FSIndexer
 
                         FileInfo fiBatch = new FileInfo(Path.Combine(TempPath, Guid.NewGuid().ToString() + ".bat"));
                         File.WriteAllText(fiBatch.FullName, batchContents);
-                        Process p = Process.Start(fiBatch.FullName);
+                        RunFileInCmd(fiBatch.FullName, waitForExit: false, showWindow: AreArgsEmpty(Reader));
 
                         this.BringToFront();
                     }
                     else
                     {
-                        rtbExecuteWindow.Text += ConvertVideo(fi.FullName, fiNew.FullName) + Environment.NewLine;
-                        rtbExecuteWindow.Text += "REM Deleting Source After File Conversion" + Environment.NewLine;
-                        rtbExecuteWindow.Text += "DEL \"" + fi.FullName + "\"" + Environment.NewLine;
+                        AppendText(ConvertVideo(fi.FullName, fiNew.FullName));
+                        AppendText("## Deleting Source After File Conversion");
+                        AppendText(GetDeleteCmd(fi.FullName));
                     }
 
                     RemoveItem(SelectedNode);
@@ -3357,9 +3315,9 @@ namespace FSIndexer
 
                             for (int i = 0; i < 8; i++)
                             {
-                                logList.Add("REM btnClearTrash_Click");
+                                logList.Add("## btnClearTrash_Click");
                                 this.InvokeEx(a => a.btnClearTrash_Click(null, null));
-                                logList.Add("REM btnAutoFile_Click");
+                                logList.Add("## btnAutoFile_Click");
                                 this.InvokeEx(a => a.btnAutoFile_Click(null, null));
                                 this.InvokeEx(a =>
                                 {
@@ -3369,8 +3327,8 @@ namespace FSIndexer
                                     }
                                     else
                                     {
-                                        logList.Add("REM Lines = " + a.rtbExecuteWindow.Lines.Count());
-                                        logList.Add("REM btnExecute_Click");
+                                        logList.Add("## Lines = " + a.rtbExecuteWindow.Lines.Count());
+                                        logList.Add("## btnExecute_Click");
                                         logList.Add("");
                                         a.btnExecute_Click(null, null);
                                     }
@@ -3381,7 +3339,7 @@ namespace FSIndexer
                             {
                                 for (int i = 0; i < 1; i++)
                                 {
-                                    logList.Add("REM btnRemoveDups_Click");
+                                    logList.Add("## btnRemoveDups_Click");
                                     this.InvokeEx(a => a.btnRemoveDups_Click(null, null));
                                     this.InvokeEx(a =>
                                     {
@@ -3391,7 +3349,7 @@ namespace FSIndexer
                                         }
                                         else
                                         {
-                                            logList.Add("REM btnExecute_Click");
+                                            logList.Add("## btnExecute_Click");
                                             logList.Add("");
                                             a.btnExecute_Click(null, null);
                                         }
@@ -3400,14 +3358,14 @@ namespace FSIndexer
                             }
                             else
                             {
-                                logList.Add("REM No duplicates to remove");
+                                logList.Add("## No duplicates to remove");
                             }
 
-                            logList.ForEach(l => this.InvokeEx(a => a.rtbExecuteWindow.Text += l + Environment.NewLine));
+                            logList.ForEach(l => AppendText(l));
 
                             this.InvokeEx(a =>
                             {
-                                a.rtbExecuteWindow.Text += "REM Automation Run: " + DateTime.Now.ToString("hh:mm:ss.fff") + Environment.NewLine;
+                                a.rtbExecuteWindow.Text += "## Automation Run: " + DateTime.Now.ToString("hh:mm:ss.fff") + Environment.NewLine;
                                 a.rtbExecuteWindow.SelectionStart = a.rtbExecuteWindow.Text.Length;
                                 a.rtbExecuteWindow.ScrollToCaret();
                             });
@@ -3564,7 +3522,7 @@ namespace FSIndexer
             {
                 foreach (string cmd in filesToChange)
                 {
-                    rtbExecuteWindow.Text += cmd + Environment.NewLine;
+                    AppendText(cmd);
                 }
             }
         }
@@ -3657,31 +3615,102 @@ namespace FSIndexer
 
             this.PrivateViewing = true;
         }
-
-        private List<System.Management.Automation.PSObject> RunPowershellScript(string scriptPath)
+        private void RunFileInCmd(string filePath, string arguments = "", bool waitForExit = true, bool showWindow = false, bool pauseAfter = false)
         {
-            System.Management.Automation.Runspaces.RunspaceConfiguration runspaceConfiguration = System.Management.Automation.Runspaces.RunspaceConfiguration.Create();
-            
-            using (System.Management.Automation.Runspaces.Runspace runspace = System.Management.Automation.Runspaces.RunspaceFactory.CreateRunspace(runspaceConfiguration))
+            try
             {
-                runspace.Open();
-
-                using (System.Management.Automation.Runspaces.Pipeline pipeline = runspace.CreatePipeline())
+                ProcessStartInfo psi = new ProcessStartInfo
                 {
-                    // Here's how you add a new script with arguments
-                    System.Management.Automation.Runspaces.Command myCommand = new System.Management.Automation.Runspaces.Command(scriptPath); //, true, true);
+                    FileName = "cmd.exe",
+                    Arguments = $"/C \"\"{filePath}\" {arguments}" + (pauseAfter ? " & pause" : "") + "\"",
+                    RedirectStandardOutput = !showWindow,
+                    RedirectStandardError = !showWindow,
+                    UseShellExecute = false,
+                    CreateNoWindow = !showWindow
+                };
 
-                    System.Management.Automation.Runspaces.CommandParameter dirParam = new System.Management.Automation.Runspaces.CommandParameter("Directory", NzbPath);
-                    myCommand.Parameters.Add(dirParam);
+                using (Process process = new Process { StartInfo = psi })
+                {
+                    process.Start();
 
-                    pipeline.Commands.Add(myCommand);
-
-                    // Execute PowerShell script
-                    var results = pipeline.Invoke().ToList();
-                    return results;
+                    if (waitForExit)
+                    {
+                        process.WaitForExit();
+                    }
                 }
             }
-
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error running file: {ex.Message}");
+            }
         }
+
+        private void RunFileInPowerShell(string filePath, string arguments = "", bool waitForExit = true, bool showWindow = false, bool pauseAfter = false)
+        {
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+            {
+                throw new FileNotFoundException("The specified file does not exist.", filePath);
+            }
+
+            if (pauseAfter && showWindow)
+            {
+                string fileContents = Environment.NewLine + File.ReadAllText(filePath) + Environment.NewLine + "Read-Host 'Hit any key to close.'";
+                File.WriteAllText(filePath, fileContents);
+            }
+
+            try
+            {
+                Process process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = "powershell.exe",
+                        Arguments = $"-ExecutionPolicy Bypass -File \"{filePath}\" {arguments} -Verbose", // Added -Verbose flag
+                        UseShellExecute = false,
+                        RedirectStandardOutput = false,
+                        RedirectStandardError = false,
+                        CreateNoWindow = !showWindow, // Hide the window if showWindow is false
+                        WindowStyle = !showWindow ? ProcessWindowStyle.Hidden : ProcessWindowStyle.Normal // Set window style based on showWindow
+                    }
+                };
+
+                process.Start();
+
+                if (waitForExit)
+                {
+                    process.WaitForExit();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error running PowerShell script: {ex.Message}");
+                throw;
+            }
+        }
+
+        //private List<System.Management.Automation.PSObject> RunPowershellScript(string scriptPath)
+        //{
+        //    System.Management.Automation.Runspaces.RunspaceConfiguration runspaceConfiguration = System.Management.Automation.Runspaces.RunspaceConfiguration.Create();
+
+        //    using (System.Management.Automation.Runspaces.Runspace runspace = System.Management.Automation.Runspaces.RunspaceFactory.CreateRunspace(runspaceConfiguration))
+        //    {
+        //        runspace.Open();
+
+        //        using (System.Management.Automation.Runspaces.Pipeline pipeline = runspace.CreatePipeline())
+        //        {
+        //            // Here's how you add a new script with arguments
+        //            System.Management.Automation.Runspaces.Command myCommand = new System.Management.Automation.Runspaces.Command(scriptPath); //, true, true);
+
+        //            System.Management.Automation.Runspaces.CommandParameter dirParam = new System.Management.Automation.Runspaces.CommandParameter("Directory", NzbPath);
+        //            myCommand.Parameters.Add(dirParam);
+
+        //            pipeline.Commands.Add(myCommand);
+
+        //            // Execute PowerShell script
+        //            var results = pipeline.Invoke().ToList();
+        //            return results;
+        //        }
+        //    }
+        //}
     }
 }

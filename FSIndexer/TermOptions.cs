@@ -163,8 +163,6 @@ namespace FSIndexer
         private static List<KeyValuePair<string, string>> AutoReplaceContentTags =
             new List<KeyValuePair<string, string>>()
             {
-                new KeyValuePair<string, string>("cd", "cd"),
-                new KeyValuePair<string, string>("disc", "disc"),
                 new KeyValuePair<string, string>(" ", ".")
             };
 

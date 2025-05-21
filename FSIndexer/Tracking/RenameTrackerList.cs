@@ -11,7 +11,7 @@ namespace FSIndexer
     [Serializable()]
     public class RenameTrackerList
     {
-        public List<RenameTrackerItem> List
+        protected List<RenameTrackerItem> List
         {
             get
             {
@@ -35,38 +35,8 @@ namespace FSIndexer
 
         public RenameTrackerList()
         {
-            // List = new List<RenameTrackerItem>();
             DictionaryList = new Dictionary<string, RenameTrackerItem>();
         }
-
-        //public void SyncListToDictionary()
-        //{
-        //    Debug.Assert(!(DictionaryList.Count > List.Count));
-
-        //    DictionaryList.Clear();
-
-        //    foreach (var item in List)
-        //    {
-        //        this.Add(item);
-        //    }
-        //}
-
-        //public void SyncDictionaryToList()
-        //{
-        //    Debug.Assert(!(List.Count > DictionaryList.Count));
-
-        //    List = GetList();
-
-        //    foreach (var item in TermOptions.AutoReplaceTags)
-        //    {
-        //        if (List.Any(n => n.SourceString == item.Key && n.DestinationString == item.Value && n.DateCreated != SystemTrackerItemDateTime))
-        //        {
-        //            List.Single(n => n.SourceString == item.Key && n.DestinationString == item.Value).DateCreated = SystemTrackerItemDateTime;
-        //        }
-        //    }
-
-        //    List = List.OrderBy(n => n.DateCreated).ThenBy(n => n.SortToString()).ToList();
-        //}
 
         public List<RenameTrackerItem> GetList()
         {
@@ -109,6 +79,19 @@ namespace FSIndexer
         {
             string hashKey = GetHashKey(sourceString);
             return DictionaryList.ContainsKey(hashKey) ? DictionaryList[GetHashKey(sourceString)] : null;
+        }
+
+        public bool Remove(RenameTrackerItem rti)
+        {
+            if (DictionaryList.ContainsKey(GetHashKey(rti.SourceString)))
+            {
+                DictionaryList.Remove(GetHashKey(rti.SourceString));
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public void Reset(string sourceString)
