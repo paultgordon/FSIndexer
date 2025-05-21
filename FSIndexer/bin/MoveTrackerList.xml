@@ -200,6 +200,12 @@
       <DestinationDir>D:\Media\Shows\Top Gear</DestinationDir>
     </MoveTrackerItem>
     <MoveTrackerItem>
+      <Strength>174</Strength>
+      <Tag>tsh</Tag>
+      <SourceDir>E:\Downloads\NG\_Decoded\_Torrents</SourceDir>
+      <DestinationDir>E:\Downloads\NG\_Decoded\tsh</DestinationDir>
+    </MoveTrackerItem>
+    <MoveTrackerItem>
       <Strength>173</Strength>
       <Tag>ladyboygold</Tag>
       <SourceDir>E:\Downloads\NG\_Decoded\sm</SourceDir>
@@ -216,12 +222,6 @@
       <Tag>dickdrainers</Tag>
       <SourceDir>E:\Downloads\NG\_Decoded\_Torrents</SourceDir>
       <DestinationDir>E:\Downloads\NG\_Decoded\dickdrainers</DestinationDir>
-    </MoveTrackerItem>
-    <MoveTrackerItem>
-      <Strength>166</Strength>
-      <Tag>tsh</Tag>
-      <SourceDir>E:\Downloads\NG\_Decoded\_Torrents</SourceDir>
-      <DestinationDir>E:\Downloads\NG\_Decoded\tsh</DestinationDir>
     </MoveTrackerItem>
     <MoveTrackerItem>
       <Strength>160</Strength>
@@ -4061,6 +4061,12 @@
       <Strength>4</Strength>
       <Tag>lp</Tag>
       <SourceDir>E:\Downloads\NG\_Decoded\blacked</SourceDir>
+      <DestinationDir>E:\Downloads\NG\_Decoded\lp</DestinationDir>
+    </MoveTrackerItem>
+    <MoveTrackerItem>
+      <Strength>4</Strength>
+      <Tag>lp</Tag>
+      <SourceDir>E:\Downloads\NG\_Decoded\_Torrents\$Pack\Videos</SourceDir>
       <DestinationDir>E:\Downloads\NG\_Decoded\lp</DestinationDir>
     </MoveTrackerItem>
     <MoveTrackerItem>

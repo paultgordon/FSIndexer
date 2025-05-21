@@ -867,10 +867,8 @@ namespace FSIndexer
                         }
                     }
 
-                    string logText = "";
-                    logText += "Move-Item \"" + EscapeForPowerShell(fi.FullName) + "\" \"" + EscapeForPowerShell(forcePath.FullName) + "\" -Verbose -Force" + Environment.NewLine;
-                    logText += GetRemoveDirectoryCmd(fi.Directory.FullName);
-                    AppendText(logText);
+                    AppendText(GetMoveCmd(fi.FullName, forcePath));
+                    AppendText(GetRemoveDirectoryCmd(fi.Directory.FullName));
 
                     movedList.Add(new FileInfo(newPath));
 
@@ -918,7 +916,7 @@ namespace FSIndexer
             CustomFolderBrowserDialog brow = new CustomFolderBrowserDialog(suggestedPath);
             brow.Owner = this;
 
-            string logText = "";
+            List<string> cmdList = new List<string>();
             int itemsToMove = 0;
 
             if (brow.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -977,8 +975,8 @@ namespace FSIndexer
                                 }
 
                                 itemsToMove++;
-                                logText += "Write-Host Moving " + itemsToMove.ToString() + " Of " + totalToMove.ToString() + Environment.NewLine;
-                                logText += GetMoveCmd(fi.FullName, newFolder) + Environment.NewLine;
+                                cmdList.Add("Write-Host Moving " + itemsToMove.ToString() + " Of " + totalToMove.ToString());
+                                cmdList.Add(GetMoveCmd(fi.FullName, newFolder));
                                 movedList.Add(new FileInfo(Path.Combine(newFolder.FullName, fi.Name)));
 
                                 if (!doNotRememberLocation)
@@ -997,7 +995,7 @@ namespace FSIndexer
 
                     foreach (var di in diMovedFrom)
                     {
-                        logText += GetRemoveDirectoryCmd(di);
+                        cmdList.Add(GetRemoveDirectoryCmd(di));
                     }
 
                     if (itemsToMove > 0)
@@ -1025,8 +1023,8 @@ namespace FSIndexer
                         if (!breakEarly)
                         {
                             itemsToMove++;
-                            logText += "Move-Item  \"" + EscapeForPowerShell(fi.FullName) + "\" \"" + newFolder + "\" -Verbose -Force" + Environment.NewLine;
-                            logText += GetRemoveDirectoryCmd(fi.Directory.FullName);
+                            cmdList.Add(GetMoveCmd(fi.FullName, newFolder, true));
+                            cmdList.Add(GetRemoveDirectoryCmd(fi.Directory.FullName));
                             movedList.Add(new FileInfo(Path.Combine(newFolder.FullName, fi.Name)));
 
                             if (!doNotRememberLocation)
@@ -1040,7 +1038,7 @@ namespace FSIndexer
 
             if (itemsToMove > 0)
             {
-                AppendText(logText);
+                cmdList.ForEach(n => AppendText(n));
                 //WaitForCmd = false;
             }
 
@@ -1630,7 +1628,7 @@ namespace FSIndexer
                 text += Environment.NewLine;
             }
 
-            rtbExecuteWindow.AppendText(text);
+            text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList().ForEach(l => rtbExecuteWindow.AppendText(l + Environment.NewLine));
             rtbExecuteWindow.SelectionStart = rtbExecuteWindow.Text.Length;
             rtbExecuteWindow.ScrollToCaret();
         }
@@ -2797,7 +2795,7 @@ namespace FSIndexer
             {
                 if (!Directory.Exists(destinationFile.Directory.FullName))
                 {
-                    cmd += "IF NOT EXIST \"" + destinationFile.Directory.FullName + "\" MD \"" + destinationFile.Directory.FullName + "\"" + Environment.NewLine;
+                    cmd += "If (!(Test-Path -Path '" + EscapeForPowerShell(destinationFile.Directory.FullName) + "')) { New-Item -ItemType Directory -Path '" + EscapeForPowerShell(destinationFile.Directory.FullName) + "' }" + Environment.NewLine;
                 }
 
                 cmd += UnhideFile(sourceFile);
@@ -2813,7 +2811,7 @@ namespace FSIndexer
                         fi.IsReadOnly = false;
 
                         cmd = "";
-                        cmd += UnhideFile(sourceFile);
+                        cmd += UnhideFile(sourceFile) + Environment.NewLine;
                         cmd += "## Duplicate Files, Deleting Smaller File" + Environment.NewLine;
                         cmd += GetDeleteCmd(sourceFile) + Environment.NewLine;
                         return cmd;
