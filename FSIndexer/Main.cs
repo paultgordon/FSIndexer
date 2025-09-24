@@ -2663,7 +2663,7 @@ namespace FSIndexer
 
             Parallel.ForEach(root.GetFiles(true).Where(n => n.FullName.Length < 256 && n.Length < TermOptions.ExcludeRules.MinimumSizeToKeepInB && n.Name[0] != '_' && !n.FullName.StartsWith(KeepDirectory) &&  !TermOptions.IgnoreExtensions.Contains(new FileInfo(n.FullName).Extension.ToLower())), (fi) =>
             {
-                if (fi.FullName.Contains("_$"))
+                if (fi.FullName.Contains("$"))
                 {
                     return;
                 }
@@ -3006,7 +3006,7 @@ namespace FSIndexer
 
             if (IsTopNode || IsParent)
             {
-                string batchContents = "ECHO" + Environment.NewLine;
+                string batchContents = "@ECHO OFF" + Environment.NewLine;
                 string convertContents = "";
 
                 List<Tuple<FileInfo, FileInfo>> convertList = new List<Tuple<FileInfo, FileInfo>>();
@@ -3077,7 +3077,7 @@ namespace FSIndexer
 
                         index++;
                         convertContents = "";
-                        convertContents += "ECHO " + Environment.NewLine + string.Format("ECHO ***** Starting {0} *****", index) + Environment.NewLine + "ECHO " + Environment.NewLine;
+                        convertContents += "@ECHO OFF" + Environment.NewLine + string.Format("ECHO ***** Starting {0} *****", index) + Environment.NewLine + "ECHO " + Environment.NewLine;
                         convertContents += ConvertVideo(item.Item1.FullName, item.Item2.FullName) + Environment.NewLine + "ECHO " + Environment.NewLine;
 
                         if (deleteAfterConvert)
@@ -3099,7 +3099,7 @@ namespace FSIndexer
 
                             if (counter % batchSize == 0 && counter != 0)
                             {
-                                batchContents = "ECHO" + Environment.NewLine;
+                                // batchContents = "ECHO" + Environment.NewLine;
                                 batchContents += "CD \\" + Environment.NewLine + Environment.NewLine;
                                 batchContents += "ECHO Hit any key to begin converting: " + GetTerm(SelectedNode) + " (" + batchSize.ToString() + " total)" + Environment.NewLine;
                                 batchContents += itemsToConvert;
@@ -3119,7 +3119,7 @@ namespace FSIndexer
                         // process the remaining
                         if (counter % batchSize != 0)
                         {
-                            batchContents = "ECHO" + Environment.NewLine;
+                            batchContents = "@ECHO OFF" + Environment.NewLine;
                             batchContents += "CD \\" + Environment.NewLine + Environment.NewLine;
                             batchContents += "ECHO Hit any key to begin converting: " + GetTerm(SelectedNode) + " (" + (counter % batchSize).ToString() + " total)" + Environment.NewLine;
                             batchContents += itemsToConvert;
@@ -3135,7 +3135,7 @@ namespace FSIndexer
                     }
                     else
                     {
-                        batchContents = "ECHO" + Environment.NewLine;
+                        batchContents = "@ECHO OFF" + Environment.NewLine;
                         batchContents += "CD \\" + Environment.NewLine + Environment.NewLine;
                         batchContents += "ECHO Hit any key to begin converting: " + GetTerm(SelectedNode) + " (" + convertList.Count.ToString() + " total)" + Environment.NewLine;
 
@@ -3168,7 +3168,7 @@ namespace FSIndexer
 
                     if (soloExecute)
                     {
-                        string batchContents = "CD \\" + Environment.NewLine + "CLS" + Environment.NewLine;
+                        string batchContents = "@ECHO OFF" + Environment.NewLine + "CD \\" + Environment.NewLine + "CLS" + Environment.NewLine;
                         batchContents += ConvertVideo(fi.FullName, fiNew.FullName) + Environment.NewLine;
 
                         if (deleteAfterConvert)
