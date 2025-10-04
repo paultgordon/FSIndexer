@@ -1283,8 +1283,9 @@ namespace FSIndexer
                         return;
 
                     newName += Path.GetExtension(it.Name);
+                    newName = CleanupFileName(newName);
 
-                    string newPath = Path.Combine(it.DirectoryName, it.Name.Replace(it.Name, newName, StringComparison.CurrentCultureIgnoreCase));
+                    string newPath = Path.Combine(it.DirectoryName, newName);
 
                     if (!it.FullName.Equals(newPath))
                     {
@@ -1307,8 +1308,9 @@ namespace FSIndexer
                     return;
 
                 newName += Path.GetExtension(it.Name);
+                newName = CleanupFileName(newName);
 
-                string newPath = Path.Combine(it.DirectoryName, it.Name.Replace(it.Name, newName, StringComparison.CurrentCultureIgnoreCase));
+                string newPath = Path.Combine(it.DirectoryName, newName);
 
                 if (!it.FullName.Equals(newPath))
                 {
@@ -1623,12 +1625,18 @@ namespace FSIndexer
             if (string.IsNullOrWhiteSpace(text))
                 return;
 
-            if (addNewLine && !text.EndsWith(Environment.NewLine))
+            // Remove trailing newlines to avoid double newlines
+            string trimmedText = text.TrimEnd('\r', '\n');
+
+            if (addNewLine)
             {
-                text += Environment.NewLine;
+                rtbExecuteWindow.AppendText(trimmedText + Environment.NewLine);
+            }
+            else
+            {
+                rtbExecuteWindow.AppendText(trimmedText);
             }
 
-            text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList().ForEach(l => rtbExecuteWindow.AppendText(l + Environment.NewLine));
             rtbExecuteWindow.SelectionStart = rtbExecuteWindow.Text.Length;
             rtbExecuteWindow.ScrollToCaret();
         }
@@ -1766,9 +1774,9 @@ namespace FSIndexer
                         if (it == null)
                             continue;
 
-                        string newPath = Path.Combine(it.DirectoryName, it.Name.Replace(term, rn.TextName, StringComparison.CurrentCultureIgnoreCase));
+                        string newPath = Path.Combine(it.DirectoryName, CleanupFileName(it.Name.Replace(term, rn.TextName, StringComparison.CurrentCultureIgnoreCase)));
 
-                        if (!it.FullName.Equals(newPath))
+                        if (!it.FullName.Equals(newPath, StringComparison.CurrentCultureIgnoreCase))
                         {
                             AppendText(GetMoveCmd(it.FullName, new FileInfo(newPath)));
 
@@ -2200,7 +2208,7 @@ namespace FSIndexer
             {
                 Parallel.ForEach(ilDir.GetFiles(true), (ilFile) =>
                 {
-                    if (!IndexExtensions.DefaultIndexExtentions.Any(n => n.Equals(ilFile.Extension, StringComparison.CurrentCultureIgnoreCase)))
+                    if (!IndexExtensions.DefaultIndexExtentions.Any(ext => string.Equals(ext, ilFile.Extension, StringComparison.CurrentCultureIgnoreCase)))
                     {
                         return;
                     }
@@ -2438,7 +2446,7 @@ namespace FSIndexer
                             {
                                 foreach (var fi in sd.GetFiles())
                                 {
-                                    if (!IndexExtensions.DefaultIndexExtentions.Any(ext => ext.Equals(fi.Extension, StringComparison.CurrentCultureIgnoreCase)) ||
+                                    if (!IndexExtensions.DefaultIndexExtentions.Any(ext => string.Equals(ext, fi.Extension, StringComparison.CurrentCultureIgnoreCase)) || 
                                         fi.FullName.StartsWith(@"E:\_P\_Air"))
                                         continue;
 
@@ -2593,7 +2601,7 @@ namespace FSIndexer
                 result = Regex.Replace(result, @"\b(\d{2})(\d{2})20(\d{2})\b", "$1.$2.$3");
 
                 //// Reduce from YYYY to YY when year at end
-                result = Regex.Replace(result, @"\b(\d{2})\.(\d{2})\.20(\d{2})\b", "$1.$2.$3");
+                //result = Regex.Replace(result, @"\b(\d{2})\.(\d{2})\.20(\d{2})\b", "$1.$2.$3");
 
                 // Reduce from YYYY to YY and put year last when year at end
                 result = Regex.Replace(result, @"\b20(\d{2})\.(\d{2})\.(\d{2})\b", "$2.$3.$1");
@@ -2749,17 +2757,17 @@ namespace FSIndexer
                 {
                     if (IndexExtensions.DefaultIndexExtentions.Contains(fi.Extension, StringComparison.CurrentCultureIgnoreCase))
                     {
-                        string name = fi.Name;
+                        string newName = fi.Name;
 
-                        name = name.Replace(ri.TextName, "", StringComparison.CurrentCultureIgnoreCase);
+                        newName = newName.Replace(ri.TextName, "", StringComparison.CurrentCultureIgnoreCase);
 
-                        if (name.StartsWith(ri.TextName, StringComparison.CurrentCultureIgnoreCase))
-                            name = name.Substring(ri.TextName.Length);
+                        if (newName.StartsWith(ri.TextName, StringComparison.CurrentCultureIgnoreCase))
+                            newName = newName.Substring(ri.TextName.Length);
 
-                        name = ri.TextName + name;
-                        name = CleanupFileName(name);
+                        newName = ri.TextName + newName;
+                        newName = CleanupFileName(newName);
 
-                        string newPath = Path.Combine(fi.DirectoryName, name);
+                        string newPath = Path.Combine(fi.DirectoryName, newName);
 
                         if (!newPath.Equals(fi.FullName, StringComparison.CurrentCultureIgnoreCase))
                         {
@@ -2772,18 +2780,36 @@ namespace FSIndexer
 
         private string GetDeleteCmd(string file)
         {
-            return $"Remove-Item -LiteralPath \"{EscapeForPowerShell(file)}\" -Verbose";
+            return $"Remove-Item -LiteralPath '{file}' -Verbose";
+        }
+
+        private string EscapeForPowerShell(string input)
+        {
+            if (string.IsNullOrEmpty(input)) return input;
+            // Escape single quotes for single-quoted strings
+            string result = input.Replace("'", "''");
+            // Escape for double-quoted strings and special PowerShell chars
+            result = result.Replace("`", "``");
+            result = result.Replace("$", "`$");
+            result = result.Replace("\"", "`\"");
+            // Escape other special PowerShell chars
+            string[] specialChars = { "(", ")", "{", "}", "[", "]", "@", "%", "&" };
+            foreach (var ch in specialChars)
+            {
+                result = result.Replace(ch, "`" + ch);
+            }
+            return result;
         }
 
         private string GetRenameCmd(string sourceDir, string destDir)
         {
             string cmd = "";
-
+            string escapedSourceDir = EscapeForPowerShell(sourceDir);
+            string escapedDestDir = EscapeForPowerShell(destDir);
             if (!Directory.Exists(destDir))
             {
-                cmd += $"Rename-Item -Path \"{EscapeForPowerShell(sourceDir)}\" -NewName \"{EscapeForPowerShell((Path.GetDirectoryName(destDir) == "" ? destDir : Path.GetDirectoryName(destDir)))}\"";
+                cmd += $"Rename-Item -Path '{escapedSourceDir}' -NewName '{(Path.GetDirectoryName(destDir) == "" ? escapedDestDir : EscapeForPowerShell(Path.GetDirectoryName(destDir)))}'";
             }
-
             return cmd;
         }
 
@@ -2803,17 +2829,14 @@ namespace FSIndexer
                 if (overwriteIfExistsAndNotSmaller)
                 {
                     string newFilePath = destinationFile.FullName;
-
-                    // file already exists at destination and is not smaller, delete source
                     if (!sourceFile.Equals(newFilePath, StringComparison.CurrentCultureIgnoreCase) && File.Exists(newFilePath) && new FileInfo(newFilePath).Length >= new FileInfo(sourceFile).Length)
                     {
                         var fi = new FileInfo(sourceFile);
                         fi.IsReadOnly = false;
-
                         cmd = "";
                         cmd += UnhideFile(sourceFile) + Environment.NewLine;
                         cmd += "## Duplicate Files, Deleting Smaller File" + Environment.NewLine;
-                        cmd += GetDeleteCmd(sourceFile) + Environment.NewLine;
+                        cmd += GetDeleteCmd(Path.Combine(newFilePath)) + Environment.NewLine;
                         return cmd;
                     }
                 }
@@ -2822,7 +2845,23 @@ namespace FSIndexer
                     return "";
                 }
 
-                cmd += "Move-Item \"" + EscapeForPowerShell(sourceFile) + "\" \"" + EscapeForPowerShell(destinationFile.FullName) + "\" -Verbose -Force";
+                string destFileName = destinationFile.Name;
+                string escapedSourceFile = EscapeForPowerShell(sourceFile);
+                string escapedDestFullName = EscapeForPowerShell(destinationFile.FullName);
+                string escapedDestDir = EscapeForPowerShell(destinationFile.Directory.FullName);
+                string escapedDestFileName = EscapeForPowerShell(destFileName);
+                // If destination filename contains any of [ ] ( )
+                if (destFileName.IndexOfAny(new char[] { '[', ']', '(', ')' }) >= 0)
+                {
+                    // Use -replace in PowerShell
+                    string destExpr = $"('{escapedDestFileName}' -replace '[\\[\\]\\(\\)]','')";
+                    string destPathExpr = $"(Join-Path '{escapedDestDir}' {destExpr})";
+                    cmd += $"Move-Item -LiteralPath '{escapedSourceFile}' -Destination {destPathExpr} -Verbose -Force";
+                }
+                else
+                {
+                    cmd += $"Move-Item -LiteralPath '{escapedSourceFile}' -Destination '{escapedDestFullName}' -Verbose -Force";
+                }
             }
 
             return cmd;
@@ -2830,54 +2869,8 @@ namespace FSIndexer
 
         private string GetMoveCmd(string sourceFile, DirectoryInfo destinationFolder, bool overwriteIfExistsAndNotSmaller = true)
         {
-            string newFilePath = EscapeForPowerShell(Path.Combine(destinationFolder.FullName, Path.GetFileName(sourceFile)));
+            string newFilePath = Path.Combine(destinationFolder.FullName, Path.GetFileName(sourceFile));
             return GetMoveCmd(sourceFile, new FileInfo(newFilePath), overwriteIfExistsAndNotSmaller);
-        }
-
-        private string EscapeForPowerShell(string input)
-        {
-            if (string.IsNullOrEmpty(input))
-                return input;
-
-            string result = input;
-
-            // Characters that need escaping
-            string[] specialChars = { "`", "$", "\"", "(", ")", "{", "}", "@", "%", "&" };
-
-            foreach (var ch in specialChars)
-            {
-                result = result.Replace(ch, "`" + ch);
-            }
-
-            if (result != input)
-            {
-
-            }
-
-            return result;
-        }
-
-        private string CleanupFileName(string name)
-        {
-            foreach (string sep in Indexer.IndexSeperators)
-            {
-                if (name.StartsWith(sep))
-                {
-                    name = name.Substring(sep.Length);
-                }
-
-                if (name.EndsWith(sep))
-                {
-                    name = name.Substring(0, name.Length - 1);
-                }
-
-                if (name.Contains(sep + sep))
-                {
-                    name = name.Replace(sep + sep, sep);
-                }
-            }
-
-            return name;
         }
 
         private string GoogleSearch(string searchTerm)
@@ -2886,71 +2879,6 @@ namespace FSIndexer
             string chromeDir = @"C:\Program Files (x86)\Google\Chrome\Application";
             string args = string.Format("--incognito --homepage \"{0}\"", searchUrl);
             return "CD " + chromeDir + " & " + "chrome.exe " + args;
-        }
-
-        private string GetVideoArgs(List<TreeNode> treeNodes)
-        {
-            if (treeNodes.Count == 0)
-            {
-                return string.Empty;
-            }
-
-            string args = "";
-
-            foreach (TreeNode node in treeNodes)
-            {
-                var it = IndexedList.IndexedFiles.Find(node);
-
-                if (it == null)
-                {
-                    it = IndexedList.IndexedTerms.Find(node);
-                }
-
-                if (it != null && it.FileExists())
-                {
-                    args += "\"" + it.FullName + "\" ";
-                }
-            }
-
-            if (!string.IsNullOrEmpty(args))
-            {
-                args += "\"" + TheEndPath + "\" ";
-            }
-
-            return args;
-        }
-
-        private string ConvertVideo(string source, string dest, string format = null, int quality = 20, bool vfr = true, bool sameDates = true)
-        {
-            if (string.IsNullOrEmpty(format))
-                format = ConvertOptions.ConvertToFileExtensionForHandbrake;
-
-            format = format.Replace(".", "");
-
-            if (new FileInfo(source).Length > (1024.0 * 1024.0 * 1024.0 * 2.0)) // 2 GB
-            {
-                quality++;
-            }
-
-            string program = "";
-
-            if (File.Exists(@"C:\Program Files (x86)\Handbrake\HandBrakeCLI.exe"))
-            {
-                program = "\"" + @"C:\Program Files (x86)\Handbrake\HandBrakeCLI.exe" + "\"";
-            }
-            else if (File.Exists(@"C:\Program Files\Handbrake\HandBrakeCLI.exe"))
-            {
-                program = "\"" + @"C:\Program Files\Handbrake\HandBrakeCLI.exe" + "\"";
-            }
-            else
-            {
-                MessageBox.Show("Could not find HandBrakeCLI.exe!");
-                return null;
-            }
-
-            FileInfo fiSource = new FileInfo(source);
-            string args = string.Format("-i \"{0}\" -t 1 -c 1 -o \"{1}\" -f {4} -e x264 -q {2} --{3} -a 1 -E av_aac -B 160 -6 dpl2 -R Auto -D 0 --gain=0 --audio-fallback av_aac -x ref=1:weightp=1:subq=2:rc-lookahead=10:trellis=0:8x8dct=0 --verbose=1", source, dest, quality, vfr ? "vfr" : "cfr", format);
-            return program + " " + args + Environment.NewLine + string.Format("\"{0}\" setfiletime \"{1}\" \"{2}\" \"{3}\" \"{4}\"", NircmdPath, dest, fiSource.CreationTime.ToString("dd-MM-yyyy HH:mm:ss"), fiSource.LastWriteTime.ToString("dd-MM-yyyy HH:mm:ss"), "now");
         }
 
         private void toolStripMenuItemGoogle_Click(object sender, EventArgs e)
@@ -2990,7 +2918,7 @@ namespace FSIndexer
             {
                 var fiNew = new FileInfo(Path.Combine(fi.DirectoryName, Path.GetFileNameWithoutExtension(fi.FullName)) + ConvertOptions.ConvertToFileExtension);
 
-                if (fi.FullName != fiNew.FullName)
+                if (fi.FullName != fiNew.FullName && !fiNew.Exists)
                 {
                     convertParams = new Tuple<FileInfo, FileInfo>(fi, fiNew);
                 }
@@ -3081,7 +3009,7 @@ namespace FSIndexer
                         convertContents += ConvertVideo(item.Item1.FullName, item.Item2.FullName) + Environment.NewLine + "ECHO " + Environment.NewLine;
 
                         if (deleteAfterConvert)
-                            convertContents += "if exist \"" + item.Item2.FullName + "\" (del \"" + item.Item1.FullName + "\")" + Environment.NewLine + "ECHO " + Environment.NewLine;
+                            convertContents += "if exist \"" + item.Item2.FullName + "\" (del \"" + item.Item1.FullName + "\")" + Environment.NewLine;
 
                         convertContentsList.Add(convertContents);
                     }
@@ -3147,7 +3075,7 @@ namespace FSIndexer
                         convertContents = batchContents + string.Join("", convertContentsList);
                         convertContents += "ping 128.0.1.2 -n 5 >NUL";
                         FileInfo fiBatch = new FileInfo(Path.Combine(TempPath, Guid.NewGuid().ToString() + ".bat"));
-                        File.WriteAllText(fiBatch.FullName, convertContents + Environment.NewLine);
+                        File.WriteAllText(fiBatch.FullName, convertContents);
                         RunFileInCmd(fiBatch.FullName, waitForExit: false, showWindow: AreArgsEmpty(Reader));
                     }
 
@@ -3710,5 +3638,79 @@ namespace FSIndexer
         //        }
         //    }
         //}
+
+        private string GetVideoArgs(List<TreeNode> nodes)
+        {
+            if (nodes == null || nodes.Count == 0)
+                return string.Empty;
+
+            var argsBuilder = new StringBuilder();
+            foreach (var node in nodes)
+            {
+                // Get the file info from the node
+                var fileData = IndexedList.IndexedTerms.Find(node.Parent.Name, node.Text);
+                if (fileData != null && File.Exists(fileData.FullName))
+                {
+                    argsBuilder.Append('"');
+                    argsBuilder.Append(fileData.FullName);
+                    argsBuilder.Append('"');
+                    argsBuilder.Append(' ');
+                }
+            }
+            return argsBuilder.ToString().Trim();
+        }
+
+        private string ConvertVideo(string source, string dest, string format = null, int quality = 20, bool vfr = true, bool sameDates = true)
+        {
+            if (string.IsNullOrEmpty(format))
+                format = ConvertOptions.ConvertToFileExtensionForHandbrake;
+
+            format = format.Replace(".", "");
+
+            if (new FileInfo(source).Length > (1024.0 * 1024.0 * 1024.0 * 2.0)) // 2 GB
+            {
+                quality++;
+            }
+
+            string program = "";
+
+            if (File.Exists(@"C:\Program Files (x86)\Handbrake\HandBrakeCLI.exe"))
+            {
+                program = "\"" + @"C:\Program Files (x86)\Handbrake\HandBrakeCLI.exe" + "\"";
+            }
+            else if (File.Exists(@"C:\Program Files\Handbrake\HandBrakeCLI.exe"))
+            {
+                program = "\"" + @"C:\Program Files\Handbrake\HandBrakeCLI.exe" + "\"";
+            }
+            else
+            {
+                MessageBox.Show("Could not find HandBrakeCLI.exe!");
+                return null;
+            }
+
+            FileInfo fiSource = new FileInfo(source);
+            string args = string.Format("-i \"{0}\" -t 1 -c 1 -o \"{1}\" -f {4} -e x264 -q {2} --{3} -a 1 -E av_aac -B 160 -6 dpl2 -R Auto -D 0 --gain=0 --audio-fallback av_aac -x ref=1:weightp=1:subq=2:rc-lookahead=10:trellis=0:8x8dct=0 --verbose=1", source, dest, quality, vfr ? "vfr" : "cfr", format);
+            return program + " " + args + Environment.NewLine + string.Format("\"{0}\" setfiletime \"{1}\" \"{2}\" \"{3}\" \"{4}\"", NircmdPath, dest, fiSource.CreationTime.ToString("dd-MM-yyyy HH:mm:ss"), fiSource.LastWriteTime.ToString("dd-MM-yyyy HH:mm:ss"), "now");
+        }
+
+        private string CleanupFileName(string name)
+        {
+            // Remove or replace problematic characters
+            char[] invalidChars = Path.GetInvalidFileNameChars().Concat(new[] { '[', ']', '(', ')', '{', '}', '<', '>', '|', ':', '*', '?', '\\', '/' }).ToArray();
+            foreach (char c in invalidChars)
+            {
+                name = name.Replace(c, '_');
+            }
+            foreach (string sep in Indexer.IndexSeperators)
+            {
+                if (name.StartsWith(sep))
+                    name = name.Substring(sep.Length);
+                if (name.EndsWith(sep))
+                    name = name.Substring(0, name.Length - 1);
+                if (name.Contains(sep + sep))
+                    name = name.Replace(sep + sep, sep);
+            }
+            return name;
+        }
     }
 }
